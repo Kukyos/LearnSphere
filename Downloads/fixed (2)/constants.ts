@@ -12,13 +12,13 @@ export const ABOUT_TEXT = {
   ]
 };
 
-// 📸 REPLACE THESE LINKS WITH YOUR OWN PHOTOS
+// 📸 Local photos
 export const PROFILE_IMAGES = {
   // Photo of you playing keyboard/piano
-  keyboard: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=600&auto=format&fit=crop",
+  keyboard: "/musicorum.jpeg",
   
   // Photo of your band / stage performance
-  stage: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?q=80&w=600&auto=format&fit=crop"
+  stage: "/onstage.jpeg"
 };
 
 export const PROJECTS: Project[] = [
