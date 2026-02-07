@@ -1,10 +1,63 @@
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 const db = require('../db');
 const { generateToken } = require('../middleware/authMiddleware');
 
 const SALT_ROUNDS = 12;
 const RESET_TOKEN_EXPIRY_HOURS = 1;
+
+const getMailer = () => {
+  const {
+    SMTP_SERVICE,
+    SMTP_HOST,
+    SMTP_PORT,
+    SMTP_USER,
+    SMTP_PASS,
+    SMTP_SECURE,
+  } = process.env;
+
+  if (!SMTP_USER || !SMTP_PASS || (!SMTP_SERVICE && !SMTP_HOST)) {
+    return null;
+  }
+
+  if (SMTP_SERVICE) {
+    return nodemailer.createTransport({
+      service: SMTP_SERVICE,
+      auth: { user: SMTP_USER, pass: SMTP_PASS },
+    });
+  }
+
+  return nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: Number(SMTP_PORT || 587),
+    secure: SMTP_SECURE === 'true',
+    auth: { user: SMTP_USER, pass: SMTP_PASS },
+  });
+};
+
+const sendResetEmail = async (to, token) => {
+  const transporter = getMailer();
+  if (!transporter) return false;
+
+  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const resetUrl = `${frontendUrl}/reset-password?token=${encodeURIComponent(token)}`;
+
+  await transporter.sendMail({
+    from,
+    to,
+    subject: 'LearnSphere Password Reset',
+    text: `Reset your password using this link: ${resetUrl}`,
+    html: `
+      <p>You requested a password reset.</p>
+      <p><a href="${resetUrl}">Click here to reset your password</a></p>
+      <p>This link expires in ${RESET_TOKEN_EXPIRY_HOURS} hour(s).</p>
+    `,
+  });
+
+  return true;
+};
 
 /**
  * Validate email format
@@ -33,6 +86,9 @@ const validatePassword = (password) => {
   }
   if (!/[0-9]/.test(password)) {
     return { valid: false, message: 'Password must contain at least one number' };
+  }
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    return { valid: false, message: 'Password must contain at least one special character' };
   }
   return { valid: true };
 };
@@ -251,17 +307,28 @@ const forgotPassword = async (req, res) => {
       [user.id, tokenHash, expiresAt]
     );
 
-    // In production, send email here
-    // For now, return token (mock email sending)
+    let emailSent = false;
+    try {
+      emailSent = await sendResetEmail(user.email, resetToken);
+    } catch (error) {
+      console.error('Reset email send error:', error.message);
+    }
+
+    if (!emailSent && process.env.SMTP_USER && process.env.SMTP_PASS) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send reset email. Please try again.',
+      });
+    }
+
     return res.status(200).json({
       success: true,
       message: 'If the email exists, a reset link has been sent',
-      // Remove this in production - only for testing
-      ...(process.env.NODE_ENV === 'development' && {
+      ...(process.env.NODE_ENV === 'development' && !emailSent && {
         debug: {
           resetToken,
           expiresAt,
-          note: 'This token is only shown in development mode',
+          note: 'Email not configured. Token shown for development testing.',
         },
       }),
     });

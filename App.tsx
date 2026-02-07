@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LandingHome from './pages/LandingHome';
 import Login from './pages/Login';
+import ResetPassword from './pages/ResetPassword';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -34,6 +35,7 @@ const AppContent: React.FC = () => {
       {/* Login page as homepage */}
       <Route path="/" element={isLoggedIn ? <Navigate to="/home" replace /> : <Login />} />
       <Route path="/login" element={isLoggedIn ? <Navigate to="/home" replace /> : <Login />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Lumina landing page - protected route */}
       <Route

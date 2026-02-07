@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Shield, GraduationCap, Sparkles, CheckCircle, AlertCircle } from 'lucide-react';
+import { Mail, Shield, GraduationCap, Sparkles, CheckCircle, AlertCircle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { AuthMode, UserRole } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { WorldGlobe } from '../components/visuals/WorldGlobe';
+import { authAPI } from '../services/api';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -20,6 +21,18 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetMessage, setResetMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const validatePasswordStrength = (pwd: string): string | null => {
+    if (pwd.length < 8) return 'Password must be at least 8 characters';
+    if (!/[A-Z]/.test(pwd)) return 'Password must contain at least one uppercase letter';
+    if (!/[a-z]/.test(pwd)) return 'Password must contain at least one lowercase letter';
+    if (!/[0-9]/.test(pwd)) return 'Password must contain at least one number';
+    if (!/[!@#$%^&*(),.?\":{}|<>]/.test(pwd)) return 'Password must contain at least one special character';
+    return null;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +44,12 @@ const Login: React.FC = () => {
         const fullName = `${firstName} ${lastName}`.trim();
         if (!fullName) {
           setMessage({ type: 'error', text: 'Please enter your name' });
+          setIsLoading(false);
+          return;
+        }
+        const passwordError = validatePasswordStrength(password);
+        if (passwordError) {
+          setMessage({ type: 'error', text: passwordError });
           setIsLoading(false);
           return;
         }
@@ -51,6 +70,40 @@ const Login: React.FC = () => {
   const handleGuestLogin = () => {
     loginAsGuest();
     navigate('/home');
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setResetMessage(null);
+
+    try {
+      const response = await authAPI.forgotPassword(resetEmail);
+      if (response.success) {
+        // In development, show the token for testing
+        if (response.data?.debug?.resetToken) {
+          console.log('🔑 Password Reset Token:', response.data.debug.resetToken);
+          console.log('⏰ Expires:', response.data.debug.expiresAt);
+          setResetMessage({ 
+            type: 'success', 
+            text: `Reset token: ${response.data.debug.resetToken.slice(0, 20)}... (Check console for full token)` 
+          });
+        } else {
+          setResetMessage({ type: 'success', text: 'Password reset link sent to your email!' });
+        }
+        setTimeout(() => {
+          setShowForgotPassword(false);
+          setResetEmail('');
+          setResetMessage(null);
+        }, 5000);
+      } else {
+        setResetMessage({ type: 'error', text: response.message || 'Failed to send reset link' });
+      }
+    } catch (error: any) {
+      setResetMessage({ type: 'error', text: error.message || 'Something went wrong' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getRoleIcon = (r: UserRole) => {
@@ -87,13 +140,6 @@ const Login: React.FC = () => {
 
       <div className="relative z-10 w-full min-h-screen flex flex-col lg:flex-row">
         <div className="w-full lg:w-[45%] flex flex-col justify-center px-6 sm:px-12 lg:px-20 py-12 lg:py-0 relative z-20">
-          <div className="absolute top-8 left-8 lg:left-12 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-700 flex items-center justify-center shadow-lg shadow-brand-900/15">
-              <div className="w-4 h-4 bg-brand-50 rounded-full"></div>
-            </div>
-            <span className="text-xl font-bold text-brand-900 tracking-wide">LearnSphere</span>
-          </div>
-
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -103,30 +149,27 @@ const Login: React.FC = () => {
             <div className="bg-nature-card/90 backdrop-blur-xl border border-brand-200/60 rounded-[2rem] p-8 sm:p-10 shadow-2xl shadow-brand-900/8 relative overflow-hidden">
               <div className="absolute -top-32 -right-32 w-64 h-64 bg-brand-300/30 rounded-full blur-[80px]"></div>
 
-              <div className="flex p-1 bg-brand-100 rounded-2xl mb-8 border border-brand-200 relative">
+              <div className="flex justify-center gap-2 mb-6">
                 {(['learner', 'instructor', 'admin'] as UserRole[]).map((r) => (
                   <button
                     key={r}
                     onClick={() => setRole(r)}
-                    className={
-                      `relative flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                        role === r ? 'text-brand-50' : 'text-brand-600 hover:text-brand-800'
-                      }`
-                    }
+                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-300 flex items-center gap-1 ${
+                      role === r
+                        ? 'bg-brand-700 text-brand-50 shadow-md'
+                        : 'bg-brand-100 text-brand-600 hover:bg-brand-200'
+                    }`}
                   >
-                    {role === r && (
-                      <motion.div
-                        layoutId="activeRole"
-                        className="absolute inset-0 bg-brand-700 shadow-md rounded-xl"
-                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                      />
-                    )}
-                    <span className="relative z-10 flex items-center gap-2 capitalize">
-                      {getRoleIcon(r)}
-                      {r}
-                    </span>
+                    {getRoleIcon(r)}
+                    <span className="capitalize">{r}</span>
                   </button>
                 ))}
+              </div>
+
+              <div className="flex justify-center mb-6">
+                <div className="w-12 h-12 rounded-xl bg-brand-700 flex items-center justify-center shadow-lg shadow-brand-900/15">
+                  <div className="w-5 h-5 bg-brand-50 rounded-full"></div>
+                </div>
               </div>
 
               <div className="mb-8">
@@ -200,10 +243,23 @@ const Login: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
+                  {mode === 'signup' && (
+                    <div className="text-xs text-brand-500 pt-2 space-y-1">
+                      <p className="font-medium">Password must contain:</p>
+                      <ul className="list-disc list-inside space-y-0.5 ml-2">
+                        <li className={password.length >= 8 ? 'text-green-600' : ''}>At least 8 characters</li>
+                        <li className={/[A-Z]/.test(password) ? 'text-green-600' : ''}>One uppercase letter</li>
+                        <li className={/[a-z]/.test(password) ? 'text-green-600' : ''}>One lowercase letter</li>
+                        <li className={/[0-9]/.test(password) ? 'text-green-600' : ''}>One number</li>
+                        <li className={/[!@#$%^&*(),.?\":{}|<>]/.test(password) ? 'text-green-600' : ''}>One special character</li>
+                      </ul>
+                    </div>
+                  )}
                   {mode === 'login' && (
                     <div className="flex justify-end pt-1">
                       <button
                         type="button"
+                        onClick={() => setShowForgotPassword(true)}
                         className="text-sm text-brand-500 hover:text-brand-700 transition-colors font-medium"
                       >
                         Forgot password?
@@ -295,6 +351,77 @@ const Login: React.FC = () => {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_30%,_var(--tw-gradient-to))] to-nature-light pointer-events-none"></div>
           <div className="absolute top-0 bottom-0 left-0 w-64 bg-gradient-to-r from-nature-light via-nature-light/70 to-transparent z-10 pointer-events-none"></div>
         </div>
+
+        {/* Forgot Password Modal */}
+        <AnimatePresence>
+          {showForgotPassword && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+              onClick={() => setShowForgotPassword(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-nature-card rounded-3xl p-8 max-w-md w-full shadow-2xl border border-brand-200 relative"
+              >
+                <button
+                  onClick={() => setShowForgotPassword(false)}
+                  className="absolute top-4 right-4 text-brand-400 hover:text-brand-700 transition-colors"
+                >
+                  <X size={24} />
+                </button>
+
+                <h2 className="text-2xl font-bold text-brand-900 mb-2">Reset Password</h2>
+                <p className="text-brand-500 mb-6">Enter your email and we'll send you a reset link.</p>
+
+                <form onSubmit={handleForgotPassword} className="space-y-4">
+                  <Input
+                    id="resetEmail"
+                    label="Email address"
+                    type="email"
+                    placeholder="name@nature.com"
+                    icon={<Mail size={18} />}
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    required
+                  />
+
+                  <AnimatePresence>
+                    {resetMessage && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className={`flex items-center gap-2 p-4 rounded-xl ${
+                          resetMessage.type === 'success'
+                            ? 'bg-green-50 text-green-700 border border-green-200'
+                            : 'bg-red-50 text-red-700 border border-red-200'
+                        }`}
+                      >
+                        {resetMessage.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+                        <span className="text-sm font-medium">{resetMessage.text}</span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  <Button
+                    type="submit"
+                    fullWidth
+                    className="rounded-2xl py-4 font-bold"
+                    isLoading={isLoading}
+                  >
+                    Send Reset Link
+                  </Button>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

@@ -52,12 +52,20 @@ class AuthAPI {
       });
 
       const data = await response.json();
+      
+      // If response is not ok and data doesn't have success, mark it as failed
+      if (!response.ok && !data.success) {
+        console.error('API error response:', data);
+      }
+      
       return data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('API request failed:', error);
+      const errorMessage = error?.message || 'Network error. Please check your connection.';
+      console.error('Full error:', error);
       return {
         success: false,
-        message: 'Network error. Please check your connection.',
+        message: `Network error: ${errorMessage}`,
       };
     }
   }
@@ -81,7 +89,7 @@ class AuthAPI {
     });
   }
 
-  async forgotPassword(email: string): Promise<ApiResponse<{ resetToken?: string }>> {
+  async forgotPassword(email: string): Promise<ApiResponse<{ resetToken?: string; debug?: { resetToken: string; expiresAt: string; note: string } }>> {
     return this.request('/auth/forgot', {
       method: 'POST',
       body: JSON.stringify({ email }),
