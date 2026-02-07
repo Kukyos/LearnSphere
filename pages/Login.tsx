@@ -8,7 +8,6 @@ const Login: React.FC = () => {
   const { login, loginAsGuest } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('learner');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -18,15 +17,11 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      await login(email, password, role);
-      // Redirect based on role
-      if (role === 'instructor' || role === 'admin') {
-        navigate('/courses');
-      } else {
-        navigate('/home');
-      }
-    } catch (err) {
-      setError('Invalid email or password');
+      await login(email, password);
+      // Redirect to home after successful login
+      navigate('/home');
+    } catch (err: any) {
+      setError(err.message || 'Invalid email or password');
     } finally {
       setLoading(false);
     }
@@ -112,28 +107,6 @@ const Login: React.FC = () => {
 
             <form onSubmit={handleLogin} className="space-y-6">
               {/* Role Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  I am a...
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  {(['learner', 'instructor'] as const).map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setRole(r)}
-                      className={`py-3 px-4 rounded-lg font-medium transition-all ${
-                        role === r
-                          ? 'bg-brand-600 text-white shadow-lg'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                      }`}
-                    >
-                      {r === 'learner' ? '👤 Learner' : '🎓 Instructor'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Email */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
