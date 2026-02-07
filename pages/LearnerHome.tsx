@@ -64,10 +64,10 @@ const LearnerHome: React.FC = () => {
     return (
       <section className="mb-12 relative z-0">
         <div className="mb-4 flex items-end justify-between px-4 sm:px-8 group">
-          <h2 className="text-xl font-bold text-brand-900 dark:text-white sm:text-2xl group-hover:text-brand-600 transition-colors cursor-pointer">
+          <h2 className="text-xl font-bold text-brand-900 sm:text-2xl group-hover:text-brand-600 transition-colors cursor-pointer">
             {title}
           </h2>
-          <button className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-brand-400 hover:text-brand-600 dark:hover:text-white transition-colors">
+          <button className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-brand-400 hover:text-brand-600 transition-colors">
             View all <ChevronRight size={14} />
           </button>
         </div>
@@ -86,7 +86,7 @@ const LearnerHome: React.FC = () => {
   const devCourses = useMemo(() => MOCK_COURSES.filter(c => c.category === 'Development' || c.category === 'Data Science'), []);
 
   return (
-    <div className="min-h-screen bg-nature-light transition-colors duration-300 dark:bg-brand-900 font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-nature-light transition-colors duration-300 font-sans overflow-x-hidden">
 
       {/* Top Padding for Navbar */}
       <div className="h-32"></div>
@@ -108,10 +108,10 @@ const LearnerHome: React.FC = () => {
             {/* Courses Grid */}
             <div className="lg:col-span-3">
               <div className="mb-6">
-                <h2 className="text-2xl font-bold text-brand-900 dark:text-white mb-2">
+                <h2 className="text-2xl font-bold text-brand-900 mb-2">
                   Browse All Courses
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600">
                   {filteredCourses.length} courses available
                 </p>
               </div>
@@ -126,7 +126,7 @@ const LearnerHome: React.FC = () => {
 
               {filteredCourses.length === 0 && (
                 <div className="py-16 text-center">
-                  <p className="text-gray-500 dark:text-gray-400">No courses found. Try adjusting your filters.</p>
+                  <p className="text-gray-500">No courses found. Try adjusting your filters.</p>
                 </div>
               )}
             </div>

@@ -102,7 +102,7 @@ const CourseDetailPage: React.FC = () => {
                 {completedLessons}/{course.lessons.length} lessons • {progressPct}%
               </span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+            <div className="w-full bg-gray-200 rounded-full h-3">
               <div className={`h-3 rounded-full transition-all duration-500 ${isCompleted ? 'bg-green-500' : 'bg-brand-500'}`} style={{ width: `${progressPct}%` }} />
             </div>
           </div>
@@ -198,9 +198,9 @@ const CourseDetailPage: React.FC = () => {
                   </div>
                   <div className="flex-none flex items-center gap-2">
                     <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
-                      lesson.type === 'video' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' :
-                      lesson.type === 'document' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' :
-                      'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'
+                      lesson.type === 'video' ? 'bg-blue-100 text-blue-700' :
+                      lesson.type === 'document' ? 'bg-purple-100 text-purple-700' :
+                      'bg-orange-100 text-orange-700'
                     }`}>{lesson.type}</span>
                     {canAccess && <ChevronRight className={theme === 'dark' ? 'text-brand-500' : 'text-brand-400'} size={20} />}
                   </div>

@@ -30,17 +30,17 @@ export default function DescriptionTab({ description, onChange }: DescriptionTab
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-bold text-brand-900 dark:text-white">Course Description</h3>
-      <p className="text-sm text-brand-500 dark:text-brand-300">Write a detailed description of your course using Markdown formatting.</p>
+      <h3 className="text-lg font-bold text-brand-900">Course Description</h3>
+      <p className="text-sm text-brand-500">Write a detailed description of your course using Markdown formatting.</p>
 
       {/* Toolbar */}
-      <div className="flex flex-wrap gap-1 p-2 bg-brand-50 dark:bg-brand-800 rounded-t-xl border border-b-0 border-brand-200 dark:border-brand-700">
+      <div className="flex flex-wrap gap-1 p-2 bg-brand-50 rounded-t-xl border border-b-0 border-brand-200">
         {toolbarButtons.map((btn, i) => (
           <button
             key={i}
             onClick={btn.action}
             title={btn.title}
-            className="p-2 rounded-lg hover:bg-brand-200 dark:hover:bg-brand-700 text-brand-600 dark:text-brand-300 transition-colors"
+            className="p-2 rounded-lg hover:bg-brand-200 text-brand-600 transition-colors"
           >
             {btn.icon}
           </button>
@@ -53,16 +53,16 @@ export default function DescriptionTab({ description, onChange }: DescriptionTab
         value={description}
         onChange={e => onChange(e.target.value)}
         rows={16}
-        className="w-full px-4 py-3 border border-brand-200 dark:border-brand-700 rounded-b-xl bg-white dark:bg-brand-900 text-brand-900 dark:text-white font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-500 -mt-4"
+        className="w-full px-4 py-3 border border-brand-200 rounded-b-xl bg-white text-brand-900 font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-500 -mt-4"
         placeholder="# Course Overview&#10;&#10;Write your course description here using Markdown...&#10;&#10;## What you'll learn&#10;- Point 1&#10;- Point 2&#10;&#10;## Prerequisites&#10;- Basic knowledge of..."
       />
 
       {/* Preview */}
       {description && (
         <div>
-          <h4 className="text-sm font-semibold text-brand-600 dark:text-brand-300 mb-2">Preview</h4>
-          <div className="p-4 border border-brand-200 dark:border-brand-700 rounded-xl bg-white dark:bg-brand-900">
-            <div className="prose dark:prose-invert max-w-none text-sm">
+          <h4 className="text-sm font-semibold text-brand-600 mb-2">Preview</h4>
+          <div className="p-4 border border-brand-200 rounded-xl bg-white">
+            <div className="prose max-w-none text-sm">
               {description.split('\n').map((line, i) => {
                 if (line.startsWith('# ')) return <h1 key={i} className="text-xl font-bold mt-4 mb-2">{line.slice(2)}</h1>;
                 if (line.startsWith('## ')) return <h2 key={i} className="text-lg font-bold mt-3 mb-2">{line.slice(3)}</h2>;

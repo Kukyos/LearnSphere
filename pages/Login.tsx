@@ -6,7 +6,7 @@ import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { AuthMode, UserRole } from '../types';
 import { useAuth } from '../context/AuthContext';
-import { WorldGlobe } from '../components/visuals/WorldGlobe';
+import DomeGallery from '../components/visuals/DomeGallery';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -114,10 +114,10 @@ const Login: React.FC = () => {
               
               {/* Role Selector Pills */}
               <div className="flex p-1 bg-brand-100 rounded-2xl mb-8 border border-brand-200 relative">
-                {(['learner', 'instructor', 'admin'] as UserRole[]).map((r) => (
+                {(['learner', 'instructor'] as UserRole[]).map((r) => (
                   <button
                     key={r}
-                    onClick={() => { setRole(r); if (r === 'admin') setMode('login'); }}
+                    onClick={() => setRole(r)}
                     className={`
                       relative flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-xl transition-all duration-300
                       ${role === r ? 'text-brand-50' : 'text-brand-600 hover:text-brand-800'}
@@ -272,25 +272,19 @@ const Login: React.FC = () => {
                   )}
                 </AnimatePresence>
 
-                {/* Toggle Login/Signup — Admin accounts are provisioned, no signup */}
-                {role === 'admin' ? (
-                  <p className="mt-8 text-center text-xs text-brand-400 italic">
-                    Admin accounts are provisioned by the system administrator.
+                {/* Toggle Login/Signup */}
+                <div className="mt-8 text-center">
+                  <p className="text-brand-500">
+                    {mode === 'login' ? "New here?" : 'Already a member?'}
+                    <button
+                      type="button"
+                      onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setMessage(null); }}
+                      className="ml-2 font-bold text-brand-700 hover:text-brand-900 transition-colors underline decoration-2 decoration-brand-300 hover:decoration-brand-500 underline-offset-4"
+                    >
+                      {mode === 'login' ? 'Sign up' : 'Log in'}
+                    </button>
                   </p>
-                ) : (
-                  <div className="mt-8 text-center">
-                    <p className="text-brand-500">
-                      {mode === 'login' ? "New here?" : 'Already a member?'}
-                      <button
-                        type="button"
-                        onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setMessage(null); }}
-                        className="ml-2 font-bold text-brand-700 hover:text-brand-900 transition-colors underline decoration-2 decoration-brand-300 hover:decoration-brand-500 underline-offset-4"
-                      >
-                        {mode === 'login' ? 'Sign up' : 'Log in'}
-                      </button>
-                    </p>
-                  </div>
-                )}
+                </div>
               </form>
             </div>
             
@@ -300,23 +294,35 @@ const Login: React.FC = () => {
           </motion.div>
         </div>
 
-        {/* RIGHT SIDE: Interactive Globe */}
-        <div className="hidden lg:flex w-full lg:w-[55%] h-screen relative items-center justify-center overflow-hidden">
-          {/* Fade in animation for the globe */}
+        {/* RIGHT SIDE: Course Dome Gallery */}
+        <div className="hidden lg:flex w-full lg:w-[55%] h-screen relative items-center justify-center overflow-hidden bg-gradient-to-r from-nature-light/50 via-brand-100 to-brand-200">
+          {/* Fade in animation for the dome */}
           <motion.div
             className="w-full h-full absolute inset-0"
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
+            transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
           >
-            <WorldGlobe />
+            <DomeGallery
+              overlayBlurColor="#e3e8dc"
+              grayscale={true}
+              fit={0.32}
+              imageBorderRadius="12px"
+              dragDampening={2}
+              segments={25}
+            />
           </motion.div>
-          
-          {/* Vignette overlay */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_30%,_var(--tw-gradient-to))] to-nature-light pointer-events-none"></div>
-          
-          {/* Seamless transition gradient from left */}
-          <div className="absolute top-0 bottom-0 left-0 w-64 bg-gradient-to-r from-nature-light via-nature-light/70 to-transparent z-10 pointer-events-none"></div>
+
+          {/* Soft light vignette overlay */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_40%,_#e3e8dc_100%)] pointer-events-none z-[5]"></div>
+
+          {/* Seamless transition gradient from left – blends into the form side */}
+          <div className="absolute top-0 bottom-0 left-0 w-full bg-gradient-to-r from-nature-light/95 via-nature-light/40 via-30% to-transparent to-50% z-10 pointer-events-none"></div>
+
+          {/* Bottom label */}
+          <div className="absolute bottom-8 left-0 right-0 text-center pointer-events-none z-[6] opacity-40">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-brand-600 font-medium">Explore Courses</p>
+          </div>
         </div>
 
       </div>

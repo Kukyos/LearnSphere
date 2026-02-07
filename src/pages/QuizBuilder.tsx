@@ -99,25 +99,25 @@ export default function QuizBuilder() {
 
   if (!course) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <p className="text-brand-500 dark:text-brand-300">Course not found.</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-brand-500">Course not found.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-nature-light dark:bg-brand-950 pt-20">
+    <div className="min-h-screen bg-nature-light pt-20">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-white dark:bg-brand-900 border-b border-brand-200 dark:border-brand-700 shadow-sm" style={{ paddingTop: '80px' }}>
+      <div className="sticky top-0 z-40 bg-white border-b border-brand-200 shadow-sm" style={{ paddingTop: '80px' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button onClick={() => navigate(`/course-form/${courseId}`)} className="p-2 rounded-lg hover:bg-brand-100 dark:hover:bg-brand-800 text-brand-500">
+              <button onClick={() => navigate(`/course-form/${courseId}`)} className="p-2 rounded-lg hover:bg-brand-100 text-brand-500">
                 <ArrowLeft size={20} />
               </button>
               <div>
-                <h1 className="text-xl font-bold text-brand-900 dark:text-white">Quiz Builder</h1>
-                <p className="text-xs text-brand-500 dark:text-brand-300">{course.title} — {quizLesson?.title || 'New Quiz'}</p>
+                <h1 className="text-xl font-bold text-brand-900">Quiz Builder</h1>
+                <p className="text-xs text-brand-500">{course.title} — {quizLesson?.title || 'New Quiz'}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -125,8 +125,8 @@ export default function QuizBuilder() {
                 onClick={() => setShowRewards(!showRewards)}
                 className={`flex items-center gap-1.5 px-4 py-2 border rounded-lg text-sm font-semibold transition-colors ${
                   showRewards
-                    ? 'border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-600'
-                    : 'border-brand-300 dark:border-brand-600 text-brand-700 dark:text-brand-200 hover:bg-brand-100 dark:hover:bg-brand-800'
+                    ? 'border-amber-400 bg-amber-50 text-amber-700'
+                    : 'border-brand-300 text-brand-700 hover:bg-brand-100'
                 }`}
               >
                 <Trophy size={16} /> Rewards
@@ -145,15 +145,15 @@ export default function QuizBuilder() {
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8">
         {/* Rewards Panel */}
         {showRewards && (
-          <div className="mb-6 p-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl">
-            <h3 className="text-lg font-bold text-amber-800 dark:text-amber-300 mb-4 flex items-center gap-2">
+          <div className="mb-6 p-6 bg-amber-50 border border-amber-200 rounded-xl">
+            <h3 className="text-lg font-bold text-amber-800 mb-4 flex items-center gap-2">
               <Trophy size={20} /> Reward Rules
             </h3>
-            <p className="text-sm text-amber-700 dark:text-amber-400 mb-4">Set points awarded based on quiz attempt number:</p>
+            <p className="text-sm text-amber-700 mb-4">Set points awarded based on quiz attempt number:</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {rewardRules.map((rule, i) => (
-                <div key={i} className="bg-white dark:bg-brand-900 rounded-lg p-4 border border-amber-200 dark:border-amber-700">
-                  <label className="text-xs font-semibold text-brand-500 dark:text-brand-300 block mb-1">
+                <div key={i} className="bg-white rounded-lg p-4 border border-amber-200">
+                  <label className="text-xs font-semibold text-brand-500 block mb-1">
                     {rule.attempt === 4 ? '4th try & more' : `${['1st', '2nd', '3rd'][rule.attempt - 1]} try`}
                   </label>
                   <div className="flex items-center gap-2">
@@ -165,7 +165,7 @@ export default function QuizBuilder() {
                         updated[i] = { ...rule, points: parseInt(e.target.value) || 0 };
                         setRewardRules(updated);
                       }}
-                      className="w-full px-3 py-2 border border-brand-300 dark:border-brand-600 rounded-lg bg-white dark:bg-brand-800 text-brand-900 dark:text-white font-bold text-center"
+                      className="w-full px-3 py-2 border border-brand-300 rounded-lg bg-white text-brand-900 font-bold text-center"
                       min="0"
                     />
                     <span className="text-sm text-brand-500">pts</span>
@@ -179,9 +179,9 @@ export default function QuizBuilder() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Left Panel — Question List */}
           <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-brand-900 rounded-xl border border-brand-200 dark:border-brand-700 shadow-sm p-4">
+            <div className="bg-white rounded-xl border border-brand-200 shadow-sm p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold text-brand-700 dark:text-brand-200">Questions</h3>
+                <h3 className="text-sm font-bold text-brand-700">Questions</h3>
                 <button
                   onClick={addQuestion}
                   className="p-1.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700"
@@ -194,7 +194,7 @@ export default function QuizBuilder() {
               {questions.length === 0 ? (
                 <div className="text-center py-8">
                   <HelpCircle className="mx-auto mb-2 text-brand-400" size={32} />
-                  <p className="text-sm text-brand-500 dark:text-brand-300">No questions yet</p>
+                  <p className="text-sm text-brand-500">No questions yet</p>
                   <button
                     onClick={addQuestion}
                     className="mt-2 text-sm text-brand-600 font-semibold hover:underline"
@@ -210,20 +210,20 @@ export default function QuizBuilder() {
                       onClick={() => setSelectedIndex(i)}
                       className={`w-full text-left p-3 rounded-lg flex items-center gap-2 transition-all group ${
                         selectedIndex === i
-                          ? 'bg-brand-50 dark:bg-brand-900/30 border border-brand-300 dark:border-brand-600'
-                          : 'hover:bg-brand-50 dark:hover:bg-brand-800/50 border border-transparent'
+                          ? 'bg-brand-50 border border-brand-300'
+                          : 'hover:bg-brand-50 border border-transparent'
                       }`}
                     >
                       <GripVertical size={14} className="text-brand-400 flex-none" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-brand-500 dark:text-brand-300">Q{i + 1}</p>
-                        <p className="text-sm text-brand-900 dark:text-white truncate">
+                        <p className="text-xs font-semibold text-brand-500">Q{i + 1}</p>
+                        <p className="text-sm text-brand-900 truncate">
                           {q.question || 'Untitled'}
                         </p>
                       </div>
                       <button
                         onClick={(e) => { e.stopPropagation(); deleteQuestion(i); }}
-                        className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-brand-400 hover:text-red-500 transition-all"
+                        className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-100 text-brand-400 hover:text-red-500 transition-all"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -237,20 +237,20 @@ export default function QuizBuilder() {
           {/* Right Panel — Question Editor */}
           <div className="lg:col-span-3">
             {selectedQuestion ? (
-              <div className="bg-white dark:bg-brand-900 rounded-xl border border-brand-200 dark:border-brand-700 shadow-sm p-6">
+              <div className="bg-white rounded-xl border border-brand-200 shadow-sm p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-bold text-brand-900 dark:text-white">
+                  <h3 className="text-lg font-bold text-brand-900">
                     Question {selectedIndex + 1}
                   </h3>
                 </div>
 
                 {/* Question Text */}
                 <div className="mb-6">
-                  <label className="text-sm font-semibold text-brand-700 dark:text-brand-200 block mb-2">Question Text</label>
+                  <label className="text-sm font-semibold text-brand-700 block mb-2">Question Text</label>
                   <textarea
                     value={selectedQuestion.question}
                     onChange={e => updateQuestion('question', e.target.value)}
-                    className="w-full px-4 py-3 border border-brand-300 dark:border-brand-600 rounded-xl bg-white dark:bg-brand-800 text-brand-900 dark:text-white resize-none"
+                    className="w-full px-4 py-3 border border-brand-300 rounded-xl bg-white text-brand-900 resize-none"
                     rows={3}
                     placeholder="Enter your question here..."
                   />
@@ -258,7 +258,7 @@ export default function QuizBuilder() {
 
                 {/* Options */}
                 <div className="mb-6">
-                  <label className="text-sm font-semibold text-brand-700 dark:text-brand-200 block mb-3">
+                  <label className="text-sm font-semibold text-brand-700 block mb-3">
                     Answer Options <span className="text-xs font-normal text-brand-500">(click circle to mark correct)</span>
                   </label>
                   <div className="space-y-3">
@@ -269,7 +269,7 @@ export default function QuizBuilder() {
                           className={`w-8 h-8 rounded-full border-2 flex items-center justify-center flex-none transition-all ${
                             selectedQuestion.correctAnswer === oi
                               ? 'border-green-500 bg-green-500 text-white'
-                            : 'border-brand-300 dark:border-brand-600 hover:border-green-400'
+                            : 'border-brand-300 hover:border-green-400'
                           }`}
                         >
                           {selectedQuestion.correctAnswer === oi && <CheckCircle size={16} />}
@@ -281,14 +281,14 @@ export default function QuizBuilder() {
                           <input
                             value={opt}
                             onChange={e => updateOption(oi, e.target.value)}
-                            className="w-full pl-10 pr-10 py-2.5 border border-brand-300 dark:border-brand-600 rounded-lg bg-white dark:bg-brand-800 text-brand-900 dark:text-white"
+                            className="w-full pl-10 pr-10 py-2.5 border border-brand-300 rounded-lg bg-white text-brand-900"
                             placeholder={`Option ${String.fromCharCode(65 + oi)}`}
                           />
                         </div>
                         {selectedQuestion.options.length > 2 && (
                           <button
                             onClick={() => removeOption(oi)}
-                            className="p-2 text-brand-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                            className="p-2 text-brand-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -305,10 +305,10 @@ export default function QuizBuilder() {
                 </div>
               </div>
             ) : (
-              <div className="bg-white dark:bg-brand-900 rounded-xl border border-brand-200 dark:border-brand-700 shadow-sm p-12 text-center">
+              <div className="bg-white rounded-xl border border-brand-200 shadow-sm p-12 text-center">
                 <HelpCircle className="mx-auto mb-3 text-brand-400" size={48} />
-                <h3 className="text-lg font-bold text-brand-900 dark:text-white mb-2">No question selected</h3>
-                <p className="text-brand-500 dark:text-brand-300 mb-4">Add a question from the left panel to get started.</p>
+                <h3 className="text-lg font-bold text-brand-900 mb-2">No question selected</h3>
+                <p className="text-brand-500 mb-4">Add a question from the left panel to get started.</p>
                 <button
                   onClick={addQuestion}
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 text-white rounded-lg font-semibold hover:bg-brand-700"

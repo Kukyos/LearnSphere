@@ -76,7 +76,7 @@ export default function ContentTab({ lessons, onChange }: ContentTabProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-brand-900 dark:text-white">Course Content</h3>
+        <h3 className="text-lg font-bold text-brand-900">Course Content</h3>
         <button
           onClick={addLesson}
           className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-semibold hover:bg-brand-700 transition-colors"
@@ -86,21 +86,21 @@ export default function ContentTab({ lessons, onChange }: ContentTabProps) {
       </div>
 
       {lessons.length === 0 && (
-        <div className="text-center py-12 border-2 border-dashed border-brand-300 dark:border-brand-600 rounded-xl">
+        <div className="text-center py-12 border-2 border-dashed border-brand-300 rounded-xl">
           <FileText className="mx-auto mb-3 text-brand-400" size={40} />
-          <p className="text-brand-500 dark:text-brand-300">No lessons yet. Add your first lesson to get started.</p>
+          <p className="text-brand-500">No lessons yet. Add your first lesson to get started.</p>
         </div>
       )}
 
       <div className="space-y-3">
         {lessons.map((lesson, index) => (
-          <div key={lesson.id} className="border border-brand-200 dark:border-brand-700 rounded-xl overflow-hidden bg-white dark:bg-brand-900">
+          <div key={lesson.id} className="border border-brand-200 rounded-xl overflow-hidden bg-white">
             {editingId === lesson.id ? (
               <div className="p-4 space-y-3">
                 <input
                   value={editTitle}
                   onChange={e => setEditTitle(e.target.value)}
-                  className="w-full px-3 py-2 border border-brand-300 dark:border-brand-600 rounded-lg bg-white dark:bg-brand-800 text-brand-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-brand-300 rounded-lg bg-white text-brand-900"
                   placeholder="Lesson title"
                 />
                 <div className="flex gap-2">
@@ -110,8 +110,8 @@ export default function ContentTab({ lessons, onChange }: ContentTabProps) {
                       onClick={() => setEditType(type)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors capitalize ${
                         editType === type
-                          ? 'bg-brand-100 text-brand-700 dark:bg-brand-900 dark:text-brand-300'
-                          : 'bg-brand-50 text-brand-600 dark:bg-brand-800 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-700'
+                          ? 'bg-brand-100 text-brand-700'
+                          : 'bg-brand-50 text-brand-600 hover:bg-brand-100'
                       }`}
                     >
                       {typeIcons[type]} {type}
@@ -121,19 +121,19 @@ export default function ContentTab({ lessons, onChange }: ContentTabProps) {
                 <textarea
                   value={editDescription}
                   onChange={e => setEditDescription(e.target.value)}
-                  className="w-full px-3 py-2 border border-brand-300 dark:border-brand-600 rounded-lg bg-white dark:bg-brand-800 text-brand-900 dark:text-white resize-none"
+                  className="w-full px-3 py-2 border border-brand-300 rounded-lg bg-white text-brand-900 resize-none"
                   placeholder="Lesson description"
                   rows={2}
                 />
                 <input
                   value={editContent}
                   onChange={e => setEditContent(e.target.value)}
-                  className="w-full px-3 py-2 border border-brand-300 dark:border-brand-600 rounded-lg bg-white dark:bg-brand-800 text-brand-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-brand-300 rounded-lg bg-white text-brand-900"
                   placeholder={editType === 'video' ? 'YouTube embed URL' : editType === 'document' ? 'Document content (Markdown)' : 'Content URL'}
                 />
                 <div className="flex gap-2">
                   <button onClick={saveEdit} className="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-semibold hover:bg-brand-700">Save</button>
-                  <button onClick={() => setEditingId(null)} className="px-4 py-2 bg-brand-100 text-brand-700 dark:bg-brand-800 dark:text-brand-200 rounded-lg text-sm font-semibold hover:bg-brand-200 dark:hover:bg-brand-700">Cancel</button>
+                  <button onClick={() => setEditingId(null)} className="px-4 py-2 bg-brand-100 text-brand-700 rounded-lg text-sm font-semibold hover:bg-brand-200">Cancel</button>
                 </div>
               </div>
             ) : (
@@ -143,19 +143,19 @@ export default function ContentTab({ lessons, onChange }: ContentTabProps) {
                     <GripVertical size={14} />
                   </button>
                 </div>
-                <div className="w-8 h-8 rounded-lg bg-brand-100 dark:bg-brand-800 flex items-center justify-center text-sm font-bold text-brand-500">
+                <div className="w-8 h-8 rounded-lg bg-brand-100 flex items-center justify-center text-sm font-bold text-brand-500">
                   {index + 1}
                 </div>
                 {typeIcons[lesson.type]}
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-brand-900 dark:text-white truncate">{lesson.title}</p>
-                  <p className="text-xs text-brand-500 dark:text-brand-300 capitalize">{lesson.type}</p>
+                  <p className="font-semibold text-brand-900 truncate">{lesson.title}</p>
+                  <p className="text-xs text-brand-500 capitalize">{lesson.type}</p>
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => startEdit(lesson)} className="p-2 rounded-lg hover:bg-brand-100 dark:hover:bg-brand-800 text-brand-500 hover:text-brand-600">
+                  <button onClick={() => startEdit(lesson)} className="p-2 rounded-lg hover:bg-brand-100 text-brand-500 hover:text-brand-600">
                     <Edit3 size={16} />
                   </button>
-                  <button onClick={() => deleteLesson(lesson.id)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-brand-500 hover:text-red-600">
+                  <button onClick={() => deleteLesson(lesson.id)} className="p-2 rounded-lg hover:bg-red-50 text-brand-500 hover:text-red-600">
                     <Trash2 size={16} />
                   </button>
                 </div>

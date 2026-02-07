@@ -16,11 +16,11 @@ interface OptionsTabProps {
 export default function OptionsTab({ options, onChange }: OptionsTabProps) {
   return (
     <div className="space-y-8">
-      <h3 className="text-lg font-bold text-brand-900 dark:text-white">Course Options</h3>
+      <h3 className="text-lg font-bold text-brand-900">Course Options</h3>
 
       {/* Visibility */}
       <div className="space-y-3">
-        <label className="text-sm font-semibold text-brand-700 dark:text-brand-200 flex items-center gap-2">
+        <label className="text-sm font-semibold text-brand-700 flex items-center gap-2">
           <Eye size={16} /> Show course to (Visibility)
         </label>
         <div className="grid grid-cols-2 gap-3">
@@ -30,15 +30,15 @@ export default function OptionsTab({ options, onChange }: OptionsTabProps) {
               onClick={() => onChange({ ...options, visibility: vis })}
               className={`p-4 rounded-xl border-2 text-left transition-all ${
                 options.visibility === vis
-                  ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30'
-                  : 'border-brand-200 dark:border-brand-700 hover:border-brand-300 dark:hover:border-brand-600'
+                  ? 'border-brand-500 bg-brand-50'
+                  : 'border-brand-200 hover:border-brand-300'
               }`}
             >
               <div className="flex items-center gap-2 mb-1">
                 {vis === 'Everyone' ? <Users size={18} className="text-brand-500" /> : <Lock size={18} className="text-orange-500" />}
-                <span className="font-semibold text-brand-900 dark:text-white">{vis}</span>
+                <span className="font-semibold text-brand-900">{vis}</span>
               </div>
-              <p className="text-xs text-brand-500 dark:text-brand-300">
+              <p className="text-xs text-brand-500">
                 {vis === 'Everyone' ? 'Anyone can see this course' : 'Only signed-in users can see this course'}
               </p>
             </button>
@@ -48,7 +48,7 @@ export default function OptionsTab({ options, onChange }: OptionsTabProps) {
 
       {/* Access Rule */}
       <div className="space-y-3">
-        <label className="text-sm font-semibold text-brand-700 dark:text-brand-200 flex items-center gap-2">
+        <label className="text-sm font-semibold text-brand-700 flex items-center gap-2">
           <Lock size={16} /> Access Rule
         </label>
         <div className="grid grid-cols-3 gap-3">
@@ -62,29 +62,29 @@ export default function OptionsTab({ options, onChange }: OptionsTabProps) {
               onClick={() => onChange({ ...options, access: acc.value })}
               className={`p-4 rounded-xl border-2 text-left transition-all ${
                 options.access === acc.value
-                  ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30'
-                  : 'border-brand-200 dark:border-brand-700 hover:border-brand-300 dark:hover:border-brand-600'
+                  ? 'border-brand-500 bg-brand-50'
+                  : 'border-brand-200 hover:border-brand-300'
               }`}
             >
               <div className="flex items-center gap-2 mb-1">
                 {acc.icon}
-                <span className="font-semibold text-brand-900 dark:text-white text-sm">{acc.value}</span>
+                <span className="font-semibold text-brand-900 text-sm">{acc.value}</span>
               </div>
-              <p className="text-xs text-brand-500 dark:text-brand-300">{acc.desc}</p>
+              <p className="text-xs text-brand-500">{acc.desc}</p>
             </button>
           ))}
         </div>
 
         {options.access === 'On Payment' && (
           <div className="mt-3">
-            <label className="text-sm font-semibold text-brand-700 dark:text-brand-200 block mb-1">Price (USD)</label>
+            <label className="text-sm font-semibold text-brand-700 block mb-1">Price (USD)</label>
             <div className="relative">
               <DollarSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-400" />
               <input
                 type="number"
                 value={options.price}
                 onChange={e => onChange({ ...options, price: e.target.value })}
-                className="w-full pl-9 pr-4 py-2.5 border border-brand-300 dark:border-brand-600 rounded-lg bg-white dark:bg-brand-800 text-brand-900 dark:text-white"
+                className="w-full pl-9 pr-4 py-2.5 border border-brand-300 rounded-lg bg-white text-brand-900"
                 placeholder="49.99"
                 min="0"
                 step="0.01"
@@ -96,14 +96,14 @@ export default function OptionsTab({ options, onChange }: OptionsTabProps) {
 
       {/* Course Admin */}
       <div className="space-y-3">
-        <label className="text-sm font-semibold text-brand-700 dark:text-brand-200 flex items-center gap-2">
+        <label className="text-sm font-semibold text-brand-700 flex items-center gap-2">
           <UserCheck size={16} /> Course Admin / Responsible
         </label>
         <input
           type="text"
           value={options.courseAdmin || ''}
           onChange={e => onChange({ ...options, courseAdmin: e.target.value })}
-          className="w-full px-4 py-2.5 border border-brand-300 dark:border-brand-600 rounded-lg bg-white dark:bg-brand-800 text-brand-900 dark:text-white"
+          className="w-full px-4 py-2.5 border border-brand-300 rounded-lg bg-white text-brand-900"
           placeholder="Select or type course admin name..."
         />
       </div>

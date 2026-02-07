@@ -321,7 +321,7 @@ const ProfileDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       <img src={course.coverImage} alt={course.title} className="w-16 h-16 rounded object-cover" />
                       <div className="flex-1 min-w-0">
                         <p className={`font-semibold truncate ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>{course.title}</p>
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-1">
+                        <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
                           <div className="bg-brand-500 h-2 rounded-full transition-all" style={{ width: `${pct}%` }} />
                         </div>
                         <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-brand-400' : 'text-brand-500'}`}>{completedL}/{totalL} lessons • {Math.round(pct)}%</p>

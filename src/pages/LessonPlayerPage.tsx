@@ -160,7 +160,7 @@ const LessonPlayerPage: React.FC = () => {
             {quizSubmitted ? (
               <div className="text-center py-8">
                 <div className={`w-32 h-32 rounded-full mx-auto mb-6 flex items-center justify-center ${
-                  quizScore >= 60 ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'
+                  quizScore >= 60 ? 'bg-green-100' : 'bg-red-100'
                 }`}>
                   <span className={`text-4xl font-bold ${quizScore >= 60 ? 'text-green-600' : 'text-red-600'}`}>
                     {quizScore}%
@@ -181,8 +181,8 @@ const LessonPlayerPage: React.FC = () => {
                     return (
                       <div key={q.id} className={`p-4 rounded-xl border ${
                         isCorrect
-                          ? 'border-green-300 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
-                          : 'border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-900/20'
+                          ? 'border-green-300 bg-green-50'
+                          : 'border-red-300 bg-red-50'
                       }`}>
                         <p className={`font-semibold mb-2 ${theme === 'dark' ? 'text-white' : 'text-brand-900'}`}>
                           {qi + 1}. {q.question}
@@ -219,7 +219,7 @@ const LessonPlayerPage: React.FC = () => {
                           onClick={() => setQuizAnswers(prev => ({ ...prev, [q.id]: oi }))}
                           className={`w-full text-left p-3 rounded-lg border transition-all ${
                             quizAnswers[q.id] === oi
-                              ? 'border-brand-500 bg-brand-100 dark:bg-brand-700 dark:border-brand-400'
+                              ? 'border-brand-500 bg-brand-100'
                               : theme === 'dark'
                                 ? 'border-brand-700 hover:border-brand-500'
                                 : 'border-brand-200 hover:border-brand-400'
@@ -227,7 +227,7 @@ const LessonPlayerPage: React.FC = () => {
                         >
                           <span className={`text-sm ${
                             quizAnswers[q.id] === oi
-                              ? 'font-semibold text-brand-700 dark:text-white'
+                              ? 'font-semibold text-brand-700'
                               : theme === 'dark' ? 'text-brand-200' : 'text-brand-700'
                           }`}>
                             {String.fromCharCode(65 + oi)}. {option}
@@ -279,7 +279,7 @@ const LessonPlayerPage: React.FC = () => {
       } border-r`}>
         <div className="w-80 h-screen overflow-y-auto pt-20 pb-6">
           {/* Course Title */}
-          <div className="px-4 pb-4 border-b border-brand-200 dark:border-brand-800">
+          <div className="px-4 pb-4 border-b border-brand-200">
             <button
               onClick={() => navigate(`/course/${courseId}`)}
               className={`flex items-center gap-1 text-sm mb-3 ${theme === 'dark' ? 'text-brand-400 hover:text-white' : 'text-brand-500 hover:text-brand-900'} transition-colors`}
@@ -304,7 +304,7 @@ const LessonPlayerPage: React.FC = () => {
                   className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-all ${
                     isCurrent
                       ? theme === 'dark' ? 'bg-brand-800 border-l-4 border-brand-500' : 'bg-brand-50 border-l-4 border-brand-600'
-                      : 'border-l-4 border-transparent hover:bg-brand-50 dark:hover:bg-brand-800'
+                      : 'border-l-4 border-transparent hover:bg-brand-50'
                   }`}
                 >
                   <div className={`flex-none w-8 h-8 rounded-full flex items-center justify-center text-sm ${
@@ -364,7 +364,7 @@ const LessonPlayerPage: React.FC = () => {
               </button>
             )}
             {isLessonCompleted(lesson.id) && (
-              <span className="px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg text-sm font-semibold flex items-center gap-1">
+              <span className="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-sm font-semibold flex items-center gap-1">
                 <CheckCircle size={14} /> Completed
               </span>
             )}
@@ -388,7 +388,7 @@ const LessonPlayerPage: React.FC = () => {
               className={`flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all ${
                 prevLesson
                   ? 'bg-brand-600 text-white hover:bg-brand-700 active:scale-95'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-brand-800 dark:text-brand-600'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
               <ChevronLeft size={18} /> Previous
@@ -400,7 +400,7 @@ const LessonPlayerPage: React.FC = () => {
               className={`flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all ${
                 nextLesson
                   ? 'bg-brand-600 text-white hover:bg-brand-700 active:scale-95'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-brand-800 dark:text-brand-600'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
               Next <ChevronRight size={18} />
