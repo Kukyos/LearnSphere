@@ -3,6 +3,7 @@
 > **Last updated:** 2026-02-07  
 > **Deadline:** ~23 hours from now  
 > **This file is for A (Architect / Tech Lead / Copilot's operator)**  
+> **AI assistants: Reference DEVELOPMENT_REFERENCE.md** for all technical details.  
 > Copilot: refer to this file before every major task.
 
 ---
@@ -47,7 +48,7 @@ Primary Palette (Sage/Forest Green):
   brand-50:  #f4f6f0   (lightest)
   brand-100: #e3e8dc   (card bg light)
   brand-200: #c8d4be   (light sage)
-  brand-300: #a3b896
+  brand-300: #a3b896  
   brand-400: #7e9a6e
   brand-500: #5c7f4c   (primary sage green)
   brand-600: #46623a
@@ -67,10 +68,7 @@ Border radius: rounded-full for pills/buttons, rounded-xl/2xl/3xl for cards/moda
 Transitions: 300ms ease default, view-transition API for theme toggle
 ```
 
----
-
-## 2. Constraints & Limitations
-
+**📖 For complete design system, packages, and technical references: see [DEVELOPMENT_REFERENCE.md](DEVELOPMENT_REFERENCE.md)**
 ### Hard Constraints (Hackathon Rules)
 - **Time:** ~23 hours total
 - **Team:** 4 people (A, D, S, J)  

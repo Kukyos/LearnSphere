@@ -99,6 +99,8 @@ npm run dev
 # 4. Open http://localhost:3000
 ```
 
+**📖 For complete package details, color schemes, component patterns, and technical references: see [DEVELOPMENT_REFERENCE.md](DEVELOPMENT_REFERENCE.md)**
+
 ---
 
 ## Design System (EVERYONE MUST FOLLOW THIS)
@@ -138,6 +140,8 @@ Every component MUST have dark mode variants. Example:
 ```tsx
 <div className="bg-nature-card text-brand-900 dark:bg-brand-800 dark:text-white">
 ```
+
+**📖 For complete design system, component patterns, and examples: see [DEVELOPMENT_REFERENCE.md](DEVELOPMENT_REFERENCE.md)**
 
 ---
 
