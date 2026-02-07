@@ -1,230 +1,272 @@
-# LearnSphere — Learning Platform
+# LearnSphere
 
-> **Last Updated:** 2026-02-07  
-> **Full-stack learning management system with React + TypeScript frontend and Node.js/PostgreSQL backend**
+A full-stack Learning Management System (LMS) built with React, TypeScript, Express, and PostgreSQL. Supports three user roles — **Learner**, **Instructor**, and **Admin** — with course management, lesson delivery, quizzes, progress tracking, points/badges, ratings & reviews, and reporting dashboards.
 
 ---
 
-## 🚀 Quick Start
+## Tech Stack
 
-### Prerequisites
-- Node.js 18+ 
-- PostgreSQL (for backend)
-- Git
+| Layer | Technology | Details |
+|-------|-----------|---------|
+| Frontend | React 19 + TypeScript 5.8 | Vite 6 dev server, port 3000 |
+| Styling | Tailwind CSS (CDN) | Custom sage green brand palette (`#5c7f4c`) |
+| Icons | lucide-react | Used across all components |
+| 3D/Visuals | Three.js, @use-gesture/react | PixelBlast hero + DomeGallery login |
+| Animation | Framer Motion | Page transitions and UI animations |
+| Backend | Express 4.21 + Node.js | REST API, port 5000 |
+| Database | PostgreSQL 18 | 7 tables with full relational schema |
+| Auth | JWT + bcrypt | 24h token expiry, 12 salt rounds |
 
-### Running the Frontend
+---
+
+## Features
+
+### Learner
+- Browse and search published courses
+- Enroll in courses, track lesson progress
+- Take quizzes and earn points/badges
+- Leave star ratings and text reviews
+- Personal dashboard with enrolled courses
+
+### Instructor
+- Create and manage courses with lessons
+- Build quizzes with multiple-choice questions
+- View reporting dashboard (enrollments, ratings, completion)
+- Course visibility: draft, published, archived
+
+### Admin
+- Full platform management
+- User management (list, update roles, delete)
+- System-wide reporting dashboard
+- Seeded account only (cannot register as admin)
+
+---
+
+## Prerequisites
+
+- **Node.js** >= 18.0.0
+- **PostgreSQL** 18 (or compatible version)
+- **npm** (comes with Node.js)
+
+---
+
+## Setup & Installation
+
+### 1. Clone & Install Frontend
+
 ```bash
-# Install dependencies
+git clone <repo-url>
+cd LearnSphere
 npm install
-
-# Start dev server
-npm run dev
-# Opens at: http://localhost:3002
 ```
 
-### Running the Backend
+### 2. Set Up PostgreSQL Database
+
 ```bash
-# Navigate to server directory
+# Create the database
+psql -U postgres -c "CREATE DATABASE learnsphere;"
+
+# Run the schema (creates all 7 tables + indexes)
 cd server
+psql -U postgres -d learnsphere -f schema.sql
+```
 
-# Install backend dependencies
+### 3. Configure Backend Environment
+
+Create `server/.env` (or copy from `.env.example`):
+
+```env
+PORT=5000
+DB_USER=postgres
+DB_PASSWORD=your_postgres_password
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=learnsphere
+JWT_SECRET=your_secret_key_here
+CORS_ORIGIN=http://localhost:3000
+```
+
+### 4. Install Backend Dependencies & Seed Admin
+
+```bash
+cd server
 npm install
-
-# Set up database (PostgreSQL)
-# Configure connection in server/.env
-
-# Run database migrations
-npm run migrate
-
-# Seed database with test data
-npm run seed
-
-# Start backend server
-npm start
-# Runs on: http://localhost:3001
+npm run seed    # Creates admin user: admin@learnsphere.com / Admin@123
 ```
 
----
+### 5. Run the Application
 
-## 📋 Project Overview
+**Terminal 1 — Backend:**
+```bash
+cd server
+npm run dev
+```
 
-LearnSphere is a comprehensive learning management system with:
-- **Learner Portal:** Browse courses, watch lessons, take quizzes, earn points/badges
-- **Instructor Dashboard:** Create courses, manage lessons, build quizzes, view reports
-- **Interactive UI:** 3D visual effects, smooth animations, responsive design
-- **Progress Tracking:** Lesson completion, quiz attempts, course progress
-- **Points & Badges:** Gamification with reward tiers
+**Terminal 2 — Frontend:**
+```bash
+npm run dev
+```
 
----
+Open **http://localhost:3000** in your browser.
 
-## 🏗️ Architecture
-
-### Frontend Stack
-- **React 19** + **TypeScript 5.8** — UI framework
-- **Vite 6.2** — Build tool & dev server
-- **Tailwind CSS** — Utility-first styling (CDN)
-- **Framer Motion 12** — Animations & transitions
-- **Lucide React** — Icon library
-- **@use-gesture/react** — Gesture handling for 3D interactions
-- **Three.js** — 3D graphics (PixelBlast effect)
-
-### Backend Stack
-- **Node.js** + **Express** — API server
-- **PostgreSQL** — Relational database
-- **JWT** — Authentication (planned)
-
-### Design System
-**Unified Light Theme** — Sage/olive green palette
-- Primary: `brand-500` (#5c7f4c), `brand-700` (#384e2f)
-- Backgrounds: `nature-light` (#E6E8D6), `nature-card` (#F3F4ED)
-- No dark mode (removed for consistency)
+> **Important:** The backend must be running for login/register to work. There is no mock auth fallback.
 
 ---
 
-## 📁 Project Structure
+## Default Admin Credentials
+
+| Email | Password |
+|-------|----------|
+| `admin@learnsphere.com` | `Admin@123` |
+
+---
+
+## API Endpoints
+
+### Auth (`/auth`)
+| Method | Route | Access | Description |
+|--------|-------|--------|-------------|
+| POST | `/auth/register` | Public | Register (learner/instructor only) |
+| POST | `/auth/login` | Public | Login, returns JWT |
+| POST | `/auth/forgot-password` | Public | Request password reset |
+| POST | `/auth/reset-password` | Public | Reset password with token |
+| GET | `/auth/profile` | Authenticated | Get current user profile |
+| PUT | `/auth/profile` | Authenticated | Update profile (name, avatar) |
+| PUT | `/auth/password` | Authenticated | Change password |
+| GET | `/auth/users` | Admin | List all users |
+| PUT | `/auth/users/:id/role` | Admin | Update user role |
+| DELETE | `/auth/users/:id` | Admin | Delete user |
+
+### Courses (`/courses`)
+| Method | Route | Access | Description |
+|--------|-------|--------|-------------|
+| GET | `/courses` | Public | List courses (role-scoped) |
+| GET | `/courses/:id` | Public | Get course details + lessons |
+| POST | `/courses` | Instructor/Admin | Create course |
+| PUT | `/courses/:id` | Owner/Admin | Update course |
+| DELETE | `/courses/:id` | Owner/Admin | Delete course |
+| POST | `/courses/:id/lessons` | Instructor/Admin | Add lesson |
+| PUT | `/courses/:id/lessons/:lid` | Instructor/Admin | Update lesson |
+| DELETE | `/courses/:id/lessons/:lid` | Instructor/Admin | Delete lesson |
+| PUT | `/courses/:id/quiz` | Instructor/Admin | Set quiz questions |
+
+### Progress & Enrollment (`/api`)
+| Method | Route | Access | Description |
+|--------|-------|--------|-------------|
+| POST | `/api/enroll` | Authenticated | Enroll in course |
+| GET | `/api/my-enrollments` | Authenticated | Get user's enrollments |
+| POST | `/api/complete-lesson` | Authenticated | Mark lesson complete |
+| GET | `/api/progress/:courseId` | Authenticated | Get course progress |
+| POST | `/api/reviews` | Authenticated | Add review |
+| GET | `/api/reviews/:courseId` | Public | Get course reviews |
+| GET | `/api/reporting` | Instructor/Admin | Get reporting data |
+| POST | `/api/award-points` | Authenticated | Award points to user |
+
+---
+
+## Project Structure
 
 ```
-d:\OdooSNS\
-├── components/           # Shared UI components
-│   ├── visuals/
-│   │   ├── DomeGallery.tsx   # 3D course thumbnail dome (login page)
-│   │   └── WorldGlobe.tsx    # Legacy 3D globe
+LearnSphere/
+├── App.tsx                    # Main app with React Router
+├── index.tsx                  # React entry point
+├── index.html                 # HTML shell + Tailwind CDN config
+├── constants.ts               # Mock course data (initial seed)
+├── types.ts                   # TypeScript interfaces
+├── vite.config.ts             # Vite configuration
+├── package.json               # Frontend dependencies
+│
+├── components/                # Shared UI components
 │   ├── Navbar.tsx
 │   ├── Hero.tsx
-│   └── CourseCard.tsx
-├── pages/                # Route-level pages
-│   ├── Landing.tsx       # Public homepage
-│   ├── Login.tsx         # Auth page (with DomeGallery)
-│   └── LearnerHome.tsx
+│   ├── CourseCard.tsx
+│   ├── FilterPanel.tsx
+│   ├── StatsSection.tsx
+│   ├── Footer.tsx
+│   ├── PixelBlast.tsx
+│   ├── ui/                    # Design system (Button, Input)
+│   └── visuals/               # DomeGallery, WorldGlobe
+│
+├── pages/                     # Top-level route pages
+│   ├── Landing.tsx
+│   ├── LearnerHome.tsx
+│   └── Login.tsx
+│
 ├── src/
-│   ├── components/       # Feature components
-│   │   ├── course-form/  # Course creation UI
-│   │   └── courses/      # Course management
-│   ├── contexts/
-│   │   └── AppContext.tsx  # Global state
-│   ├── pages/            # Additional routes
+│   ├── pages/                 # Feature pages
+│   │   ├── course/            # Course form components
 │   │   ├── CoursesDashboard.tsx
+│   │   ├── CoursesPage.tsx
 │   │   ├── CourseDetailPage.tsx
 │   │   ├── LessonPlayerPage.tsx
+│   │   ├── MyCoursesPage.tsx
 │   │   ├── QuizBuilder.tsx
-│   │   └── ReportingDashboard.tsx
-│   └── services/
-│       └── api.ts        # Backend API client
-├── server/               # Backend API
-│   ├── controllers/
-│   ├── routes/
-│   ├── schema.sql        # Database schema
-│   └── seed.js           # Test data
-├── App.tsx               # Router setup
-└── index.html            # Tailwind config
-
-Documentation:
-├── README.md                    # This file
-├── PROJECT_PLAN.md              # Feature roadmap & architecture
-├── DEVELOPMENT_REFERENCE.md     # Design system & code patterns
-├── TEAM_INSTRUCTIONS.md         # Team workflow & Git conventions
-└── UI_SESSION_REFERENCE.md      # Recent UI session notes
+│   │   ├── ReportingDashboard.tsx
+│   │   └── SettingsPage.tsx
+│   ├── contexts/
+│   │   └── AppContext.tsx     # Global state + API integration
+│   └── components/
+│       ├── ChatbotIcon.tsx
+│       ├── ProfileDrawer.tsx
+│       └── courses/           # Course list sub-components
+│
+├── context/
+│   └── AuthContext.tsx         # Authentication (JWT, no mock)
+│
+├── services/
+│   └── api.ts                 # API client (all endpoints)
+│
+└── server/                    # Express backend
+    ├── server.js              # Entry point
+    ├── db.js                  # PostgreSQL pool
+    ├── schema.sql             # Database schema (7 tables)
+    ├── seed.js                # Admin seeder
+    ├── .env                   # Environment config (not in git)
+    ├── package.json           # Backend dependencies
+    ├── controllers/
+    │   ├── authController.js
+    │   ├── courseController.js
+    │   └── progressController.js
+    ├── middleware/
+    │   └── authMiddleware.js
+    └── routes/
+        ├── auth.js
+        ├── courses.js
+        └── progress.js
 ```
 
 ---
 
-## 🎨 Recent Updates
+## Database Schema
 
-### Latest Changes (Feb 7, 2026)
-1. **DomeGallery Component** — Replaced WorldGlobe on login page with interactive 3D course thumbnail dome
-   - 12 course images in spherical layout
-   - Drag-to-rotate with physics
-   - Auto-rotation when idle
-   - Light sage theme (#e3e8dc overlays)
+7 tables: `users`, `password_reset_tokens`, `courses`, `lessons`, `quiz_questions`, `enrollments`, `lesson_progress`, `reviews`
 
-2. **Theme Unification** — Removed dual light/dark theme system
-   - Removed ~350+ `dark:` classes from 20 files
-   - Removed theme toggle from Navbar
-   - Unified to single light sage/olive palette
-
-3. **Admin Role Removal** — Removed admin from login/signup role selector
-   - Now only: Learner, Instructor
-
-4. **Login Page Polish** — Smooth gradient transitions, no vertical color lines
-
-### Git Branches
-- **main** — Stable code (current)
-- **feat/noAdmin/globe/theme** — Feature branch with above changes (26 files, +1,265 -382)
+See [server/schema.sql](server/schema.sql) for the full schema with indexes.
 
 ---
 
-## 🔧 Development
+## Design System
 
-### Available Scripts
-```bash
-npm run dev       # Start dev server (Vite)
-npm run build     # Build for production
-npm run preview   # Preview production build
-```
+- **Brand Color:** Sage green `#5c7f4c` with full 50–950 scale
+- **Font:** Inter (Google Fonts)
+- **Dark Mode:** Full support via Tailwind `dark:` prefix
+- **Border Radius:** `rounded-full` (pills), `rounded-xl/2xl/3xl` (cards/modals)
 
-### Environment Variables
-```env
-# .env.local (create this file)
-VITE_API_URL=http://localhost:3001
-VITE_GEMINI_API_KEY=your-gemini-api-key
-```
-
-### Git Workflow
-```bash
-# Create feature branch
-git checkout -b feat/your-feature
-
-# Work on feature
-git add .
-git commit -m "feat: description"
-
-# Push to remote
-git push origin feat/your-feature
-```
+See [DEVELOPMENT_REFERENCE.md](DEVELOPMENT_REFERENCE.md) for complete design tokens, component patterns, and usage rules.
 
 ---
 
-## 📚 Documentation
+## Team
 
-- **[PROJECT_PLAN.md](PROJECT_PLAN.md)** — Feature checklist, architecture decisions, task assignments
-- **[DEVELOPMENT_REFERENCE.md](DEVELOPMENT_REFERENCE.md)** — Color system, component patterns, TypeScript types
-- **[TEAM_INSTRUCTIONS.md](TEAM_INSTRUCTIONS.md)** — Git workflow, task assignments, communication rules
-- **[UI_SESSION_REFERENCE.md](UI_SESSION_REFERENCE.md)** — Recent UI session context, DomeGallery details
-
----
-
-## 📦 Dependencies
-
-### Core
-- `react@19.2.4`, `react-dom@19.2.4`
-- `typescript@5.8.2`
-- `vite@6.2.0`
-
-### UI
-- `lucide-react@0.563.0` — Icons
-- `framer-motion@12.x` — Animations
-- `@use-gesture/react` — Gesture handling
-- `three@0.160.0` — 3D graphics
-
-### Backend
-- `express` — API server
-- `pg` — PostgreSQL client
-- `cors` — Cross-origin requests
+| Name | Role |
+|------|------|
+| **A (Cleo)** | Architect, Tech Lead, Integrator |
+| **D** | Backend & DB |
+| **S** | Frontend Implementation |
+| **J** | Product, UX, Presentation |
 
 ---
 
-## 🤝 Contributing
+## License
 
-See [TEAM_INSTRUCTIONS.md](TEAM_INSTRUCTIONS.md) for Git workflow and branch conventions.
-
----
-
-## 📄 License
-
-Educational project for hackathon/learning purposes.
-
----
-
-## 🔗 Repository
-
-GitHub: [https://github.com/Kukyos/LearnSphere.git](https://github.com/Kukyos/LearnSphere.git)
+MIT

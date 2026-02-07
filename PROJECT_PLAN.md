@@ -1,128 +1,43 @@
 # LearnSphere — Project Plan & AI Reference
 
-> **Last updated:** 2026-02-07  
-> **Status:** Backend infrastructure added, UI refinements in progress  
+> **Last updated:** 2026-02-08  
+> **Status:** Core features complete. Backend + Frontend integrated.  
 > **This file is for A (Architect / Tech Lead / Copilot's operator)**  
 > **AI assistants: Reference DEVELOPMENT_REFERENCE.md** for all technical details.  
 > Copilot: refer to this file before every major task.
 
 ---
 
-## ⚡ Recent Updates (Feb 7, 2026)
-
-### Completed Features
-- ✅ **DomeGallery Component** — 3D interactive course thumbnail dome on login page
-- ✅ **Theme Unification** — Removed dual light/dark theme, unified to single light theme
-- ✅ **Admin Role Removal** — Removed admin from login role selector
-- ✅ **Backend Infrastructure** — Node.js/Express API server with PostgreSQL schema added
-- ✅ **API Service Layer** — Frontend-to-backend communication ready (src/services/api.ts)
-
-### Current Branch Status
-- **main:** Synced with remote, includes backend + UI updates
-- **feat/noAdmin/globe/theme:** Pushed to remote (26 files, +1,265 -382)
-  - PR available: https://github.com/Kukyos/LearnSphere/pull/new/feat/noAdmin/globe/theme
-
----
-
-## 1. What Exists Right Now
+## 1. What Exists Right Now (Initial Commit State)
 
 ### Current Stack
 | Layer | Tech | Notes |
 |-------|------|-------|
-| Framework | React 19 + TypeScript | Vite bundler, port 3002 |
-| Styling | Tailwind CSS (CDN `<script>` tag) | **Light theme ONLY** (dark mode removed), custom `brand` + `nature` palette |
+| Framework | React 19 + TypeScript | Vite bundler, port 3000 |
+| Styling | Tailwind CSS (CDN `<script>` tag) | Dark mode via `class` strategy, custom `brand` + `nature` palette |
 | Icons | lucide-react | Already imported throughout |
-| 3D Effects | Three.js + @use-gesture/react | PixelBlast (Hero), DomeGallery (Login) |
-| Animations | Framer Motion 12.x | Page transitions, role selector animation |
-| Backend | Node.js + Express + PostgreSQL | API server, database schema, controllers/routes |
+| 3D Effects | Three.js (PixelBlast component) | Instanced mesh grid with mouse interaction on Hero |
 | Fonts | Inter (Google Fonts) | Loaded in index.html |
 
 ### Current File Map
-```Router setup with pages
+```
+/ (root)
+├── App.tsx              → Single-page app: Navbar → Hero → CourseRows → Stats → Footer + Login modal
 ├── index.tsx            → ReactDOM entry
-├── index.html           → HTML shell with Tailwind CDN config (NO darkMode)
+├── index.html           → HTML shell with Tailwind CDN config, importmap, view-transition CSS
 ├── constants.ts         → 20 mock courses (MOCK_COURSES) + 3 review snippets
 ├── types.ts             → Course, FilterState, SortOption, Difficulty types
 ├── vite.config.ts       → Vite config with @/ alias, Gemini API key passthrough
 ├── tsconfig.json        → Standard React TS config
-├── package.json         → Dependencies: react, framer-motion, lucide-react, three, @use-gesture/react
-├── metadata.json        → AI Studio metadata
-├── README.md            → Updated project readme
-├── PROJECT_PLAN.md      → This file
-├── DEVELOPMENT_REFERENCE.md → Design system & patterns
-├── TEAM_INSTRUCTIONS.md     → Workflow & Git conventions
-├── UI_SESSION_REFERENCE.md  → Latest UI session context
+├── package.json         → "lumina-learning" — react, react-dom, lucide-react, three
+├── metadata.json        → AI Studio metadata (can be removed/ignored)
+├── README.md            → AI Studio generated readme (will be replaced)
 └── components/
-    ├── Navbar.tsx        → Floating pill navbar (NO theme toggle)
+    ├── Navbar.tsx        → Floating pill navbar, theme toggle, sign-in button, mobile menu
     ├── Hero.tsx          → Full-width hero with search bar + PixelBlast 3D background
-    ├── CourseCard.tsx    → Netflix-style card with hover pop-out
-    ├── FilterPanel.tsx   → Category/Difficulty/Price filter sidebar
+    ├── CourseCard.tsx    → Netflix-style card with hover pop-out (500ms delay)
+    ├── FilterPanel.tsx   → Category/Difficulty/Price filter sidebar (NOT wired into App.tsx yet)
     ├── StatsSection.tsx  → Stats counters + 3 review cards
-    ├── Footer.tsx        → 4-column footer with socials
-
-**⚠️ IMPORTANT: Dark mode has been REMOVED. Use light theme only.**
-
-```
-Primary Palette (Sage/Forest Green):
-  brand-50:  #f4f6f0   (lightest)
-  brand-100: #e3e8dc   (card bg, overlays)
-  brand-200: #c8d4be   (light sage)
-  brand-300: #a3b896  
-  brand-400: #7e9a6e
-  brand-500: #5c7f4c   (primary sage green)
-  brand-600: #46623a   (hover states)
-  brand-700: #384e2f   (button hover)
-  brand-800: #2f3e29
-  brand-900: #263323   (dark text)
-  brand-950: #131b11
-
-Semantic:
-  nature-light:  #E6E8D6  (main bg)
-  nature-card:   #F3F4ED  (card bg)
-  nature-accent: #D9DCD6
-  nature-dark:   #1F2922
-
-Font: Inter (300–700)
-Border radius: rounded-full for pills/buttons, rounded-xl/2xl/3xl for cards/modals
-Transitions: 300ms ease default
-```
-
-**Usage:**
-```tsx
-// NO MORE dark: classes! Light theme only.
-<div className="bg-nature-light text-brand-900">
-<button className="bg-brand-700 hover:bg-brand-600 text-white">
-<inpBackend now exists!** Server folder with Node/Express + PostgreSQL schema
-- **Routing implemented.** Using `react-router-dom` for multi-page navigation
-- **Auth system in progress.** Login page exists, backend auth endpoints needed
-- **Database schema ready.** Need to seed and wire up frontend
-- **Tailwind is CDN-loaded** via `<script>` tag in `index.html`, NOT PostCSS
-- **No global state management beyond Context API.** Using AppContext for courses, AuthContext for auth
-- **Three.js confined to visuals.** Used in PixelBlast (Hero) and DomeGallery (Login) only
-- **Theme system simplified.** NO dark mode toggle, light theme only
-    │   └── courses/
-    │       ├── CourseCard.tsx
-    │       ├── CourseTable.tsx
-    │       └── CreateCourseModal.tsx
-    ├── contexts/
-    │   └── AppContext.tsx  → Global state (NO theme state)
-    ├── pages/
-    │   ├── CourseDetailPage.tsx
-    │   ├── CoursesDashboard.tsx
-    │   ├── CoursesPage.tsx
-    │   ├── LessonPlayerPage.tsx
-    │   ├── MyCoursesPage.tsx
-    │   ├── QuizBuilder.tsx
-    │   ├── ReportingDashboard.tsx
-    │   └── course/
-    │       └── CourseForm.tsx
-    └── services/
-        └── api.ts          → API client for backend (NEW)
-└── server/                 → Backend (NEW)
-    ├── controllers/
-    ├── routes/
-    ├── schema.sql          → PostgreSQL database schema
-    └── seed.js             → Database seeding scrip
     ├── Footer.tsx        → 4-column footer with socials
     └── PixelBlast.tsx    → Three.js instanced mesh grid with mouse ripple effect
 ```
@@ -161,13 +76,14 @@ Transitions: 300ms ease default, view-transition API for theme toggle
 - **Must cover:** Course CRUD, Lessons, Quizzes, Progress tracking, Points/Badges, Ratings, Reporting
 
 ### Technical Constraints
-- **No real backend yet.** Everything is mock data in `constants.ts`. D needs to set up backend.
-- **No routing.** Currently a single-page app. Need `react-router-dom` for multi-page.
-- **No auth system.** Login modal is visual only. Need real auth flow.
-- **No database.** Need to decide: Firebase/Supabase (fastest) vs. custom Node/Express + DB.
-- **Tailwind is CDN-loaded** via `<script>` tag in `index.html`, NOT PostCSS. This works for now but custom classes must go in the tailwind.config inside `index.html`.
-- **No state management.** Only React useState. May need Context API or Zustand for auth/user state.
-- **Three.js is a heavy dependency.** Only used for Hero background. Keep it isolated — don't spread it.
+- **Backend: Express + PostgreSQL** — fully built in `server/`. 3 controllers, 3 route files, JWT auth.
+- **Routing: react-router-dom** — multi-page app with role-based routes.
+- **Auth: Real JWT auth** — bcrypt password hashing, 24h token expiry. NO mock fallback.
+- **Database: PostgreSQL 18** — 7 tables, 10 indexes. Schema in `server/schema.sql`.
+- **Tailwind is CDN-loaded** via `<script>` tag in `index.html`, NOT PostCSS. Custom classes go in the tailwind.config inside `index.html`.
+- **State: React Context API** — AuthContext (auth) + AppContext (courses/state).
+- **API Pattern: Optimistic UI** — local state updates immediately, API fires in background.
+- **Three.js is a heavy dependency.** Only used for Hero background. Keep it isolated.
 
 ### What I (Copilot) CAN Do
 - ✅ Generate React components (TSX + Tailwind)
@@ -188,52 +104,52 @@ Transitions: 300ms ease default, view-transition API for theme toggle
 - ❌ Upload actual files to cloud storage (need S3/Firebase Storage config)
 - ❌ Create real OAuth (Google sign-in needs console setup)
 
-### Pragmatic Decisions for 23 Hours
-| Feature | Approach | Why |
-|---------|----------|-----|
-| Auth | Mock auth with Context (localStorage) OR Supabase Auth | No time for custom JWT |
-| Database | Supabase (Postgres + realtime) OR Firebase Firestore | Fastest to wire up |
-| File uploads | Mock with URLs / Supabase Storage | Real upload needs backend |
-| Payments | Show UI, mock the flow | No time for Stripe integration |
-| Email invites | Show UI, log to console | No SMTP setup in 23h |
-| Video player | Embed YouTube/iframe | Don't build custom player |
-| Document viewer | PDF.js embed or iframe | Keep it simple |
-| Quiz scoring | Client-side calculation, persist to DB | Works fine for demo |
+### Pragmatic Decisions Made
+| Feature | Approach | Status |
+|---------|----------|--------|
+| Auth | Real JWT auth (Express + bcrypt + jsonwebtoken) | ✅ Done |
+| Database | PostgreSQL 18 via `pg` library | ✅ Done |
+| File uploads | Mock with URLs | Unchanged |
+| Payments | Show UI, mock the flow | Unchanged |
+| Email invites | Show UI, log to console | Unchanged |
+| Video player | Embed YouTube/iframe | Unchanged |
+| Document viewer | PDF.js embed or iframe | Unchanged |
+| Quiz scoring | Client-side + backend points API | ✅ Done |
 
 ---
 
 ## 3. Full Feature Checklist (Priority Order)
 
 ### 🔴 CRITICAL — Must have for demo
-- [ ] **Routing setup** — react-router-dom with layout wrappers
-- [ ] **Auth context** — login/signup/logout, role-based (Admin, Instructor, Learner)
-- [ ] **Learner: Course browsing page** (B1/B2) — grid of published courses with search
-- [ ] **Learner: Course detail page** (B3) — overview, progress bar, lesson list
-- [ ] **Learner: Full-screen lesson player** (B5) — sidebar + video/doc/image viewer
-- [ ] **Instructor: Course dashboard** (A1) — list/kanban view of courses
-- [ ] **Instructor: Course form** (A2) — edit course details, publish toggle
-- [ ] **Instructor: Lesson management** (A3/A4) — add/edit/delete lessons
-- [ ] **Database schema + seed data** (D's job)
+- [x] **Routing setup** — react-router-dom with layout wrappers
+- [x] **Auth context** — login/signup/logout, role-based (Admin, Instructor, Learner)
+- [x] **Learner: Course browsing page** (B1/B2) — grid of published courses with search
+- [x] **Learner: Course detail page** (B3) — overview, progress bar, lesson list
+- [x] **Learner: Full-screen lesson player** (B5) — sidebar + video/doc/image viewer
+- [x] **Instructor: Course dashboard** (A1) — list/kanban view of courses
+- [x] **Instructor: Course form** (A2) — edit course details, publish toggle
+- [x] **Instructor: Lesson management** (A3/A4) — add/edit/delete lessons
+- [x] **Database schema + seed data** — PostgreSQL, 7 tables, admin seeded
 
 ### 🟡 IMPORTANT — Makes demo convincing
-- [ ] **Learner: Quiz flow** (B6) — one question per page, submit, score
-- [ ] **Instructor: Quiz builder** (A7) — add questions, set rewards
-- [ ] **Points & Badges** (B7/B2) — earn points from quizzes, badge levels display
-- [ ] **Course progress tracking** — lesson completion status, % bar
-- [ ] **Ratings & Reviews** (B4) — star rating + review text
-- [ ] **Instructor: Reporting dashboard** (A8) — overview cards + user table
+- [x] **Learner: Quiz flow** (B6) — quiz scoring mechanics
+- [x] **Instructor: Quiz builder** (A7) — add questions, set rewards
+- [x] **Points & Badges** (B7/B2) — earn points from quizzes, badge levels display
+- [x] **Course progress tracking** — lesson completion status, % bar
+- [x] **Ratings & Reviews** (B4) — star rating + review text
+- [x] **Instructor: Reporting dashboard** (A8) — overview cards + user table
 - [ ] **Course visibility/access rules** (A5) — Everyone/SignedIn, Open/Invite/Paid
 
 ### 🟢 NICE TO HAVE — If time allows
-- [ ] **Kanban view** for instructor dashboard (vs just list)
-- [ ] **Customizable columns** in reporting table
-- [ ] **Share course link** generation
-- [ ] **Contact attendees** wizard
-- [ ] **Additional attachments** on lessons
-- [ ] **Course completion certificate/popup**
-- [ ] **Dark mode** across ALL new pages (already works on landing)
-- [ ] **Mobile responsive** polish on all new pages
-- [ ] **Chatbot / AI feature** (J's optional task)
+- [ ] Kanban view for instructor dashboard (vs just list)
+- [ ] Customizable columns in reporting table
+- [ ] Share course link generation
+- [ ] Contact attendees wizard
+- [ ] Additional attachments on lessons
+- [ ] Course completion certificate/popup
+- [x] **Dark mode** across ALL new pages
+- [ ] Mobile responsive polish on all new pages
+- [ ] Chatbot / AI feature (J's optional task)
 
 ---
 
@@ -382,20 +298,31 @@ badges (id, name, min_points, icon)
 
 ---
 
-## 7. Next Steps (In Order)
+## 7. What's Done & What Remains
 
-1. **Create `.gitignore` and make initial commit** ← doing now
-2. **Install `react-router-dom`** and set up routing in App.tsx
-3. **Create page shell components** (empty pages with basic layout)
-4. **Create AuthContext** with mock login (localStorage)
-5. **Build Learner flow first** (most visible for demo):
-   - Course listing → Course detail → Lesson player
-6. **Build Instructor flow** (backoffice):
-   - Dashboard → Course form → Lesson editor → Quiz builder
-7. **Wire up to real backend** when D has APIs ready
-8. **Add polish**: progress tracking, points, badges, reviews
-9. **Final integration + bug fixes** in last 3-4 hours
+### ✅ Completed
+1. Full Express + PostgreSQL backend (all 3 roles)
+2. React Router with role-based routes
+3. AuthContext with real JWT auth (no mock)
+4. AppContext with API integration (optimistic UI)
+5. All learner pages (browse, detail, player, quiz, my courses)
+6. All instructor pages (dashboard, course form, lessons, quiz builder, reporting)
+7. Login page with DomeGallery + forgot-password flow
+8. Points/badges system with auto-award
+9. Ratings & reviews
+10. Admin user management (seeded admin only)
+11. Database schema, indexes, admin seed
+12. Full API client (services/api.ts)
+
+### 🔲 Remaining / Polish
+- Course visibility/access rules (everyone vs signed-in, open/invite/paid)
+- Mobile responsive polish on inner pages
+- SettingsPage may need re-checking (teammate branch may have broken it)
+- `backendOnline` indicator in UI (boolean exposed but not shown)
+- AppContext still has mock courses as initial seed (merges with backend data)
+- Course completion certificate/popup
+- Chatbot / AI feature
 
 ---
 
-*This file should be updated as tasks are completed. Check boxes off as you go.*
+*This file should be updated as tasks are completed.*

@@ -1,32 +1,8 @@
 # LearnSphere — Team Instructions
 
 > Read this FULLY before writing a single line of code.  
-> **Last Updated:** 2026-02-07  
-> **Status:** Backend infrastructure added, UI refinements ongoing
-
----
-
-## 🚨 RECENT UPDATES (Feb 7, 2026)
-
-### What Changed
-1. **Theme System Simplified** — Dark mode REMOVED, light theme ONLY
-   - Do NOT add `dark:` classes to any components
-   - Use only brand-* and nature-* light colors
-   
-2. **DomeGallery Component Added** — 3D course thumbnail dome on login page
-   - Location: `components/visuals/DomeGallery.tsx` + `.css`
-   - Used in: `pages/Login.tsx`
-   
-3. **Admin Role Removed** — Login/signup now only has Learner + Instructor
-   
-4. **Backend Infrastructure Added** — `server/` folder with Node.js/Express API
-   - PostgreSQL schema ready
-   - Controllers, routes, seeding scripts included
-   - Frontend API client: `src/services/api.ts`
-
-### Branch Status
-- **main** — Current stable branch (synced)
-- **feat/noAdmin/globe/theme** — Feature branch with above changes (pushed)
+> **Deadline: ~23 hours from now.**  
+> **No excuses. No freelancing. Follow this.**
 
 ---
 
@@ -100,38 +76,48 @@ docs: update team instructions
 
 | What | Tech | Notes |
 |------|------|-------|
-| Frontend | React 19 + TypeScript | Already set up |
-| Styling | Tailwind CSS (CDN) | Colors in index.html, **NO dark mode** |
+| Frontend | React 19 + TypeScript | Vite bundler, port 3000 |
+| Styling | Tailwind CSS (CDN) | Colors defined in index.html |
 | Icons | lucide-react | `import { IconName } from 'lucide-react'` |
-| Routing | react-router-dom | **INSTALLED** |
-| Animations | framer-motion | Page transitions, animations |
-| Gestures | @use-gesture/react | Drag interactions (DomeGallery) |
-| State | React Context API | AuthContext, AppContext |
-| Build | Vite | `npm run dev` → localhost:3002 |
-| Backend | Node.js + Express | In `server/` folder |
-| Database | PostgreSQL | Schema in `server/schema.sql` |
+| Routing | react-router-dom 7.x | BrowserRouter, role-based routes |
+| Animation | framer-motion, @use-gesture/react | Page transitions, DomeGallery |
+| State | React Context API | AuthContext (auth) + AppContext (courses) |
+| Build | Vite | `npm run dev` → localhost:3000 |
+| Backend | Express 4.21 | REST API, port 5000 |
+| Database | PostgreSQL 18 | 7 tables, see server/schema.sql |
+| Auth | JWT + bcrypt | 24h tokens, 12 salt rounds |
 
 ### To run the project locally:
 ```bash
-# 1. Clone the repo (if not already)
-git clone https://github.com/Kukyos/LearnSphere.git
+# 1. Clone the repo
+git clone <repo-url>
 cd LearnSphere
 
 # 2. Install frontend dependencies
 npm install
 
-# 3. Start frontend dev server
-npm run dev
-# Opens at http://localhost:3002
-
-# 4. (Separate terminal) Start backend
+# 3. Set up PostgreSQL database
+psql -U postgres -c "CREATE DATABASE learnsphere;"
 cd server
-npm install
-npm start
-# Runs on http://localhost:3001
-``⚠️ CRITICAL: Dark mode has been REMOVED. Use light theme ONLY.**
+psql -U postgres -d learnsphere -f schema.sql
 
-**`
+# 4. Configure backend environment
+# Copy server/.env.example to server/.env and set your values
+
+# 5. Install backend dependencies & seed admin
+npm install
+npm run seed    # Creates admin@learnsphere.com / Admin@123
+
+# 6. Start backend (Terminal 1)
+npm run dev
+
+# 7. Start frontend (Terminal 2, from project root)
+cd ..
+npm run dev
+
+# 8. Open http://localhost:3000
+# NOTE: Backend MUST be running for login/register to work
+```
 
 **📖 For complete package details, color schemes, component patterns, and technical references: see [DEVELOPMENT_REFERENCE.md](DEVELOPMENT_REFERENCE.md)**
 
@@ -155,18 +141,14 @@ Backgrounds:
   nature-card:  #F3F4ED  ← card bg (light mode)
 
 Dark mode: use dark: prefix with brand-800/900/950
-````
-- **Inputs:** `rounded-xl border border-brand-200`
-- **Modals:** `rounded-3xl` with `backdrop-blur-sm` overlay
+```
 
-### Theme Guidelines
-**NO dark mode.** Every component uses light theme only. Example:
-```tsx
-// CORRECT
-<div className="bg-nature-card text-brand-900">
+### Typography
+- **Font:** Inter (already loaded)
+- **Headings:** `font-bold` or `font-extrabold`
+- **Body:** `text-sm` or `text-base`
+- **Labels:** `text-xs font-bold uppercase tracking-wider`
 
-// WRONG - do NOT add dark: classes
-<div className="bg-nature-card dark:bg-brand-800 text-brand-9
 ### Components
 - **Buttons:** `rounded-full` or `rounded-xl`, `bg-brand-700 text-white hover:bg-brand-600`
 - **Cards:** `rounded-xl` or `rounded-2xl`, `bg-nature-card dark:bg-brand-800`
@@ -288,48 +270,50 @@ lesson_progress, quiz_attempts, reviews
 ---
 
 ## Folder Structure (Where to put things)
-visuals/          → 3D components (DomeGallery, WorldGlobe, PixelBlast)
-│   ├── Navbar.tsx        (exists - no theme toggle)
-│   ├── Hero.tsx          (exists)
-│   ├── CourseCard.tsx    (exists)
+
+```
+LearnSphere/
+├── components/           → Reusable UI components
+│   ├── ui/               → Buttons, Inputs (shared design system)
+│   ├── visuals/          → DomeGallery, WorldGlobe
+│   ├── Navbar.tsx
+│   ├── Hero.tsx
+│   ├── CourseCard.tsx
 │   └── ...
-├── pages/                → Full page components (one per route)
-│   ├── Landing.tsx       (exists)
-│   ├── Login.tsx         (exists - with DomeGallery)
-│   ├── LearnerHome.tsx   (exists)
-│   ├── CourseList.tsx
-│   ├── CourseDetail.tsx
-│   └── ...
+├── pages/                → Top-level route pages
+│   ├── Landing.tsx
+│   ├── Login.tsx
+│   └── LearnerHome.tsx
 ├── src/
-│   ├── components/       → Feature-specific components
-│   │   ├── course-form/  → Course creation UI
-│   │   └── courses/      → Course management
-│   ├── pages/            → Additional route pages
+│   ├── pages/            → Feature pages
+│   │   ├── CoursesDashboard.tsx
+│   │   ├── CoursesPage.tsx
 │   │   ├── CourseDetailPage.tsx
 │   │   ├── LessonPlayerPage.tsx
+│   │   ├── MyCoursesPage.tsx
 │   │   ├── QuizBuilder.tsx
-│   │   └── ReportingDashboard.tsx
+│   │   ├── ReportingDashboard.tsx
+│   │   └── SettingsPage.tsx
 │   ├── contexts/
-│   │   └── AppContext.tsx (exists - no theme state)
-│   └── services/
-│       └── api.ts        (NEW - backend API client)
-├── context/              → React Context providers
-│   └── AuthContext.tsx
-├── server/               → Backend (NEW)
-│   ├── controllers/
-│   ├── routes/
-│   ├── schema.sql
-│   └── seed.js
-│       ├── CourseForm.tsx
-│       └── Reporting.tsx
-├── context/              → React Context providers
-│   └── AuthContext.tsx
-├── hooks/                → Custom React hooks
-├── lib/                  → Utilities, API client, Supabase init
-├── types.ts              → ALL TypeScript types go here
-├── constants.ts          → Mock data
+│   │   └── AppContext.tsx    → Global state + API integration
+│   └── components/       → Feature-specific sub-components
+├── context/
+│   └── AuthContext.tsx   → JWT auth (no mock fallback)
+├── services/
+│   └── api.ts            → Full API client
+├── types.ts              → TypeScript interfaces
+├── constants.ts          → Mock data (initial seed)
 ├── App.tsx               → Router setup
-└── index.tsx             → Entry point (don't touch)
+├── index.tsx             → Entry point (don't touch)
+└── server/               → Express backend
+    ├── server.js         → Entry point (port 5000)
+    ├── db.js             → PostgreSQL pool
+    ├── schema.sql        → Database schema
+    ├── seed.js           → Admin seeder
+    ├── .env              → Config (not in git)
+    ├── controllers/      → authController, courseController, progressController
+    ├── middleware/        → authMiddleware (JWT verify + role auth)
+    └── routes/           → auth.js, courses.js, progress.js
 ```
 
 **Rule: If you're not sure where a file goes, ASK A.**
@@ -338,8 +322,8 @@ visuals/          → 3D components (DomeGallery, WorldGlobe, PixelBlast)
 
 ## Emergency Protocols
 
-### "The backend isn't ready"
-→ Use mock data. The frontend should NEVER be blocked by backend. Build with fake data, swap later.
+### "The backend isn't running"
+→ Login/register will fail with a clear error. Start it: `cd server && npm run dev`. Guest browsing still works without backend.
 
 ### "Git merge conflict"
 → Don't panic. Tell A. A will resolve it. Do NOT force push.
