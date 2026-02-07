@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { MoreVertical, Eye, BookOpen, Clock, Share2, Edit } from 'lucide-react';
+import { MoreVertical, Eye, BookOpen, Clock, Share2, Edit, User } from 'lucide-react';
+import { useApp } from '../../contexts/AppContext';
 
 interface Course {
   id: string;
@@ -10,6 +11,7 @@ interface Course {
   totalDuration: string;
   isPublished: boolean;
   coverImage?: string;
+  instructorName?: string;
 }
 
 interface CourseCardProps {
@@ -21,16 +23,20 @@ interface CourseCardProps {
 export default function CourseCard({ course, onEdit, onShare }: CourseCardProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const { theme } = useApp();
+  const isDark = theme === 'dark';
 
   return (
     <div 
-      className={`bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition border border-gray-200 group ${
-        !course.isPublished ? 'opacity-85 hover:opacity-100' : ''
+      className={`rounded-2xl overflow-hidden shadow-lg transition-all hover:shadow-xl hover:-translate-y-1 border group ${
+        isDark
+          ? `bg-brand-900 border-brand-700 ${!course.isPublished ? 'opacity-85 hover:opacity-100' : ''}`
+          : `bg-white border-brand-200 ${!course.isPublished ? 'opacity-85 hover:opacity-100' : ''}`
       }`}
     >
       {/* Cover Image */}
       <div 
-        className={`relative h-40 bg-gradient-to-br from-indigo-400 to-purple-500 overflow-hidden ${
+        className={`relative h-40 bg-gradient-to-br from-brand-400 to-brand-600 overflow-hidden ${
           !course.isPublished ? 'grayscale hover:grayscale-0 transition-all duration-300' : ''
         }`}
       >
@@ -60,9 +66,13 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
               
               {/* Tooltip */}
               {showTooltip && (
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-gray-900 text-white text-xs rounded px-3 py-2 whitespace-nowrap z-20">
+                <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 text-white text-xs rounded px-3 py-2 whitespace-nowrap z-20 ${
+                  isDark ? 'bg-brand-700' : 'bg-brand-900'
+                }`}>
                   Not visible to learners
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                  <div className={`absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent ${
+                    isDark ? 'border-t-brand-700' : 'border-t-brand-900'
+                  }`}></div>
                 </div>
               )}
             </div>
@@ -87,20 +97,28 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition"
+              className={`p-2 rounded-full shadow-md transition ${
+                isDark ? 'bg-brand-800 hover:bg-brand-700 text-brand-200' : 'bg-white hover:bg-brand-50 text-brand-700'
+              }`}
             >
-              <MoreVertical className="h-5 w-5 text-gray-700" />
+              <MoreVertical className="h-5 w-5" />
             </button>
 
             {/* Dropdown Menu */}
             {showMenu && (
-              <div className="absolute left-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+              <div className={`absolute left-0 mt-1 w-40 rounded-xl shadow-lg border z-10 ${
+                isDark ? 'bg-brand-800 border-brand-600' : 'bg-white border-brand-200'
+              }`}>
                 <button
                   onClick={() => {
                     onEdit(course.id);
                     setShowMenu(false);
                   }}
-                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100"
+                  className={`w-full px-4 py-2 text-left text-sm flex items-center gap-2 border-b rounded-t-xl ${
+                    isDark
+                      ? 'text-brand-200 hover:bg-brand-700 border-brand-600'
+                      : 'text-brand-700 hover:bg-brand-50 border-brand-100'
+                  }`}
                 >
                   <Edit className="h-4 w-4" />
                   Edit
@@ -110,7 +128,9 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
                     onShare(course.id);
                     setShowMenu(false);
                   }}
-                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  className={`w-full px-4 py-2 text-left text-sm flex items-center gap-2 rounded-b-xl ${
+                    isDark ? 'text-brand-200 hover:bg-brand-700' : 'text-brand-700 hover:bg-brand-50'
+                  }`}
                 >
                   <Share2 className="h-4 w-4" />
                   Share
@@ -122,23 +142,33 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
       </div>
 
       {/* Card Content */}
-      <div className={`p-4 ${!course.isPublished ? 'bg-gray-50/50' : ''}`}>
+      <div className={`p-4 ${!course.isPublished ? (isDark ? 'bg-brand-900/50' : 'bg-brand-50/50') : ''}`}>
         {/* Title */}
         <h3 className={`font-semibold mb-2 line-clamp-2 text-base ${
-          !course.isPublished ? 'text-gray-700' : 'text-gray-900'
+          isDark
+            ? (course.isPublished ? 'text-white' : 'text-brand-300')
+            : (course.isPublished ? 'text-brand-900' : 'text-brand-700')
         }`}>
           {course.title}
         </h3>
+
+        {/* Instructor Name (for admin view) */}
+        {course.instructorName && (
+          <div className={`flex items-center gap-1.5 mb-2 text-xs ${isDark ? 'text-brand-400' : 'text-brand-500'}`}>
+            <User className="h-3.5 w-3.5" />
+            <span>{course.instructorName}</span>
+          </div>
+        )}
 
         {/* Tags */}
         <div className="flex flex-wrap gap-1 mb-4">
           {course.tags.map((tag) => (
             <span
               key={tag}
-              className={`inline-block px-2 py-1 text-xs rounded font-medium ${
+              className={`inline-block px-2 py-1 text-xs rounded-md font-medium ${
                 !course.isPublished
-                  ? 'bg-gray-200 text-gray-600'
-                  : 'bg-indigo-50 text-indigo-700'
+                  ? isDark ? 'bg-brand-800 text-brand-400' : 'bg-brand-100 text-brand-500'
+                  : isDark ? 'bg-brand-800 text-brand-200' : 'bg-brand-100 text-brand-700'
               }`}
             >
               {tag}
@@ -148,10 +178,12 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
 
         {/* Stats */}
         <div className={`space-y-2 text-sm ${
-          !course.isPublished ? 'text-gray-500' : 'text-gray-600'
+          isDark
+            ? (course.isPublished ? 'text-brand-300' : 'text-brand-400')
+            : (course.isPublished ? 'text-brand-600' : 'text-brand-500')
         }`}>
           <div className="flex items-center gap-2">
-            <Eye className="h-4 w-4 text-gray-400" />
+            <Eye className={`h-4 w-4 ${isDark ? 'text-brand-500' : 'text-brand-400'}`} />
             <span>
               {course.viewsCount === 0 
                 ? 'No views yet' 
@@ -159,19 +191,21 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-gray-400" />
+            <BookOpen className={`h-4 w-4 ${isDark ? 'text-brand-500' : 'text-brand-400'}`} />
             <span>{course.totalLessons} lessons</span>
           </div>
           <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-gray-400" />
+            <Clock className={`h-4 w-4 ${isDark ? 'text-brand-500' : 'text-brand-400'}`} />
             <span>{course.totalDuration}</span>
           </div>
         </div>
 
         {/* Draft State Message */}
         {!course.isPublished && (
-          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-            <p className="text-xs text-yellow-800 font-medium">
+          <div className={`mt-4 p-3 rounded-lg border ${
+            isDark ? 'bg-yellow-900/20 border-yellow-700/30' : 'bg-yellow-50 border-yellow-200'
+          }`}>
+            <p className={`text-xs font-medium ${isDark ? 'text-yellow-300' : 'text-yellow-800'}`}>
               ⚠️ This course is not visible to learners. Publish to make it live.
             </p>
           </div>

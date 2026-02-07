@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit3, Trash2, HelpCircle } from 'lucide-react';
+import { Plus, Edit3, Trash2, HelpCircle, Trophy } from 'lucide-react';
 
 interface QuizQuestion {
   id: string;
@@ -8,12 +8,19 @@ interface QuizQuestion {
   correctAnswer: number;
 }
 
+interface RewardRule {
+  attempt: number;
+  points: number;
+}
+
 interface QuizTabProps {
   questions: QuizQuestion[];
   onChange: (questions: QuizQuestion[]) => void;
+  rewardRules: RewardRule[];
+  onRewardRulesChange: (rules: RewardRule[]) => void;
 }
 
-export default function QuizTab({ questions, onChange }: QuizTabProps) {
+export default function QuizTab({ questions, onChange, rewardRules, onRewardRulesChange }: QuizTabProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editQuestion, setEditQuestion] = useState('');
   const [editOptions, setEditOptions] = useState<string[]>(['', '', '', '']);
@@ -55,7 +62,7 @@ export default function QuizTab({ questions, onChange }: QuizTabProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Quiz Questions</h3>
+        <h3 className="text-lg font-bold text-brand-900 dark:text-white">Quiz Questions</h3>
         <button
           onClick={addQuestion}
           className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-semibold hover:bg-brand-700 transition-colors"
@@ -65,21 +72,21 @@ export default function QuizTab({ questions, onChange }: QuizTabProps) {
       </div>
 
       {questions.length === 0 && (
-        <div className="text-center py-12 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl">
-          <HelpCircle className="mx-auto mb-3 text-gray-400" size={40} />
-          <p className="text-gray-500 dark:text-gray-400">No quiz questions yet. Add questions to create a quiz for this course.</p>
+        <div className="text-center py-12 border-2 border-dashed border-brand-300 dark:border-brand-600 rounded-xl">
+          <HelpCircle className="mx-auto mb-3 text-brand-400" size={40} />
+          <p className="text-brand-500 dark:text-brand-300">No quiz questions yet. Add questions to create a quiz for this course.</p>
         </div>
       )}
 
       <div className="space-y-4">
         {questions.map((q, qi) => (
-          <div key={q.id} className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white dark:bg-gray-800">
+          <div key={q.id} className="border border-brand-200 dark:border-brand-700 rounded-xl overflow-hidden bg-white dark:bg-brand-900">
             {editingId === q.id ? (
               <div className="p-4 space-y-3">
                 <input
                   value={editQuestion}
                   onChange={e => setEditQuestion(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-brand-300 dark:border-brand-600 rounded-lg bg-white dark:bg-brand-800 text-brand-900 dark:text-white"
                   placeholder="Enter your question..."
                 />
                 <div className="space-y-2">
@@ -90,7 +97,7 @@ export default function QuizTab({ questions, onChange }: QuizTabProps) {
                         className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
                           editCorrect === oi
                             ? 'border-green-500 bg-green-500 text-white'
-                            : 'border-gray-300 dark:border-gray-600 hover:border-green-400'
+                            : 'border-brand-300 dark:border-brand-600 hover:border-green-400'
                         }`}
                       >
                         {editCorrect === oi && '✓'}
@@ -102,16 +109,16 @@ export default function QuizTab({ questions, onChange }: QuizTabProps) {
                           newOpts[oi] = e.target.value;
                           setEditOptions(newOpts);
                         }}
-                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                        className="flex-1 px-3 py-2 border border-brand-300 dark:border-brand-600 rounded-lg bg-white dark:bg-brand-800 text-brand-900 dark:text-white text-sm"
                         placeholder={`Option ${String.fromCharCode(65 + oi)}`}
                       />
                     </div>
                   ))}
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Click the circle to mark the correct answer</p>
+                <p className="text-xs text-brand-500 dark:text-brand-300">Click the circle to mark the correct answer</p>
                 <div className="flex gap-2">
                   <button onClick={saveEdit} className="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-semibold hover:bg-brand-700">Save</button>
-                  <button onClick={() => setEditingId(null)} className="px-4 py-2 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-lg text-sm font-semibold">Cancel</button>
+                  <button onClick={() => setEditingId(null)} className="px-4 py-2 bg-brand-100 text-brand-700 dark:bg-brand-800 dark:text-brand-200 rounded-lg text-sm font-semibold">Cancel</button>
                 </div>
               </div>
             ) : (
@@ -121,13 +128,13 @@ export default function QuizTab({ questions, onChange }: QuizTabProps) {
                     {qi + 1}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 dark:text-white mb-2">{q.question || 'Untitled Question'}</p>
+                    <p className="font-semibold text-brand-900 dark:text-white mb-2">{q.question || 'Untitled Question'}</p>
                     <div className="grid grid-cols-2 gap-2">
                       {q.options.map((opt, oi) => (
                         <div key={oi} className={`text-sm px-3 py-1.5 rounded-lg ${
                           oi === q.correctAnswer
                             ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-semibold'
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                            : 'bg-brand-50 dark:bg-brand-800 text-brand-600 dark:text-brand-300'
                         }`}>
                           {String.fromCharCode(65 + oi)}. {opt || '—'}
                         </div>
@@ -135,10 +142,10 @@ export default function QuizTab({ questions, onChange }: QuizTabProps) {
                     </div>
                   </div>
                   <div className="flex gap-1 flex-none">
-                    <button onClick={() => startEdit(q)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-brand-600">
+                    <button onClick={() => startEdit(q)} className="p-2 rounded-lg hover:bg-brand-100 dark:hover:bg-brand-800 text-brand-500 hover:text-brand-600">
                       <Edit3 size={16} />
                     </button>
-                    <button onClick={() => deleteQuestion(q.id)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-500 hover:text-red-600">
+                    <button onClick={() => deleteQuestion(q.id)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-brand-500 hover:text-red-600">
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -148,6 +155,41 @@ export default function QuizTab({ questions, onChange }: QuizTabProps) {
           </div>
         ))}
       </div>
+
+      {/* Reward Rules Section */}
+      {questions.length > 0 && rewardRules && (
+        <div className="mt-2 p-5 rounded-xl border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20">
+          <h4 className="text-base font-bold text-amber-800 dark:text-amber-300 mb-1 flex items-center gap-2">
+            <Trophy size={18} /> Reward Points per Attempt
+          </h4>
+          <p className="text-xs text-amber-600 dark:text-amber-400 mb-4">
+            Award decreasing points based on how many attempts a learner takes.
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {rewardRules.map((rule, i) => (
+              <div key={i} className="bg-white dark:bg-brand-900 rounded-lg p-3 border border-amber-200 dark:border-amber-700">
+                <label className="text-xs font-semibold text-brand-500 dark:text-brand-300 block mb-1">
+                  {rule.attempt >= 4 ? '4th+ try' : `${['1st', '2nd', '3rd'][rule.attempt - 1]} try`}
+                </label>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="number"
+                    value={rule.points}
+                    onChange={e => {
+                      const updated = [...rewardRules];
+                      updated[i] = { ...rule, points: parseInt(e.target.value) || 0 };
+                      onRewardRulesChange(updated);
+                    }}
+                    className="w-full px-2 py-1.5 border border-brand-300 dark:border-brand-600 rounded-lg bg-white dark:bg-brand-800 text-brand-900 dark:text-white font-bold text-center text-sm"
+                    min="0"
+                  />
+                  <span className="text-xs text-brand-500">pts</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

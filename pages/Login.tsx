@@ -117,7 +117,7 @@ const Login: React.FC = () => {
                 {(['learner', 'instructor', 'admin'] as UserRole[]).map((r) => (
                   <button
                     key={r}
-                    onClick={() => setRole(r)}
+                    onClick={() => { setRole(r); if (r === 'admin') setMode('login'); }}
                     className={`
                       relative flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-xl transition-all duration-300
                       ${role === r ? 'text-brand-50' : 'text-brand-600 hover:text-brand-800'}
@@ -272,19 +272,25 @@ const Login: React.FC = () => {
                   )}
                 </AnimatePresence>
 
-                {/* Toggle Login/Signup */}
-                <div className="mt-8 text-center">
-                  <p className="text-brand-500">
-                    {mode === 'login' ? "New here?" : 'Already a member?'}
-                    <button
-                      type="button"
-                      onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setMessage(null); }}
-                      className="ml-2 font-bold text-brand-700 hover:text-brand-900 transition-colors underline decoration-2 decoration-brand-300 hover:decoration-brand-500 underline-offset-4"
-                    >
-                      {mode === 'login' ? 'Sign up' : 'Log in'}
-                    </button>
+                {/* Toggle Login/Signup — Admin accounts are provisioned, no signup */}
+                {role === 'admin' ? (
+                  <p className="mt-8 text-center text-xs text-brand-400 italic">
+                    Admin accounts are provisioned by the system administrator.
                   </p>
-                </div>
+                ) : (
+                  <div className="mt-8 text-center">
+                    <p className="text-brand-500">
+                      {mode === 'login' ? "New here?" : 'Already a member?'}
+                      <button
+                        type="button"
+                        onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setMessage(null); }}
+                        className="ml-2 font-bold text-brand-700 hover:text-brand-900 transition-colors underline decoration-2 decoration-brand-300 hover:decoration-brand-500 underline-offset-4"
+                      >
+                        {mode === 'login' ? 'Sign up' : 'Log in'}
+                      </button>
+                    </p>
+                  </div>
+                )}
               </form>
             </div>
             

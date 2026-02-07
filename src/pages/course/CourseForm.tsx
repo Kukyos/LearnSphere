@@ -51,6 +51,12 @@ export default function CourseForm() {
     courseAdmin: '',
   });
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
+  const [rewardRules, setRewardRules] = useState<{attempt: number; points: number}[]>([
+    { attempt: 1, points: 15 },
+    { attempt: 2, points: 10 },
+    { attempt: 3, points: 5 },
+    { attempt: 4, points: 2 },
+  ]);
 
   // Load existing course data
   useEffect(() => {
@@ -73,10 +79,13 @@ export default function CourseForm() {
         price: existingCourse.price?.toString() || '',
         courseAdmin: existingCourse.instructorName || '',
       });
-      // Load quiz questions from lessons
+      // Load quiz questions and reward rules from lessons
       const quizLesson = existingCourse.lessons.find(l => l.type === 'quiz' && l.quiz);
       if (quizLesson?.quiz) {
         setQuizQuestions(quizLesson.quiz.questions);
+        if (quizLesson.quiz.rewardRules?.length > 0) {
+          setRewardRules(quizLesson.quiz.rewardRules);
+        }
       }
     }
   }, [courseId]);
@@ -120,7 +129,7 @@ export default function CourseForm() {
         description: l.description,
         quiz: l.type === 'quiz' && quizQuestions.length > 0 ? {
           questions: quizQuestions,
-          rewardRules: [{ attempt: 1, points: 15 }, { attempt: 2, points: 10 }, { attempt: 3, points: 5 }],
+          rewardRules,
         } : undefined,
       })),
     };
@@ -138,23 +147,23 @@ export default function CourseForm() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
+    <div className="min-h-screen bg-nature-light dark:bg-brand-950 pt-20">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm" style={{ top: '0', paddingTop: '80px' }}>
+      <div className="sticky top-0 z-40 bg-white dark:bg-brand-900 border-b border-brand-200 dark:border-brand-700 shadow-sm" style={{ top: '0', paddingTop: '80px' }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/courses')}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
+                className="p-2 rounded-lg hover:bg-brand-100 dark:hover:bg-brand-800 text-brand-500 dark:text-brand-300"
               >
                 <ArrowLeft size={20} />
               </button>
               <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-xl font-bold text-brand-900 dark:text-white">
                   {isEditing ? 'Edit Course' : 'Create Course'}
                 </h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-brand-500 dark:text-brand-300">
                   {published ? '🟢 Published' : '🔴 Draft'}
                 </p>
               </div>
@@ -162,7 +171,7 @@ export default function CourseForm() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setShowPreview(true)}
-                className="flex items-center gap-1.5 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="flex items-center gap-1.5 px-4 py-2 border border-brand-300 dark:border-brand-600 rounded-lg text-sm font-semibold text-brand-700 dark:text-brand-200 hover:bg-brand-100 dark:hover:bg-brand-800"
               >
                 <Eye size={16} /> Preview
               </button>
@@ -182,25 +191,25 @@ export default function CourseForm() {
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             {/* Course Title */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
-              <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 block mb-2">Course Title</label>
+            <div className="bg-white dark:bg-brand-900 rounded-xl p-5 shadow-sm border border-brand-200 dark:border-brand-700">
+              <label className="text-sm font-semibold text-brand-700 dark:text-brand-200 block mb-2">Course Title</label>
               <input
                 value={title}
                 onChange={e => setTitle(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-semibold"
+                className="w-full px-3 py-2.5 border border-brand-300 dark:border-brand-600 rounded-lg bg-white dark:bg-brand-800 text-brand-900 dark:text-white font-semibold"
                 placeholder="Enter course title..."
               />
             </div>
 
             {/* Cover Image */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
-              <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 block mb-2 flex items-center gap-1.5">
+            <div className="bg-white dark:bg-brand-900 rounded-xl p-5 shadow-sm border border-brand-200 dark:border-brand-700">
+              <label className="text-sm font-semibold text-brand-700 dark:text-brand-200 block mb-2 flex items-center gap-1.5">
                 <Image size={16} /> Cover Image
               </label>
               <input
                 value={coverImage}
                 onChange={e => setCoverImage(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                className="w-full px-3 py-2 border border-brand-300 dark:border-brand-600 rounded-lg bg-white dark:bg-brand-800 text-brand-900 dark:text-white text-sm"
                 placeholder="Image URL..."
               />
               {coverImage && (
@@ -209,8 +218,8 @@ export default function CourseForm() {
             </div>
 
             {/* Tags */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
-              <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 block mb-2 flex items-center gap-1.5">
+            <div className="bg-white dark:bg-brand-900 rounded-xl p-5 shadow-sm border border-brand-200 dark:border-brand-700">
+              <label className="text-sm font-semibold text-brand-700 dark:text-brand-200 block mb-2 flex items-center gap-1.5">
                 <Tag size={16} /> Tags
               </label>
               <div className="flex gap-2 mb-2">
@@ -218,7 +227,7 @@ export default function CourseForm() {
                   value={tagInput}
                   onChange={e => setTagInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                  className="flex-1 px-3 py-2 border border-brand-300 dark:border-brand-600 rounded-lg bg-white dark:bg-brand-800 text-brand-900 dark:text-white text-sm"
                   placeholder="Add a tag..."
                 />
                 <button onClick={addTag} className="px-3 py-2 bg-brand-600 text-white rounded-lg text-sm font-semibold hover:bg-brand-700">Add</button>
@@ -234,34 +243,34 @@ export default function CourseForm() {
             </div>
 
             {/* Publish Toggle */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-brand-900 rounded-xl p-5 shadow-sm border border-brand-200 dark:border-brand-700">
               <button
                 onClick={() => setPublished(!published)}
                 className="flex items-center justify-between w-full"
               >
-                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Published</span>
+                <span className="text-sm font-semibold text-brand-700 dark:text-brand-200">Published</span>
                 {published ? (
                   <ToggleRight size={32} className="text-brand-600" />
                 ) : (
-                  <ToggleLeft size={32} className="text-gray-400" />
+                  <ToggleLeft size={32} className="text-brand-400" />
                 )}
               </button>
             </div>
 
             {/* Attendee Actions */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 space-y-3">
-              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+            <div className="bg-white dark:bg-brand-900 rounded-xl p-5 shadow-sm border border-brand-200 dark:border-brand-700 space-y-3">
+              <h4 className="text-sm font-semibold text-brand-700 dark:text-brand-200 flex items-center gap-1.5">
                 <Users size={16} /> Attendees
               </h4>
               <button
                 onClick={() => setShowAddAttendee(true)}
-                className="w-full flex items-center justify-center gap-1.5 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="w-full flex items-center justify-center gap-1.5 px-4 py-2 border border-brand-300 dark:border-brand-600 rounded-lg text-sm font-semibold text-brand-700 dark:text-brand-200 hover:bg-brand-100 dark:hover:bg-brand-800"
               >
                 <Users size={14} /> Add Attendees
               </button>
               <button
                 onClick={() => setShowContactAttendee(true)}
-                className="w-full flex items-center justify-center gap-1.5 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="w-full flex items-center justify-center gap-1.5 px-4 py-2 border border-brand-300 dark:border-brand-600 rounded-lg text-sm font-semibold text-brand-700 dark:text-brand-200 hover:bg-brand-100 dark:hover:bg-brand-800"
               >
                 <Mail size={14} /> Contact Attendees
               </button>
@@ -271,15 +280,15 @@ export default function CourseForm() {
           {/* Main Content */}
           <div className="lg:col-span-2">
             {/* Tab Buttons */}
-            <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl mb-6 border border-gray-200 dark:border-gray-700">
+            <div className="flex gap-1 p-1 bg-brand-100 dark:bg-brand-800 rounded-xl mb-6 border border-brand-200 dark:border-brand-700">
               {tabs.map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-lg text-sm font-semibold transition-all ${
                     activeTab === tab.id
-                      ? 'bg-white dark:bg-gray-700 text-brand-700 dark:text-brand-300 shadow-sm'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                      ? 'bg-white dark:bg-brand-700 text-brand-700 dark:text-brand-200 shadow-sm'
+                      : 'text-brand-500 dark:text-brand-300 hover:text-brand-700 dark:hover:text-brand-100'
                   }`}
                 >
                   {tab.icon} {tab.label}
@@ -288,11 +297,11 @@ export default function CourseForm() {
             </div>
 
             {/* Tab Content */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 min-h-[500px]">
+            <div className="bg-white dark:bg-brand-900 rounded-xl p-6 shadow-sm border border-brand-200 dark:border-brand-700 min-h-[500px]">
               {activeTab === 'content' && <ContentTab lessons={lessons} onChange={setLessons} />}
               {activeTab === 'description' && <DescriptionTab description={description} onChange={setDescription} />}
               {activeTab === 'options' && <OptionsTab options={options} onChange={setOptions} />}
-              {activeTab === 'quiz' && <QuizTab questions={quizQuestions} onChange={setQuizQuestions} />}
+              {activeTab === 'quiz' && <QuizTab questions={quizQuestions} onChange={setQuizQuestions} rewardRules={rewardRules} onRewardRulesChange={setRewardRules} />}
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, LayoutGrid, LayoutList, BarChart3, Trash2 } from 'lucide-react';
 import { useApp, Course } from '../contexts/AppContext';
+import { useAuth } from '../../context/AuthContext';
 import CourseCard from '../components/courses/CourseCard';
 import CourseTable from '../components/courses/CourseTable';
 import CreateCourseModal from '../components/courses/CreateCourseModal';
@@ -9,14 +10,24 @@ import CreateCourseModal from '../components/courses/CreateCourseModal';
 type ViewType = 'kanban' | 'list';
 
 export default function CoursesDashboard() {
-  const { courses, createCourse, deleteCourse } = useApp();
+  const { courses, createCourse, deleteCourse, theme } = useApp();
+  const { user: authUser } = useAuth();
   const [view, setView] = useState<ViewType>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const isAdmin = authUser?.role === 'admin';
+  const isDark = theme === 'dark';
+
+  // Filter courses: admin sees all, instructor sees only their own
+  const visibleCourses = useMemo(() => {
+    if (isAdmin) return courses;
+    return courses.filter(c => c.instructorId === authUser?.id);
+  }, [courses, isAdmin, authUser?.id]);
+
   // Adapt AppContext courses to the shape the child components expect
   const dashCourses = useMemo(() =>
-    courses.map(c => ({
+    visibleCourses.map(c => ({
       id: c.id,
       title: c.title,
       tags: c.tags,
@@ -25,7 +36,8 @@ export default function CoursesDashboard() {
       totalDuration: c.totalDuration ?? '0h 0m',
       isPublished: c.published,
       coverImage: c.coverImage,
-    })), [courses]);
+      instructorName: c.instructorName,
+    })), [visibleCourses]);
 
   // Filter
   const filteredCourses = useMemo(() => {
@@ -67,92 +79,113 @@ export default function CoursesDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-nature-bg dark:bg-brand-950 pt-24 transition-colors">
+    <div className={`min-h-screen pt-28 pb-12 transition-colors ${isDark ? 'bg-brand-950' : 'bg-nature-light'}`}>
       {/* Header */}
-      <header className="bg-nature-card/60 dark:bg-brand-900/60 backdrop-blur-md border-b border-brand-200/40 dark:border-brand-700/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h1 className="text-3xl font-bold text-brand-900 dark:text-white">Courses Dashboard</h1>
-              <button
-                onClick={() => nav('/reporting')}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-brand-300 dark:border-brand-600 text-brand-700 dark:text-brand-200 hover:bg-brand-100 dark:hover:bg-brand-800 transition font-medium text-sm"
-              >
-                <BarChart3 className="h-4 w-4" />
-                Reporting
-              </button>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-brand-900'}`}>
+                {isAdmin ? 'All Courses' : 'My Courses'}
+              </h1>
+              <p className={`mt-1 ${isDark ? 'text-brand-300' : 'text-brand-600'}`}>
+                {isAdmin
+                  ? `Manage all ${visibleCourses.length} courses across the platform`
+                  : `Manage your ${visibleCourses.length} courses`}
+              </p>
             </div>
-            
-            {/* Topbar Controls */}
-            <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
-              {/* Search Bar */}
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-3 h-5 w-5 text-brand-400" />
-                <input
-                  type="text"
-                  placeholder="Search courses by name or tag..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-brand-300 dark:border-brand-600 bg-white dark:bg-brand-800 text-brand-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition placeholder:text-brand-400"
-                />
-              </div>
+            <button
+              onClick={() => nav('/reporting')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-medium text-sm transition ${
+                isDark
+                  ? 'border-brand-600 text-brand-200 hover:bg-brand-800'
+                  : 'border-brand-300 text-brand-700 hover:bg-brand-100'
+              }`}
+            >
+              <BarChart3 className="h-4 w-4" />
+              Reporting
+            </button>
+          </div>
+          
+          {/* Topbar Controls */}
+          <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
+            {/* Search Bar */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-3 h-5 w-5 text-brand-400" />
+              <input
+                type="text"
+                placeholder="Search courses by name or tag..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={`w-full pl-10 pr-4 py-2.5 rounded-xl border focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition placeholder:text-brand-400 ${
+                  isDark
+                    ? 'border-brand-600 bg-brand-900 text-white'
+                    : 'border-brand-200 bg-white text-brand-900'
+                }`}
+              />
+            </div>
 
-              {/* View Toggle and Create Button */}
-              <div className="flex gap-3 items-center">
-                {/* View Toggle */}
-                <div className="inline-flex rounded-lg border border-brand-300 dark:border-brand-600 overflow-hidden">
-                  <button
-                    onClick={() => setView('kanban')}
-                    className={`px-4 py-2 flex items-center gap-2 transition text-sm ${
-                      view === 'kanban'
-                        ? 'bg-brand-700 text-white'
-                        : 'bg-white dark:bg-brand-800 text-brand-700 dark:text-brand-200 hover:bg-brand-50 dark:hover:bg-brand-700'
-                    }`}
-                  >
-                    <LayoutGrid className="h-4 w-4" />
-                    <span className="hidden sm:inline">Kanban</span>
-                  </button>
-                  <button
-                    onClick={() => setView('list')}
-                    className={`px-4 py-2 flex items-center gap-2 transition border-l border-brand-300 dark:border-brand-600 text-sm ${
-                      view === 'list'
-                        ? 'bg-brand-700 text-white'
-                        : 'bg-white dark:bg-brand-800 text-brand-700 dark:text-brand-200 hover:bg-brand-50 dark:hover:bg-brand-700'
-                    }`}
-                  >
-                    <LayoutList className="h-4 w-4" />
-                    <span className="hidden sm:inline">List</span>
-                  </button>
-                </div>
-
-                {/* Create Course Button */}
+            {/* View Toggle and Create Button */}
+            <div className="flex gap-3 items-center">
+              {/* View Toggle */}
+              <div className={`inline-flex rounded-xl border overflow-hidden ${isDark ? 'border-brand-600' : 'border-brand-300'}`}>
                 <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition font-medium text-sm shadow-md"
+                  onClick={() => setView('kanban')}
+                  className={`px-4 py-2 flex items-center gap-2 transition text-sm ${
+                    view === 'kanban'
+                      ? 'bg-brand-700 text-white'
+                      : isDark
+                        ? 'bg-brand-800 text-brand-200 hover:bg-brand-700'
+                        : 'bg-white text-brand-700 hover:bg-brand-50'
+                  }`}
                 >
-                  <Plus className="h-4 w-4" />
-                  <span className="hidden sm:inline">Create Course</span>
-                  <span className="sm:hidden">Create</span>
+                  <LayoutGrid className="h-4 w-4" />
+                  <span className="hidden sm:inline">Kanban</span>
+                </button>
+                <button
+                  onClick={() => setView('list')}
+                  className={`px-4 py-2 flex items-center gap-2 transition text-sm border-l ${
+                    isDark ? 'border-brand-600' : 'border-brand-300'
+                  } ${
+                    view === 'list'
+                      ? 'bg-brand-700 text-white'
+                      : isDark
+                        ? 'bg-brand-800 text-brand-200 hover:bg-brand-700'
+                        : 'bg-white text-brand-700 hover:bg-brand-50'
+                  }`}
+                >
+                  <LayoutList className="h-4 w-4" />
+                  <span className="hidden sm:inline">List</span>
                 </button>
               </div>
-            </div>
 
-            {/* Results Count */}
-            <p className="text-sm text-brand-600 dark:text-brand-300">
-              Showing {filteredCourses.length} of {dashCourses.length} courses
-            </p>
+              {/* Create Course Button */}
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="flex items-center gap-2 px-4 py-2.5 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-medium text-sm shadow-md"
+              >
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Create Course</span>
+                <span className="sm:hidden">Create</span>
+              </button>
+            </div>
           </div>
+
+          {/* Results Count */}
+          <p className={`text-sm ${isDark ? 'text-brand-400' : 'text-brand-500'}`}>
+            Showing {filteredCourses.length} of {dashCourses.length} courses
+          </p>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {filteredCourses.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-brand-600 dark:text-brand-300 text-lg">No courses found matching your search.</p>
+            <p className={`text-lg ${isDark ? 'text-brand-300' : 'text-brand-600'}`}>No courses found matching your search.</p>
             <button
               onClick={() => setSearchQuery('')}
-              className="mt-4 text-brand-700 dark:text-brand-400 hover:text-brand-900 dark:hover:text-brand-200 font-medium"
+              className={`mt-4 font-medium ${isDark ? 'text-brand-400 hover:text-brand-200' : 'text-brand-700 hover:text-brand-900'}`}
             >
               Clear search
             </button>
