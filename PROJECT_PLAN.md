@@ -6,7 +6,7 @@
 > **AI assistants: Reference DEVELOPMENT_REFERENCE.md** for all technical details.  
 > Copilot: refer to this file before every major task.
 
-## ✅ COMPLETED (As of 12:20 Feb 7)
+## ✅ COMPLETED (As of 12:35 Feb 7)
 - ✅ Repo setup with main + dev branches
 - ✅ React Router setup with 3 routes (/, /login, /courses)
 - ✅ D's login system integrated (AuthForm with role selector, backend auth APIs)
@@ -16,6 +16,10 @@
 - ✅ All docs created (PROJECT_PLAN, TEAM_INSTRUCTIONS, DEVELOPMENT_REFERENCE)
 - ✅ Framer-motion installed for auth animations
 - ✅ Brand color scheme applied (sage green #5c7f4c palette)
+- ✅ Reference folder setup with .gitignore exclusion
+- ✅ LessonPlayer component integrated (video, article, quiz support)
+- ✅ Types added: ContentType, QuizQuestion, Lesson, Module
+- ✅ MOCK_CURRICULUM added to constants.ts
 
 ---
 
@@ -55,6 +59,7 @@
 │   ├── StatsSection.tsx → Stats counters + 3 review cards
 │   ├── Footer.tsx       → 4-column footer with socials
 │   ├── PixelBlast.tsx   → Three.js instanced mesh grid with mouse ripple effect
+│   ├── LessonPlayer.tsx → Full-screen lesson player (video/article/quiz support)
 │   ├── auth/
 │   │   └── AuthForm.tsx → D's auth form with role selector, login/signup toggle
 │   └── ui/

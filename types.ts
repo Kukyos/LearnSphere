@@ -50,3 +50,29 @@ export interface FilterState {
 }
 
 export type SortOption = 'popularity' | 'rating' | 'newest' | 'price-low' | 'price-high';
+
+export type ContentType = 'video' | 'article' | 'quiz';
+
+export interface QuizQuestion {
+  id: string;
+  text: string;
+  options: string[];
+  correctAnswer: number; // Index of correct option
+}
+
+export interface Lesson {
+  id: string;
+  title: string;
+  type: ContentType;
+  duration: string;
+  isCompleted: boolean;
+  videoUrl?: string; // For video
+  content?: string; // For article
+  questions?: QuizQuestion[]; // For quiz
+}
+
+export interface Module {
+  id: string;
+  title: string;
+  lessons: Lesson[];
+}
