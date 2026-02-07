@@ -1,14 +1,17 @@
 import React from 'react';
-import { BookOpen, Search, Menu, X, User, Sun, Moon } from 'lucide-react';
+import { BookOpen, Search, Menu, X, User, Sun, Moon, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 interface NavbarProps {
-  onLoginClick: () => void;
   isDark: boolean;
   toggleTheme: (e: React.MouseEvent) => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onLoginClick, isDark, toggleTheme }) => {
+const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   return (
     <>
@@ -47,12 +50,25 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, isDark, toggleTheme }) =>
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
 
-            <button 
-              onClick={onLoginClick}
-              className="ml-1 rounded-full bg-brand-800 px-5 py-2 text-xs font-bold text-white transition-all hover:bg-brand-900 hover:shadow-lg dark:bg-brand-600 dark:hover:bg-brand-500"
-            >
-              Sign In
-            </button>
+            {user ? (
+              <div className="flex items-center gap-1">
+                <span className="hidden sm:block text-xs font-semibold text-brand-700 dark:text-brand-200 px-2 truncate max-w-[100px]">{user.name}</span>
+                <button 
+                  onClick={() => { logout(); navigate('/login'); }}
+                  className="ml-1 flex items-center gap-1.5 rounded-full bg-brand-800 px-4 py-2 text-xs font-bold text-white transition-all hover:bg-brand-900 hover:shadow-lg dark:bg-brand-600 dark:hover:bg-brand-500"
+                >
+                  <LogOut size={14} />
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={() => navigate('/login')}
+                className="ml-1 rounded-full bg-brand-800 px-5 py-2 text-xs font-bold text-white transition-all hover:bg-brand-900 hover:shadow-lg dark:bg-brand-600 dark:hover:bg-brand-500"
+              >
+                Sign In
+              </button>
+            )}
             
             {/* Mobile Menu Trigger */}
             <button 

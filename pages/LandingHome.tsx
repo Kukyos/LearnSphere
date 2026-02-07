@@ -131,7 +131,6 @@ const LandingHome: React.FC = () => {
   return (
     <div className="min-h-screen bg-nature-light dark:bg-brand-950 transition-colors duration-300">
       <Navbar 
-        onLoginClick={() => setShowLoginModal(true)} 
         isDark={isDark}
         toggleTheme={toggleTheme}
       />
