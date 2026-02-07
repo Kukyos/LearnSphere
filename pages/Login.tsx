@@ -1,224 +1,318 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Leaf, Mail, Lock, AlertCircle } from 'lucide-react';
-import { useAuth, UserRole } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { Mail, Shield, GraduationCap, Sparkles, CheckCircle, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Input } from '../components/ui/Input';
+import { Button } from '../components/ui/Button';
+import { AuthMode, UserRole } from '../types';
+import { useAuth } from '../context/AuthContext';
+import { WorldGlobe } from '../components/visuals/WorldGlobe';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { login, loginAsGuest } = useAuth();
+  const { login, register, loginAsGuest } = useAuth();
+
+  const [mode, setMode] = useState<AuthMode>('login');
+  const [role, setRole] = useState<UserRole>('learner');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('learner');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
+    setIsLoading(true);
+    setMessage(null);
 
     try {
-      await login(email, password, role);
-      // Redirect based on role
-      if (role === 'instructor' || role === 'admin') {
-        navigate('/courses');
+      if (mode === 'signup') {
+        const fullName = `${firstName} ${lastName}`.trim();
+        if (!fullName) {
+          setMessage({ type: 'error', text: 'Please enter your name' });
+          setIsLoading(false);
+          return;
+        }
+        await register(fullName, email, password, role);
+        setMessage({ type: 'success', text: `Welcome, ${fullName}! Account created.` });
+        setTimeout(() => navigate('/home'), 800);
       } else {
-        navigate('/'); // Learners go back to home which will now show LearnerHome
+        await login(email, password);
+        navigate('/home');
       }
-    } catch (err) {
-      setError('Invalid email or password');
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message || 'Something went wrong. Please try again.' });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const handleGuestLogin = async () => {
-    setError('');
+  const handleGuestLogin = () => {
     loginAsGuest();
-    navigate('/'); // Guest goes to home
+    navigate('/home');
+  };
+
+  const getRoleIcon = (r: UserRole) => {
+    switch (r) {
+      case 'admin': return <Shield size={16} />;
+      case 'instructor': return <GraduationCap size={16} />;
+      case 'learner': return <Sparkles size={16} />;
+    }
+  };
+
+  const getWelcomeMessage = () => {
+    if (mode === 'signup') return "Begin your path.";
+    switch (role) {
+      case 'admin': return "System Control";
+      case 'instructor': return "Welcome back, Mentor.";
+      case 'learner': return "Continue your journey.";
+      default: return "Welcome Back";
+    }
+  };
+
+  const getSubMessage = () => {
+    if (mode === 'signup') return "Create your account to start learning.";
+    switch (role) {
+      case 'admin': return "Manage users and platform settings.";
+      case 'instructor': return "Your students await guidance.";
+      case 'learner': return "Ready to grow today?";
+      default: return "Enter your credentials to access your account.";
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-brand-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className="w-full max-w-6xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden grid md:grid-cols-2">
+    <div className="relative min-h-screen w-full overflow-hidden font-sans bg-nature-light selection:bg-brand-300/40 text-brand-900">
+      
+      {/* Background gradient */}
+      <div className="fixed inset-0 z-0 bg-gradient-to-br from-nature-card via-nature-light to-brand-100"></div>
+
+      {/* Main Content Container - Split Screen */}
+      <div className="relative z-10 w-full min-h-screen flex flex-col lg:flex-row">
         
-        {/* Left Panel - Branding */}
-        <div className="hidden md:flex flex-col justify-between p-12 bg-gradient-to-br from-brand-600 to-brand-800 text-white">
-          <div>
-            <div className="flex items-center gap-2 mb-6">
-              <Leaf className="w-8 h-8 text-brand-50" />
-              <span className="text-2xl font-bold">LearnSphere</span>
-            </div>
-            <h1 className="text-4xl font-bold mb-4 leading-tight">
-              Your Learning Journey Starts Here
-            </h1>
-            <p className="text-brand-100 text-lg leading-relaxed">
-              Join thousands of learners and instructors building knowledge together.
-            </p>
-          </div>
+        {/* LEFT SIDE: Auth Form */}
+        <div className="w-full lg:w-[45%] flex flex-col justify-center px-6 sm:px-12 lg:px-20 py-12 lg:py-0 relative z-20">
           
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center flex-shrink-0">
-                <span className="text-lg font-bold">✓</span>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-1">Expert-Led Courses</h3>
-                <p className="text-brand-200 text-sm">Learn from industry professionals</p>
-              </div>
+          {/* Logo area */}
+          <div className="absolute top-8 left-8 lg:left-12 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-brand-700 flex items-center justify-center shadow-lg shadow-brand-900/15">
+              <div className="w-4 h-4 bg-brand-50 rounded-full"></div>
             </div>
-            
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center flex-shrink-0">
-                <span className="text-lg font-bold">✓</span>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-1">Interactive Learning</h3>
-                <p className="text-brand-200 text-sm">Engage with quizzes and projects</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center flex-shrink-0">
-                <span className="text-lg font-bold">✓</span>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-1">Track Your Progress</h3>
-                <p className="text-brand-200 text-sm">Monitor your journey with analytics</p>
-              </div>
-            </div>
+            <span className="text-xl font-bold text-brand-900 tracking-wide">LearnSphere</span>
           </div>
-        </div>
-        
-        {/* Right Panel - Simple Login Form */}
-        <div className="p-8 md:p-12 flex flex-col dark:bg-gray-800">
-          <Link 
-            to="/" 
-            className="inline-flex items-center gap-2 text-brand-600 dark:text-brand-400 hover:text-brand-800 dark:hover:text-brand-300 transition-colors mb-8 group"
+
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="w-full max-w-md mx-auto lg:ml-0 lg:mr-auto mt-16 lg:mt-0"
           >
-            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="font-medium">Back to Home</span>
-          </Link>
-          
-          <div className="flex-1 flex flex-col justify-center">
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                Welcome Back
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                Sign in to continue your learning journey
-              </p>
-            </div>
+            {/* Card */}
+            <div className="bg-nature-card/90 backdrop-blur-xl border border-brand-200/60 rounded-[2rem] p-8 sm:p-10 shadow-2xl shadow-brand-900/8 relative overflow-hidden">
+              {/* Subtle ambient glow */}
+              <div className="absolute -top-32 -right-32 w-64 h-64 bg-brand-300/30 rounded-full blur-[80px]"></div>
+              
+              {/* Role Selector Pills */}
+              <div className="flex p-1 bg-brand-100 rounded-2xl mb-8 border border-brand-200 relative">
+                {(['learner', 'instructor', 'admin'] as UserRole[]).map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => setRole(r)}
+                    className={`
+                      relative flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-xl transition-all duration-300
+                      ${role === r ? 'text-brand-50' : 'text-brand-600 hover:text-brand-800'}
+                    `}
+                  >
+                    {role === r && (
+                      <motion.div
+                        layoutId="activeRole"
+                        className="absolute inset-0 bg-brand-700 shadow-md rounded-xl"
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                      />
+                    )}
+                    <span className="relative z-10 flex items-center gap-2 capitalize">
+                      {getRoleIcon(r)}
+                      {r}
+                    </span>
+                  </button>
+                ))}
+              </div>
 
-            <form onSubmit={handleLogin} className="space-y-6">
-              {/* Role Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  I am a...
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  {(['learner', 'instructor'] as const).map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setRole(r)}
-                      className={`py-3 px-4 rounded-lg font-medium transition-all ${
-                        role === r
-                          ? 'bg-brand-600 text-white shadow-lg'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                      }`}
+              {/* Welcome Header */}
+              <div className="mb-8">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={role + mode}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <h2 className="text-3xl font-bold text-brand-900 mb-2 tracking-tight">
+                      {getWelcomeMessage()}
+                    </h2>
+                    <p className="text-brand-500 text-base leading-relaxed">
+                      {getSubMessage()}
+                    </p>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-5">
+                
+                {/* Name fields for signup */}
+                <AnimatePresence mode='popLayout'>
+                  {mode === 'signup' && (
+                    <motion.div 
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
                     >
-                      {r === 'learner' ? '👤 Learner' : '🎓 Instructor'}
-                    </button>
-                  ))}
-                </div>
-              </div>
+                      <div className="flex flex-col sm:flex-row gap-4 mb-5">
+                        <div className="flex-1">
+                          <Input
+                            id="firstName"
+                            label="First name"
+                            placeholder="Jane"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <Input
+                            id="lastName"
+                            label="Last name"
+                            placeholder="Doe"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-              {/* Email */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Email
-                </label>
-                <div className="relative">
-                  <Mail size={18} className="absolute left-3 top-3.5 text-gray-400 dark:text-gray-500" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-brand-600 focus:outline-none transition-colors"
-                    disabled={loading}
-                  />
-                </div>
-              </div>
+                <Input
+                  id="email"
+                  label="Email address"
+                  type="email"
+                  placeholder="name@nature.com"
+                  icon={<Mail size={18} />}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
 
-              {/* Password */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock size={18} className="absolute left-3 top-3.5 text-gray-400 dark:text-gray-500" />
-                  <input
+                <div className="space-y-1">
+                  <Input
+                    id="password"
+                    label="Password"
                     type="password"
+                    placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter password (min 3 chars)"
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-brand-600 focus:outline-none transition-colors"
-                    disabled={loading}
                   />
+                  {mode === 'login' && (
+                    <div className="flex justify-end pt-1">
+                      <button type="button" className="text-sm text-brand-500 hover:text-brand-700 transition-colors font-medium">
+                        Forgot password?
+                      </button>
+                    </div>
+                  )}
                 </div>
-              </div>
 
-              {/* Error Message */}
-              {error && (
-                <div className="flex items-center gap-2 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                  <AlertCircle size={18} className="text-red-600 dark:text-red-400 flex-shrink-0" />
-                  <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+                <Button 
+                  type="submit" 
+                  fullWidth
+                  className="rounded-2xl mt-4 py-4 font-bold"
+                  isLoading={isLoading}
+                >
+                  {mode === 'login' ? 'Sign In' : 'Create Account'}
+                </Button>
+
+                {/* Guest Login - only in login mode */}
+                {mode === 'login' && (
+                  <>
+                    <div className="relative py-2">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-brand-200"></div>
+                      </div>
+                      <div className="relative flex justify-center text-xs">
+                        <span className="px-3 bg-nature-card text-brand-400 uppercase tracking-wider font-semibold">or</span>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      fullWidth
+                      className="rounded-2xl py-3"
+                      onClick={handleGuestLogin}
+                    >
+                      Continue as Guest
+                    </Button>
+                  </>
+                )}
+
+                {/* Status Message */}
+                <AnimatePresence>
+                  {message && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className={`flex items-center gap-2 p-4 rounded-xl mt-4 ${
+                        message.type === 'success' 
+                          ? 'bg-green-50 text-green-700 border border-green-200' 
+                          : 'bg-red-50 text-red-700 border border-red-200'
+                      }`}
+                    >
+                      {message.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+                      <span className="text-sm font-medium">{message.text}</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Toggle Login/Signup */}
+                <div className="mt-8 text-center">
+                  <p className="text-brand-500">
+                    {mode === 'login' ? "New here?" : 'Already a member?'}
+                    <button
+                      type="button"
+                      onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setMessage(null); }}
+                      className="ml-2 font-bold text-brand-700 hover:text-brand-900 transition-colors underline decoration-2 decoration-brand-300 hover:decoration-brand-500 underline-offset-4"
+                    >
+                      {mode === 'login' ? 'Sign up' : 'Log in'}
+                    </button>
+                  </p>
                 </div>
-              )}
-
-              {/* Test Credentials Note */}
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                <p className="text-sm text-blue-700 dark:text-blue-400">
-                  <span className="font-semibold">Test login:</span> Any email with @ and password of 3+ chars
-                </p>
-              </div>
-
-              {/* Login Button */}
-              <button
-                type="submit"
-                disabled={loading || !email || !password}
-                className="w-full py-3 px-4 bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 dark:disabled:bg-gray-700 text-white font-semibold rounded-lg transition-colors disabled:cursor-not-allowed"
-              >
-                {loading ? 'Signing in...' : 'Sign In'}
-              </button>
-
-              {/* Divider */}
-              <div className="relative py-4">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400">Or</span>
-                </div>
-              </div>
-
-              {/* Guest Login */}
-              <button
-                type="button"
-                onClick={handleGuestLogin}
-                className="w-full py-3 px-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-lg transition-colors"
-              >
-                Continue as Guest
-              </button>
-            </form>
-          </div>
-          
-          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 text-center text-sm text-gray-600 dark:text-gray-400">
-            <p>© 2026 LearnSphere. All rights reserved.</p>
-          </div>
+              </form>
+            </div>
+            
+            <div className="mt-8 text-center lg:text-left text-xs text-brand-500 font-medium">
+              &copy; 2026 LearnSphere Inc. &bull; <a href="#" className="hover:text-brand-700 transition-colors">Privacy</a> &bull; <a href="#" className="hover:text-brand-700 transition-colors">Terms</a>
+            </div>
+          </motion.div>
         </div>
+
+        {/* RIGHT SIDE: Interactive Globe */}
+        <div className="hidden lg:flex w-full lg:w-[55%] h-screen relative items-center justify-center overflow-hidden">
+          {/* Fade in animation for the globe */}
+          <motion.div
+            className="w-full h-full absolute inset-0"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
+          >
+            <WorldGlobe />
+          </motion.div>
+          
+          {/* Vignette overlay */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_30%,_var(--tw-gradient-to))] to-nature-light pointer-events-none"></div>
+          
+          {/* Seamless transition gradient from left */}
+          <div className="absolute top-0 bottom-0 left-0 w-64 bg-gradient-to-r from-nature-light via-nature-light/70 to-transparent z-10 pointer-events-none"></div>
+        </div>
+
       </div>
     </div>
   );
