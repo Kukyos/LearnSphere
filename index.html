@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lumina Learning</title>
+    <title>LearnSphere - Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         darkMode: 'class',
@@ -17,7 +17,7 @@
               sans: ['Inter', 'sans-serif'],
             },
             colors: {
-              // Sage & Forest Green Palette
+              // Sage & Forest Green Palette (Lumina)
               brand: {
                 50: '#f4f6f0',  // Lightest Beige/Green
                 100: '#e3e8dc', // Card Backgrounds
@@ -40,57 +40,65 @@
             },
             animation: {
               'fade-in': 'fadeIn 0.5s ease-out',
+              'blob': 'blob 7s infinite',
+              'tilt': 'tilt 10s infinite linear',
             },
             keyframes: {
               fadeIn: {
                 '0%': { opacity: '0', transform: 'translateY(10px)' },
                 '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              blob: {
+                '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                '100%': { transform: 'translate(0px, 0px) scale(1)' },
+              },
+              tilt: {
+                '0%, 50%, 100%': { transform: 'rotate(0deg)' },
+                '25%': { transform: 'rotate(1deg)' },
+                '75%': { transform: 'rotate(-1deg)' },
               }
             }
-          }
-        }
+          },
+        },
       }
     </script>
     <style>
-      /* Custom Scrollbar for Horizontal Scroll */
-      .hide-scrollbar::-webkit-scrollbar {
-        display: none;
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
       }
-      .hide-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
+      ::-webkit-scrollbar-track {
+        background: transparent;
       }
-      
-      /* View Transition for Theme Switch */
-      ::view-transition-old(root),
-      ::view-transition-new(root) {
-        animation: none;
-        mix-blend-mode: normal;
+      ::-webkit-scrollbar-thumb {
+        background: #c4ccb8;
+        border-radius: 4px;
       }
-      
-      /* Dark mode transition helper */
-      html::view-transition-group(root) {
-        z-index: 9999;
-      }
-      
-      body {
-        transition: background-color 0.3s ease, color 0.3s ease;
+      ::-webkit-scrollbar-thumb:hover {
+        background: #9aa88a;
       }
     </style>
   <script type="importmap">
 {
   "imports": {
-    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
     "react/": "https://esm.sh/react@^19.2.4/",
     "react": "https://esm.sh/react@^19.2.4",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "three": "https://esm.sh/three@0.160.0"
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "framer-motion": "https://esm.sh/framer-motion@^12.33.0",
+    "ogl": "https://esm.sh/ogl@1.0.11",
+    "three": "https://esm.sh/three@0.160.0",
+    "three/examples/jsm/environments/RoomEnvironment.js": "https://esm.sh/three@0.160.0/examples/jsm/environments/RoomEnvironment.js",
+    "three/examples/jsm/controls/OrbitControls.js": "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js",
+    "three/": "https://esm.sh/three@^0.182.0/"
   }
 }
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-nature-light text-brand-900 dark:bg-brand-950 dark:text-brand-50 selection:bg-brand-500 selection:text-white">
+  <body>
     <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>

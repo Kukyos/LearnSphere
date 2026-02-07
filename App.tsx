@@ -1,10 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Landing from './pages/Landing';
-import LearnerHome from './pages/LearnerHome';
+import LandingHome from './pages/LandingHome';
 import Login from './pages/Login';
-import CoursesDashboard from './src/pages/CoursesDashboard';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -12,10 +10,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-nature-light dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-nature-light">
         <div className="text-center">
           <div className="w-12 h-12 rounded-full border-4 border-brand-200 border-t-brand-600 animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     );
@@ -29,29 +27,20 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 const AppContent: React.FC = () => {
-  const { user } = useAuth();
+  const { isLoggedIn } = useAuth();
 
   return (
     <Routes>
-      <Route path="/" element={user ? <LearnerHome /> : <Landing />} />
-      <Route path="/login" element={<Login />} />
+      {/* Login page as homepage */}
+      <Route path="/" element={isLoggedIn ? <Navigate to="/home" replace /> : <Login />} />
+      <Route path="/login" element={isLoggedIn ? <Navigate to="/home" replace /> : <Login />} />
       
-      {/* Learner/Guest home */}
+      {/* Lumina landing page - protected route */}
       <Route
         path="/home"
         element={
           <ProtectedRoute>
-            <LearnerHome />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Instructor dashboard */}
-      <Route
-        path="/courses"
-        element={
-          <ProtectedRoute>
-            <CoursesDashboard />
+            <LandingHome />
           </ProtectedRoute>
         }
       />
@@ -63,11 +52,11 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <AuthProvider>
+    <AuthProvider>
+      <BrowserRouter>
         <AppContent />
-      </AuthProvider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </AuthProvider>
   );
 };
 

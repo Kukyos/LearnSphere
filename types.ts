@@ -1,24 +1,5 @@
 export type Difficulty = 'Beginner' | 'Intermediate' | 'Advanced';
 
-// Auth types from D's branch
-export type AuthMode = 'login' | 'signup';
-export type UserRole = 'learner' | 'instructor' | 'admin';
-
-export interface FormErrors {
-  name?: string;
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-}
-
-export interface AuthFormData {
-  name?: string;
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-  role?: UserRole;
-}
-
 export interface Course {
   id: string;
   title: string;
@@ -39,17 +20,6 @@ export interface Course {
   accessType: 'Open' | 'Invite-only' | 'Paid';
   updatedAt: string;
 }
-
-export interface FilterState {
-  searchQuery: string;
-  categories: string[];
-  difficulties: Difficulty[];
-  priceRange: 'all' | 'free' | 'paid';
-  minRating: number | null;
-  duration: 'all' | 'short' | 'medium' | 'long';
-}
-
-export type SortOption = 'popularity' | 'rating' | 'newest' | 'price-low' | 'price-high';
 
 export type ContentType = 'video' | 'article' | 'quiz';
 
@@ -75,4 +45,34 @@ export interface Module {
   id: string;
   title: string;
   lessons: Lesson[];
+}
+
+export interface FilterState {
+  searchQuery: string;
+  categories: string[];
+  difficulties: Difficulty[];
+  priceRange: 'all' | 'free' | 'paid';
+  minRating: number | null;
+  duration: 'all' | 'short' | 'medium' | 'long';
+}
+
+export type SortOption = 'popularity' | 'rating' | 'newest' | 'price-low' | 'price-high';
+// Authentication Types
+export type AuthMode = 'login' | 'signup';
+
+export type UserRole = 'learner' | 'instructor' | 'admin';
+
+export interface FormErrors {
+  name?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+}
+
+export interface AuthFormData {
+  name?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  role?: UserRole;
 }
