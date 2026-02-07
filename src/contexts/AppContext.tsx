@@ -308,6 +308,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     { courseId: '5', enrolledDate: '2026-01-28', startDate: '2026-01-29', completedDate: '2026-02-05', userId: 'user3', userName: 'Mike Chen', lessonsProgress: [{ lessonId: 'l9', completed: true }, { lessonId: 'l10', completed: true }, { lessonId: 'l11', completed: true }] },
   ]);
 
+  // When an instructor/admin logs in, assign all mock courses to them
+  // so they appear in the profile stats and dashboard
+  useEffect(() => {
+    if (authUser && (authUser.role === 'instructor' || authUser.role === 'admin')) {
+      setCourses(prev => prev.map(c => {
+        // Only reassign mock instructor IDs (inst1, inst2), not user-created courses
+        if (c.instructorId === 'inst1' || c.instructorId === 'inst2') {
+          return { ...c, instructorId: authUser.id, instructorName: authUser.name };
+        }
+        return c;
+      }));
+    }
+  }, [authUser?.id, authUser?.role]);
+
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };

@@ -38,7 +38,7 @@ const Login: React.FC = () => {
         setMessage({ type: 'success', text: `Welcome, ${fullName}! Account created.` });
         setTimeout(() => navigate('/'), 800);
       } else {
-        await login(email, password);
+        await login(email, password, role);
         navigate('/');
       }
     } catch (error: any) {
