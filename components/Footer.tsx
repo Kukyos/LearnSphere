@@ -3,7 +3,7 @@ import { BookOpen, Twitter, Linkedin, Facebook, Github } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-brand-900 pt-24 pb-12 text-brand-300 border-t border-brand-800">
+    <footer className="bg-brand-900 pt-24 pb-12 text-brand-300 border-t border-brand-200">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-12 md:grid-cols-4 mb-16">
           <div className="col-span-1 md:col-span-1">

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { FilterState, Difficulty } from '../types';
 import { CATEGORIES } from '../constants';
 import { SlidersHorizontal, Check, Star } from 'lucide-react';
@@ -28,7 +28,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ filters, onChange, className 
   return (
     <div className={`flex flex-col gap-8 ${className}`}>
       <div className="flex items-center gap-2 pb-4 border-b border-brand-200">
-        <SlidersHorizontal size={20} className="text-brand-900" />
+        <SlidersHorizontal size={20} className="text-brand-600" />
         <h3 className="text-lg font-bold text-brand-900">Filters</h3>
       </div>
 
@@ -38,9 +38,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ filters, onChange, className 
         <div className="space-y-2">
           {CATEGORIES.map(cat => (
             <label key={cat} className="flex cursor-pointer items-center gap-3 group">
-              <div className={`flex h-5 w-5 items-center justify-center rounded border transition-all ${
+              <div className={`flex h-5 w-5 items-center justify-center rounded border transition-all duration-200 ${
                 filters.categories.includes(cat) 
-                  ? 'border-brand-600 bg-brand-600 text-white' 
+                  ? 'border-brand-500 bg-brand-500 text-white' 
                   : 'border-brand-300 bg-white group-hover:border-brand-400'
               }`}>
                 {filters.categories.includes(cat) && <Check size={12} strokeWidth={3} />}
@@ -65,9 +65,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ filters, onChange, className 
         <div className="space-y-2">
           {['Beginner', 'Intermediate', 'Advanced'].map((diff) => (
              <label key={diff} className="flex cursor-pointer items-center gap-3 group">
-             <div className={`flex h-5 w-5 items-center justify-center rounded border transition-all ${
+             <div className={`flex h-5 w-5 items-center justify-center rounded border transition-all duration-200 ${
                filters.difficulties.includes(diff as Difficulty) 
-                 ? 'border-brand-600 bg-brand-600 text-white' 
+                 ? 'border-brand-500 bg-brand-500 text-white' 
                  : 'border-brand-300 bg-white group-hover:border-brand-400'
              }`}>
                {filters.difficulties.includes(diff as Difficulty) && <Check size={12} strokeWidth={3} />}
@@ -123,7 +123,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ filters, onChange, className 
                         checked={filters.minRating === rating}
                         onChange={() => onChange({...filters, minRating: filters.minRating === rating ? null : rating})}
                     />
-                     <div className="h-4 w-4 rounded-full border border-brand-300 bg-white peer-checked:border-brand-600 peer-checked:bg-brand-600 transition-all flex items-center justify-center">
+                     <div className="h-4 w-4 rounded-full border border-brand-300 bg-white peer-checked:border-brand-500 peer-checked:bg-brand-500 transition-all flex items-center justify-center">
                         <div className="h-1.5 w-1.5 rounded-full bg-white opacity-0 peer-checked:opacity-100"></div>
                      </div>
                     <span className="text-sm text-brand-600 group-hover:text-brand-900 flex items-center gap-1">

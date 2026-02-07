@@ -1,12 +1,13 @@
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
-import { useApp } from './src/contexts/AppContext';
 
 // Layout
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ChatbotIcon from './src/components/ChatbotIcon';
+import ClickSpark from './components/ClickSpark';
+import FaultyTerminal from './components/visuals/FaultyTerminal';
 
 // Pages
 import Landing from './pages/Landing';
@@ -24,7 +25,6 @@ import SettingsPage from './src/pages/SettingsPage';
 
 const App: React.FC = () => {
   const { user, isLoggedIn } = useAuth();
-  const { theme } = useApp();
   const location = useLocation();
 
   // Determine if we should show the Navbar/Footer
@@ -33,7 +33,30 @@ const App: React.FC = () => {
   const isLoginPage = location.pathname === '/login';
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${theme === 'dark' ? 'dark' : ''}`}>
+    <ClickSpark sparkColor="#5c7f4c" sparkSize={10} sparkRadius={15} sparkCount={8} duration={400}>
+    <div className="min-h-screen">
+      {/* Animated background — hidden on login */}
+      {!isLoginPage && (
+        <div className="fixed inset-0 z-0 pointer-events-none opacity-30" style={{ mixBlendMode: 'screen' }}>
+          <FaultyTerminal
+            tint="#b8ccaa"
+            brightness={1.0}
+            scale={1}
+            gridMul={[2, 1]}
+            digitSize={1.5}
+            timeScale={0.2}
+            scanlineIntensity={0.15}
+            glitchAmount={1}
+            flickerAmount={0.3}
+            noiseAmp={0.5}
+            chromaticAberration={0}
+            dither={0}
+            curvature={0}
+            mouseReact={false}
+            pageLoadAnimation={true}
+          />
+        </div>
+      )}
       {!isPlayerPage && !isLoginPage && <Navbar />}
       
       <Routes>
@@ -94,6 +117,7 @@ const App: React.FC = () => {
           Given the provided files, Landing/LearnerHome have their own footer, so we skip global footer 
           to avoid double rendering. */}
     </div>
+    </ClickSpark>
   );
 };
 

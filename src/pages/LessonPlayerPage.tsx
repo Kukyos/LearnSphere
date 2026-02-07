@@ -10,7 +10,7 @@ import {
 const LessonPlayerPage: React.FC = () => {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>();
   const navigate = useNavigate();
-  const { user, courses, userProgress, theme, completeLesson, submitQuiz, completeCourse } = useApp();
+  const { user, courses, userProgress, completeLesson, submitQuiz, completeCourse } = useApp();
   const { user: authUser } = useAuth();
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -32,7 +32,6 @@ const LessonPlayerPage: React.FC = () => {
   const isLessonCompleted = (lid: string) =>
     courseProgress?.lessonsProgress.some(l => l.lessonId === lid && l.completed) || false;
 
-  // Reset quiz state when lesson changes
   useEffect(() => {
     setQuizAnswers({});
     setQuizSubmitted(false);
@@ -40,7 +39,6 @@ const LessonPlayerPage: React.FC = () => {
     setPointsEarned(null);
   }, [lessonId]);
 
-  // Auto-dismiss points popup
   useEffect(() => {
     if (pointsEarned !== null) {
       const timer = setTimeout(() => setPointsEarned(null), 3000);
@@ -50,10 +48,10 @@ const LessonPlayerPage: React.FC = () => {
 
   if (!course || !lesson) {
     return (
-      <div className={`min-h-screen pt-28 flex items-center justify-center ${theme === 'dark' ? 'bg-brand-950' : 'bg-nature-light'}`}>
+      <div className="min-h-screen pt-28 flex items-center justify-center bg-nature-light">
         <div className="text-center">
           <BookOpen className="mx-auto mb-4 text-brand-400" size={64} />
-          <h2 className={`text-2xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-brand-900'}`}>Lesson Not Found</h2>
+          <h2 className="text-2xl font-bold mb-2 text-brand-900">Lesson Not Found</h2>
           <button onClick={() => navigate('/explore')} className="px-6 py-3 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition-colors">
             Browse Courses
           </button>
@@ -65,8 +63,6 @@ const LessonPlayerPage: React.FC = () => {
   const handleMarkComplete = () => {
     if (courseId && lessonId) {
       completeLesson(courseId, lessonId);
-
-      // Check if all lessons are completed to complete course
       const allLessons = course.lessons.map(l => l.id);
       const completedLessons = courseProgress?.lessonsProgress.filter(lp => lp.completed).map(lp => lp.lessonId) || [];
       const willBeCompleted = [...new Set([...completedLessons, lessonId])];
@@ -78,29 +74,21 @@ const LessonPlayerPage: React.FC = () => {
 
   const handleQuizSubmit = () => {
     if (!lesson.quiz || !courseId || !lessonId) return;
-
     let correct = 0;
     lesson.quiz.questions.forEach(q => {
       if (quizAnswers[q.id] === q.correctAnswer) correct++;
     });
-
     const score = Math.round((correct / lesson.quiz.questions.length) * 100);
     setQuizScore(score);
     setQuizSubmitted(true);
-
-    // Only award points to learners, not instructors or admins
     if (isLearner) {
-      // Calculate attempt number
       const lessonProg = courseProgress?.lessonsProgress.find(l => l.lessonId === lessonId);
       const attempt = (lessonProg?.quizAttempts || 0) + 1;
-
       const points = submitQuiz(courseId, lessonId, attempt);
       if (points > 0) {
         setPointsEarned(points);
       }
     }
-
-    // Mark lesson complete if passing score
     if (score >= 60) {
       handleMarkComplete();
     }
@@ -115,7 +103,6 @@ const LessonPlayerPage: React.FC = () => {
     }
   };
 
-  // Render lesson content based on type
   const renderContent = () => {
     switch (lesson.type) {
       case 'video':
@@ -133,14 +120,14 @@ const LessonPlayerPage: React.FC = () => {
 
       case 'document':
         return (
-          <div className={`rounded-xl p-8 ${theme === 'dark' ? 'bg-brand-900' : 'bg-white'} shadow-lg max-h-[70vh] overflow-y-auto`}>
-            <div className={`prose max-w-none ${theme === 'dark' ? 'prose-invert' : ''}`}>
+          <div className="rounded-xl p-8 bg-white shadow-lg border border-brand-100 max-h-[70vh] overflow-y-auto">
+            <div className="prose max-w-none">
               {lesson.content.split('\n').map((line, i) => {
-                if (line.startsWith('# ')) return <h1 key={i} className={`text-2xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-brand-900'}`}>{line.slice(2)}</h1>;
-                if (line.startsWith('## ')) return <h2 key={i} className={`text-xl font-bold mt-6 mb-3 ${theme === 'dark' ? 'text-brand-100' : 'text-brand-800'}`}>{line.slice(3)}</h2>;
-                if (line.startsWith('- ')) return <li key={i} className={`ml-4 mb-1 ${theme === 'dark' ? 'text-brand-200' : 'text-brand-700'}`}>{line.slice(2)}</li>;
+                if (line.startsWith('# ')) return <h1 key={i} className="text-2xl font-bold mb-4 text-brand-900">{line.slice(2)}</h1>;
+                if (line.startsWith('## ')) return <h2 key={i} className="text-xl font-bold mt-6 mb-3 text-brand-800">{line.slice(3)}</h2>;
+                if (line.startsWith('- ')) return <li key={i} className="ml-4 mb-1 text-brand-700">{line.slice(2)}</li>;
                 if (line.trim() === '') return <br key={i} />;
-                return <p key={i} className={`mb-2 leading-relaxed ${theme === 'dark' ? 'text-brand-200' : 'text-brand-700'}`}>{line}</p>;
+                return <p key={i} className="mb-2 leading-relaxed text-brand-700">{line}</p>;
               })}
             </div>
             {lesson.downloadAllowed && (
@@ -154,26 +141,25 @@ const LessonPlayerPage: React.FC = () => {
       case 'quiz':
         if (!lesson.quiz) return <p>No quiz data available</p>;
         return (
-          <div className={`rounded-xl p-8 ${theme === 'dark' ? 'bg-brand-900' : 'bg-white'} shadow-lg`}>
-            <h2 className={`text-2xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-brand-900'}`}>📝 {lesson.title}</h2>
+          <div className="rounded-xl p-8 bg-white shadow-lg border border-brand-100">
+            <h2 className="text-2xl font-bold mb-6 text-brand-900">📝 {lesson.title}</h2>
 
             {quizSubmitted ? (
               <div className="text-center py-8">
                 <div className={`w-32 h-32 rounded-full mx-auto mb-6 flex items-center justify-center ${
-                  quizScore >= 60 ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'
+                  quizScore >= 60 ? 'bg-green-50' : 'bg-red-50'
                 }`}>
-                  <span className={`text-4xl font-bold ${quizScore >= 60 ? 'text-green-600' : 'text-red-600'}`}>
+                  <span className={`text-4xl font-bold ${quizScore >= 60 ? 'text-green-600' : 'text-red-500'}`}>
                     {quizScore}%
                   </span>
                 </div>
-                <h3 className={`text-xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-brand-900'}`}>
+                <h3 className="text-xl font-bold mb-2 text-brand-900">
                   {quizScore >= 60 ? '🎉 Great job!' : '😔 Keep trying!'}
                 </h3>
-                <p className={`mb-6 ${theme === 'dark' ? 'text-brand-300' : 'text-brand-600'}`}>
+                <p className="mb-6 text-brand-500">
                   You scored {quizScore}% ({Math.round(quizScore * lesson.quiz.questions.length / 100)}/{lesson.quiz.questions.length} correct)
                 </p>
 
-                {/* Show answers */}
                 <div className="text-left space-y-4 mt-8">
                   {lesson.quiz.questions.map((q, qi) => {
                     const userAnswer = quizAnswers[q.id];
@@ -181,10 +167,10 @@ const LessonPlayerPage: React.FC = () => {
                     return (
                       <div key={q.id} className={`p-4 rounded-xl border ${
                         isCorrect
-                          ? 'border-green-300 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
-                          : 'border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-900/20'
+                          ? 'border-green-200 bg-green-50'
+                          : 'border-red-200 bg-red-50'
                       }`}>
-                        <p className={`font-semibold mb-2 ${theme === 'dark' ? 'text-white' : 'text-brand-900'}`}>
+                        <p className="font-semibold mb-2 text-brand-900">
                           {qi + 1}. {q.question}
                         </p>
                         <p className={`text-sm ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
@@ -208,8 +194,8 @@ const LessonPlayerPage: React.FC = () => {
             ) : (
               <div className="space-y-6">
                 {lesson.quiz.questions.map((q, qi) => (
-                  <div key={q.id} className={`p-5 rounded-xl ${theme === 'dark' ? 'bg-brand-800' : 'bg-nature-light'}`}>
-                    <p className={`font-semibold mb-3 ${theme === 'dark' ? 'text-white' : 'text-brand-900'}`}>
+                  <div key={q.id} className="p-5 rounded-xl bg-brand-50 border border-brand-200">
+                    <p className="font-semibold mb-3 text-brand-900">
                       {qi + 1}. {q.question}
                     </p>
                     <div className="space-y-2">
@@ -219,16 +205,14 @@ const LessonPlayerPage: React.FC = () => {
                           onClick={() => setQuizAnswers(prev => ({ ...prev, [q.id]: oi }))}
                           className={`w-full text-left p-3 rounded-lg border transition-all ${
                             quizAnswers[q.id] === oi
-                              ? 'border-brand-500 bg-brand-100 dark:bg-brand-700 dark:border-brand-400'
-                              : theme === 'dark'
-                                ? 'border-brand-700 hover:border-brand-500'
-                                : 'border-brand-200 hover:border-brand-400'
+                              ? 'border-brand-400 bg-brand-700'
+                              : 'border-brand-700 hover:border-brand-500'
                           }`}
                         >
                           <span className={`text-sm ${
                             quizAnswers[q.id] === oi
-                              ? 'font-semibold text-brand-700 dark:text-white'
-                              : theme === 'dark' ? 'text-brand-200' : 'text-brand-700'
+                              ? 'font-semibold text-white'
+                              : 'text-brand-200'
                           }`}>
                             {String.fromCharCode(65 + oi)}. {option}
                           </span>
@@ -251,13 +235,13 @@ const LessonPlayerPage: React.FC = () => {
         );
 
       default:
-        return <p className={theme === 'dark' ? 'text-brand-300' : 'text-brand-600'}>Unsupported lesson type</p>;
+        return <p className="text-brand-500">Unsupported lesson type</p>;
     }
   };
 
   return (
-    <div className={`min-h-screen flex ${theme === 'dark' ? 'bg-brand-950' : 'bg-nature-light'}`}>
-      {/* Points Earned Popup - Only for learners */}
+    <div className="min-h-screen flex bg-nature-light">
+      {/* Points Earned Popup */}
       {isLearner && pointsEarned !== null && (
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[200] animate-bounce">
           <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-yellow-500 text-white shadow-2xl">
@@ -274,25 +258,21 @@ const LessonPlayerPage: React.FC = () => {
       )}
 
       {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'w-80' : 'w-0'} flex-none transition-all duration-300 overflow-hidden ${
-        theme === 'dark' ? 'bg-brand-900 border-brand-800' : 'bg-white border-brand-200'
-      } border-r`}>
+      <div className={`${sidebarOpen ? 'w-80' : 'w-0'} flex-none transition-all duration-300 overflow-hidden bg-white border-brand-200 border-r`}>
         <div className="w-80 h-screen overflow-y-auto pt-20 pb-6">
-          {/* Course Title */}
-          <div className="px-4 pb-4 border-b border-brand-200 dark:border-brand-800">
+          <div className="px-4 pb-4 border-b border-brand-200">
             <button
               onClick={() => navigate(`/course/${courseId}`)}
-              className={`flex items-center gap-1 text-sm mb-3 ${theme === 'dark' ? 'text-brand-400 hover:text-white' : 'text-brand-500 hover:text-brand-900'} transition-colors`}
+              className="flex items-center gap-1 text-sm mb-3 text-brand-500 hover:text-brand-900 transition-colors"
             >
               <ArrowLeft size={14} /> Back to Course
             </button>
-            <h3 className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-brand-900'}`}>{course.title}</h3>
-            <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-brand-400' : 'text-brand-500'}`}>
+            <h3 className="font-bold text-brand-900">{course.title}</h3>
+            <p className="text-xs mt-1 text-brand-500">
               {courseProgress?.lessonsProgress.filter(l => l.completed).length || 0}/{course.lessons.length} completed
             </p>
           </div>
 
-          {/* Lesson List */}
           <div className="py-2">
             {course.lessons.map((l, i) => {
               const completed = isLessonCompleted(l.id);
@@ -303,8 +283,8 @@ const LessonPlayerPage: React.FC = () => {
                   onClick={() => navigate(`/lesson/${courseId}/${l.id}`)}
                   className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-all ${
                     isCurrent
-                      ? theme === 'dark' ? 'bg-brand-800 border-l-4 border-brand-500' : 'bg-brand-50 border-l-4 border-brand-600'
-                      : 'border-l-4 border-transparent hover:bg-brand-50 dark:hover:bg-brand-800'
+                      ? 'bg-brand-50 border-l-4 border-brand-500'
+                      : 'border-l-4 border-transparent hover:bg-brand-50'
                   }`}
                 >
                   <div className={`flex-none w-8 h-8 rounded-full flex items-center justify-center text-sm ${
@@ -312,19 +292,17 @@ const LessonPlayerPage: React.FC = () => {
                       ? 'bg-green-500 text-white'
                       : isCurrent
                         ? 'bg-brand-600 text-white'
-                        : theme === 'dark' ? 'bg-brand-800 text-brand-400' : 'bg-brand-100 text-brand-600'
+                        : 'bg-brand-100 text-brand-500'
                   }`}>
                     {completed ? <CheckCircle size={16} /> : getLessonIcon(l.type)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-medium truncate ${
-                      isCurrent
-                        ? theme === 'dark' ? 'text-white' : 'text-brand-900'
-                        : theme === 'dark' ? 'text-brand-300' : 'text-brand-700'
+                      isCurrent ? 'text-brand-900' : 'text-brand-600'
                     }`}>
                       {i + 1}. {l.title}
                     </p>
-                    <p className={`text-xs capitalize ${theme === 'dark' ? 'text-brand-500' : 'text-brand-400'}`}>{l.type}</p>
+                    <p className="text-xs capitalize text-brand-500">{l.type}</p>
                   </div>
                 </button>
               );
@@ -336,19 +314,17 @@ const LessonPlayerPage: React.FC = () => {
       {/* Main Content */}
       <div className="flex-1 min-w-0">
         {/* Top Bar */}
-        <div className={`sticky top-0 z-30 flex items-center justify-between px-6 py-3 ${
-          theme === 'dark' ? 'bg-brand-950/90 border-brand-800' : 'bg-nature-light/90 border-brand-200'
-        } border-b backdrop-blur-lg pt-20`}>
+        <div className="sticky top-0 z-30 flex items-center justify-between px-6 py-3 bg-white/90 border-brand-200 border-b backdrop-blur-lg pt-20">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className={`p-2 rounded-lg transition-colors ${theme === 'dark' ? 'hover:bg-brand-800 text-brand-300' : 'hover:bg-brand-100 text-brand-600'}`}
+              className="p-2 rounded-lg transition-colors hover:bg-brand-100 text-brand-600"
             >
               {sidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
             </button>
             <div>
-              <h2 className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-brand-900'}`}>{lesson.title}</h2>
-              <p className={`text-xs capitalize ${theme === 'dark' ? 'text-brand-400' : 'text-brand-500'}`}>
+              <h2 className="font-bold text-brand-900">{lesson.title}</h2>
+              <p className="text-xs capitalize text-brand-500">
                 Lesson {lessonIndex + 1} of {course.lessons.length} • {lesson.type}
               </p>
             </div>
@@ -364,7 +340,7 @@ const LessonPlayerPage: React.FC = () => {
               </button>
             )}
             {isLessonCompleted(lesson.id) && (
-              <span className="px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg text-sm font-semibold flex items-center gap-1">
+              <span className="px-3 py-1.5 bg-green-50 text-green-600 rounded-lg text-sm font-semibold flex items-center gap-1">
                 <CheckCircle size={14} /> Completed
               </span>
             )}
@@ -375,12 +351,10 @@ const LessonPlayerPage: React.FC = () => {
         <div className="p-6 sm:p-8 max-w-4xl mx-auto">
           {renderContent()}
 
-          {/* Description */}
-          <div className={`mt-6 p-4 rounded-xl ${theme === 'dark' ? 'bg-brand-900' : 'bg-white'} shadow`}>
-            <p className={theme === 'dark' ? 'text-brand-200' : 'text-brand-700'}>{lesson.description}</p>
+          <div className="mt-6 p-4 rounded-xl bg-white shadow border border-brand-100">
+            <p className="text-brand-600">{lesson.description}</p>
           </div>
 
-          {/* Navigation */}
           <div className="flex justify-between items-center mt-8">
             <button
               onClick={() => prevLesson && navigate(`/lesson/${courseId}/${prevLesson.id}`)}
@@ -388,7 +362,7 @@ const LessonPlayerPage: React.FC = () => {
               className={`flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all ${
                 prevLesson
                   ? 'bg-brand-600 text-white hover:bg-brand-700 active:scale-95'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-brand-800 dark:text-brand-600'
+                  : 'bg-brand-100 text-brand-400 cursor-not-allowed'
               }`}
             >
               <ChevronLeft size={18} /> Previous
@@ -400,7 +374,7 @@ const LessonPlayerPage: React.FC = () => {
               className={`flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all ${
                 nextLesson
                   ? 'bg-brand-600 text-white hover:bg-brand-700 active:scale-95'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-brand-800 dark:text-brand-600'
+                  : 'bg-brand-100 text-brand-400 cursor-not-allowed'
               }`}
             >
               Next <ChevronRight size={18} />

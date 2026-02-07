@@ -2,7 +2,26 @@
 
 > **Single Source of Truth** for all technical and design references.  
 > **AI assistants: Reference this document** when generating code.  
-> **Teammates: Keep this updated** as decisions are made.
+> **Teammates: Keep this updated** as decisions are made.  
+> **Last Updated:** 2026-02-07 — Theme unification, DomeGallery added
+
+---
+
+## 🚨 CRITICAL UPDATES (Feb 7, 2026)
+
+### Theme System Changed
+**Dark mode has been REMOVED.** The app now uses a **unified light theme only**.
+
+**What this means for development:**
+- ❌ **DO NOT** add `dark:` classes to any components
+- ❌ **DO NOT** reference theme state or toggleTheme
+- ✅ **USE** only light theme color classes (brand-*, nature-*)
+- ✅ **ENSURE** all new components work with light background
+
+### New Components
+- **DomeGallery** — 3D interactive course thumbnail dome (components/visuals/)
+- **Backend API** — Node.js/Express server with PostgreSQL (server/)
+- **API Service** — Frontend API client (src/services/api.ts)
 
 ---
 
@@ -21,8 +40,10 @@
 | Package | Version | Purpose | Notes |
 |---------|---------|---------|-------|
 | `lucide-react` | ^0.563.0 | Icon library | All icons from here (BookOpen, Search, etc.) |
-| `tailwindcss` | CDN | Utility-first CSS | Loaded via `<script>` in index.html |
-| `three` | 0.160.0 | 3D graphics | Only for PixelBlast component |
+| `tailwindcss` | CDN | Utility-first CSS | Loaded via `<script>` in index.html, **NO darkMode config** |
+| `three` | 0.160.0 | 3D graphics | For PixelBlast (Hero) and DomeGallery (Login) |
+| `@use-gesture/react` | Latest | Gesture handling | Drag interactions for DomeGallery |
+| `framer-motion` | ^12.x | Animation library | Page transitions, role selector animation |
 
 ### Development Tools
 | Package | Version | Purpose | Notes |
@@ -31,6 +52,8 @@
 | `@vitejs/plugin-react` | ^5.0.0 | Vite React plugin | JSX/TSX compilation |
 
 ---
+
+**⚠️ CRITICAL: Dark mode has been REMOVED. Use LIGHT theme colors ONLY.**
 
 ## 2. Color Scheme (MANDATORY)
 
@@ -62,11 +85,12 @@ nature-dark:   #1F2922   /* Dark mode main background */
 text-primary:   brand-900 dark:brand-50     /* Main headings */
 text-secondary: brand-600 dark:brand-300   /* Body text */
 text-muted:     brand-500 dark:brand-400   /* Muted text */
-```
-
-### Usage Rules
-- **NEVER invent new colors** — use only from this palette
-- **Always include dark mode variants**: `dark:bg-brand-800 dark:text-white`
+```NO dark mode variants** — do NOT use `dark:` prefix classes
+- **Primary actions**: `bg-brand-700 hover:bg-brand-600 text-white`
+- **Secondary actions**: `border border-brand-200 bg-white hover:bg-brand-50 text-brand-700`
+- **Success states**: Use brand greens
+- **Error states**: `text-red-600`
+- **Backgrounds**: `bg-nature-light` for pages, `bg-nature-card` for cardsand-800 dark:text-white`
 - **Primary actions**: `bg-brand-700 hover:bg-brand-600 text-white`
 - **Secondary actions**: `border border-brand-200 bg-white hover:bg-brand-50 text-brand-700`
 - **Success states**: Use brand greens
@@ -101,10 +125,10 @@ text-xs: 0.75rem (12px)  /* Captions, labels */
 - `font-light`: 300 (serif elements, emphasis)
 - `font-normal`: 400 (body text)
 - `font-medium`: 500 (semi-bold text)
-- `font-semibold`: 600 (buttons, labels)
-- `font-bold`: 700 (headings, strong emphasis)
-- `font-extrabold`: 800 (hero text)
-
+- `font-semibold`: 600 (buttons`
+- **Body**: `text-brand-700`
+- **Muted**: `text-brand-500`
+- **Links**: `text-brand-600 hover:text-brand-7
 ### Text Color Rules
 - **Headings**: `text-brand-900 dark:text-white`
 - **Body**: `text-brand-700 dark:text-brand-200`
@@ -133,16 +157,13 @@ text-xs: 0.75rem (12px)  /* Captions, labels */
 </button>
 ```
 
-### Card Patterns
-```tsx
-// Standard Card
-<div className="bg-nature-card dark:bg-brand-800 rounded-xl p-6 shadow-sm border border-brand-100 dark:border-brand-700">
-  <h3 className="text-xl font-bold text-brand-900 dark:text-white mb-4">Title</h3>
-  <p className="text-brand-700 dark:text-brand-200">Content</p>
+### Card Patternsrounded-xl p-6 shadow-sm border border-brand-100">
+  <h3 className="text-xl font-bold text-brand-900 mb-4">Title</h3>
+  <p className="text-brand-700">Content</p>
 </div>
 
 // Hover Card
-<div className="bg-nature-card dark:bg-brand-800 rounded-xl p-6 shadow-sm hover:shadow-md border border-brand-100 dark:border-brand-700 transition-shadow">
+<div className="bg-nature-card rounded-xl p-6 shadow-sm hover:shadow-md border border-brand-100 transition-shadow">
   {/* Content */}
 </div>
 ```
@@ -152,12 +173,12 @@ text-xs: 0.75rem (12px)  /* Captions, labels */
 // Input Field
 <input
   type="text"
-  className="w-full px-4 py-3 rounded-xl border border-brand-200 dark:border-brand-700 bg-white dark:bg-brand-900 text-brand-900 dark:text-white placeholder-brand-400 dark:placeholder-brand-600 focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600 focus:border-transparent transition-colors"
+  className="w-full px-4 py-3 rounded-xl border border-brand-200 bg-white text-brand-900 placeholder-brand-400 focus:ring-2 focus:ring-brand-300 focus:border-transparent transition-colors"
   placeholder="Enter text..."
 />
 
 // Select Dropdown
-<select className="w-full px-4 py-3 rounded-xl border border-brand-200 dark:border-brand-700 bg-white dark:bg-brand-900 text-brand-900 dark:text-white focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600 focus:border-transparent">
+<select className="w-full px-4 py-3 rounded-xl border border-brand-200 bg-white text-brand-900 focus:ring-2 focus:ring-brand-300 focus:border-transparent">
   <option>Option 1</option>
 </select>
 ```
@@ -165,10 +186,36 @@ text-xs: 0.75rem (12px)  /* Captions, labels */
 ### Modal/Dialog Pattern
 ```tsx
 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-  <div className="w-full max-w-md rounded-3xl bg-nature-card dark:bg-brand-800 border border-brand-100 dark:border-brand-700 shadow-2xl">
+  <div className="w-full max-w-md rounded-3xl bg-nature-card border border-brand-100 shadow-2xl">
     <div className="p-8">
       {/* Modal content */}
     </div>
+  </div>
+</div>
+```
+
+### DomeGallery Pattern (NEW)
+```tsx
+import DomeGallery from '../components/visuals/DomeGallery';
+import '../components/visuals/DomeGallery.css';
+
+// In component
+<DomeGallery
+  overlayBlurColor="#e3e8dc"  // Light sage overlay
+  grayscale={true}             // B&W images
+  fit={0.32}                   // Dome size (0-1 range)
+  imageBorderRadius="12px"     // Tile border radius
+  dragDampening={2}            // Drag resistance
+  segments={25}                // Sphere segments (detail level)
+/>
+```
+
+**DomeGallery Features:**
+- Auto-rotation when idle
+- Drag-to-rotate with physics
+- 12 default course thumbnails in spherical layout
+- Light theme CSS variables
+- No click interaction (drag-only) </div>
   </div>
 </div>
 ```

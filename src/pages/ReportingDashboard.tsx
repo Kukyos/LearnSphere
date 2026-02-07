@@ -83,9 +83,9 @@ export default function ReportingDashboard() {
 
   const statusBadge = (status: string) => {
     const styles: Record<string, string> = {
-      'Yet to Start': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-      'In Progress': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-      'Completed': 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+      'Yet to Start': 'bg-amber-50 text-amber-600',
+      'In Progress': 'bg-blue-50 text-blue-600',
+      'Completed': 'bg-green-50 text-green-600',
     };
     return (
       <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${styles[status] || ''}`}>
@@ -95,16 +95,16 @@ export default function ReportingDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-nature-light dark:bg-brand-950 pt-20">
+    <div className="min-h-screen bg-nature-light pt-20">
       {/* Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-6">
         <div className="flex items-center gap-4 mb-8">
-          <button onClick={() => navigate('/courses')} className="p-2 rounded-lg hover:bg-brand-200 dark:hover:bg-brand-700 text-brand-500">
+          <button onClick={() => navigate('/courses')} className="p-2 rounded-lg hover:bg-brand-100 text-brand-500">
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-brand-900 dark:text-white">Reporting Dashboard</h1>
-            <p className="text-sm text-brand-500 dark:text-brand-400">Course-wise learner progress overview</p>
+            <h1 className="text-2xl font-bold text-brand-900">Reporting Dashboard</h1>
+            <p className="text-sm text-brand-500">Course-wise learner progress overview</p>
           </div>
         </div>
 
@@ -116,15 +116,15 @@ export default function ReportingDashboard() {
               onClick={() => setStatusFilter(card.filter)}
               className={`p-5 rounded-xl border-2 transition-all text-left ${
                 statusFilter === card.filter
-                  ? 'border-brand-500 bg-white dark:bg-brand-900 shadow-lg'
-                  : 'border-brand-200 dark:border-brand-700 bg-white dark:bg-brand-900 hover:border-brand-300'
+                  ? 'border-brand-500 bg-white shadow-lg'
+                  : 'border-brand-200 bg-white hover:border-brand-400'
               }`}
             >
               <div className={`w-10 h-10 ${card.color} rounded-lg flex items-center justify-center text-white mb-3`}>
                 {card.icon}
               </div>
-              <p className="text-2xl font-bold text-brand-900 dark:text-white">{card.value}</p>
-              <p className="text-sm text-brand-500 dark:text-brand-400">{card.label}</p>
+              <p className="text-2xl font-bold text-brand-900">{card.value}</p>
+              <p className="text-sm text-brand-500">{card.label}</p>
             </button>
           ))}
         </div>
@@ -136,13 +136,13 @@ export default function ReportingDashboard() {
             <input
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 border border-brand-300 dark:border-brand-600 rounded-lg bg-white dark:bg-brand-900 text-brand-900 dark:text-white text-sm"
+              className="w-full pl-9 pr-4 py-2.5 border border-brand-200 rounded-lg bg-white text-brand-900 text-sm placeholder-brand-400"
               placeholder="Search by course or participant name..."
             />
           </div>
           <button
             onClick={() => setShowColumnPanel(!showColumnPanel)}
-            className="flex items-center gap-1.5 px-4 py-2.5 border border-brand-300 dark:border-brand-600 rounded-lg text-sm font-semibold text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-700"
+            className="flex items-center gap-1.5 px-4 py-2.5 border border-brand-200 rounded-lg text-sm font-semibold text-brand-600 hover:bg-brand-50"
           >
             <Settings2 size={16} /> Columns
           </button>
@@ -150,16 +150,16 @@ export default function ReportingDashboard() {
 
         {/* Column Customizer */}
         {showColumnPanel && (
-          <div className="mb-4 p-4 bg-white dark:bg-brand-900 rounded-xl border border-brand-200 dark:border-brand-700 shadow-sm">
-            <p className="text-sm font-semibold text-brand-700 dark:text-brand-300 mb-3">Show/Hide Columns</p>
+          <div className="mb-4 p-4 bg-brand-50 rounded-xl border border-brand-200 shadow-sm">
+            <p className="text-sm font-semibold text-brand-600 mb-3">Show/Hide Columns</p>
             <div className="flex flex-wrap gap-3">
               {COLUMNS.map(col => (
-                <label key={col.key} className="flex items-center gap-2 text-sm text-brand-600 dark:text-brand-400 cursor-pointer">
+                <label key={col.key} className="flex items-center gap-2 text-sm text-brand-600 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={visibleColumns.has(col.key)}
                     onChange={() => toggleColumn(col.key)}
-                    className="rounded border-brand-300 text-brand-600 focus:ring-brand-500"
+                    className="rounded border-brand-600 text-brand-600 focus:ring-brand-500"
                   />
                   {col.label}
                 </label>
@@ -169,16 +169,16 @@ export default function ReportingDashboard() {
         )}
 
         {/* Table */}
-        <div className="bg-white dark:bg-brand-900 rounded-xl border border-brand-200 dark:border-brand-700 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-brand-200 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-brand-50 dark:bg-brand-900/50 border-b border-brand-200 dark:border-brand-700">
+                <tr className="bg-brand-50 border-b border-brand-200">
                   {COLUMNS.filter(c => visibleColumns.has(c.key)).map(col => (
                     <th
                       key={col.key}
                       onClick={() => handleSort(col.key)}
-                      className="px-4 py-3 text-left font-semibold text-brand-600 dark:text-brand-400 cursor-pointer hover:text-brand-900 dark:hover:text-white whitespace-nowrap"
+                      className="px-4 py-3 text-left font-semibold text-brand-600 cursor-pointer hover:text-brand-900 whitespace-nowrap"
                     >
                       <div className="flex items-center gap-1">
                         {col.label}
@@ -191,29 +191,29 @@ export default function ReportingDashboard() {
               <tbody>
                 {filteredRows.length === 0 ? (
                   <tr>
-                    <td colSpan={visibleColumns.size} className="px-4 py-12 text-center text-brand-500 dark:text-brand-400">
+                    <td colSpan={visibleColumns.size} className="px-4 py-12 text-center text-brand-400">
                       No data matching the current filters.
                     </td>
                   </tr>
                 ) : (
                   filteredRows.map((row, i) => (
-                    <tr key={i} className="border-b border-brand-100 dark:border-brand-700/50 hover:bg-brand-50 dark:hover:bg-brand-700/30">
+                    <tr key={i} className="border-b border-brand-100 hover:bg-brand-50">
                       {visibleColumns.has('srNo') && <td className="px-4 py-3 text-brand-500">{row.srNo}</td>}
-                      {visibleColumns.has('courseName') && <td className="px-4 py-3 font-medium text-brand-900 dark:text-white">{row.courseName}</td>}
-                      {visibleColumns.has('participantName') && <td className="px-4 py-3 text-brand-700 dark:text-brand-300">{row.participantName}</td>}
+                      {visibleColumns.has('courseName') && <td className="px-4 py-3 font-medium text-brand-900">{row.courseName}</td>}
+                      {visibleColumns.has('participantName') && <td className="px-4 py-3 text-brand-700">{row.participantName}</td>}
                       {visibleColumns.has('enrolledDate') && <td className="px-4 py-3 text-brand-500">{row.enrolledDate}</td>}
                       {visibleColumns.has('startDate') && <td className="px-4 py-3 text-brand-500">{row.startDate}</td>}
                       {visibleColumns.has('timeSpent') && <td className="px-4 py-3 text-brand-500">{row.timeSpent}</td>}
                       {visibleColumns.has('completion') && (
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <div className="w-16 h-2 bg-brand-200 dark:bg-brand-600 rounded-full overflow-hidden">
+                            <div className="w-16 h-2 bg-brand-100 rounded-full overflow-hidden">
                               <div
                                 className="h-full bg-brand-500 rounded-full"
                                 style={{ width: `${row.completion}%` }}
                               />
                             </div>
-                            <span className="text-xs text-brand-600 dark:text-brand-400">{row.completion}%</span>
+                            <span className="text-xs text-brand-400">{row.completion}%</span>
                           </div>
                         </td>
                       )}

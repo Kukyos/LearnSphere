@@ -61,6 +61,32 @@ const Login: React.FC = () => {
           setIsLoading(false);
           return;
         }
+        // Password strength validation
+        if (password.length < 8) {
+          setMessage({ type: 'error', text: 'Password must be at least 8 characters.' });
+          setIsLoading(false);
+          return;
+        }
+        if (!/[a-z]/.test(password)) {
+          setMessage({ type: 'error', text: 'Password must contain a lowercase letter.' });
+          setIsLoading(false);
+          return;
+        }
+        if (!/[A-Z]/.test(password)) {
+          setMessage({ type: 'error', text: 'Password must contain an uppercase letter.' });
+          setIsLoading(false);
+          return;
+        }
+        if (!/[0-9]/.test(password)) {
+          setMessage({ type: 'error', text: 'Password must contain a digit.' });
+          setIsLoading(false);
+          return;
+        }
+        if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+          setMessage({ type: 'error', text: 'Password must contain a special character.' });
+          setIsLoading(false);
+          return;
+        }
         await register(fullName, email, password, role);
         setMessage({ type: 'success', text: `Welcome, ${fullName}! Account created.` });
         setTimeout(() => navigate('/'), 800);
@@ -117,14 +143,6 @@ const Login: React.FC = () => {
         
         {/* LEFT SIDE: Auth Form */}
         <div className="w-full lg:w-[45%] flex flex-col justify-center px-6 sm:px-12 lg:px-20 py-12 lg:py-0 relative z-20">
-          
-          {/* Logo area */}
-          <div className="absolute top-8 left-8 lg:left-12 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-700 flex items-center justify-center shadow-lg shadow-brand-900/15">
-              <div className="w-4 h-4 bg-brand-50 rounded-full"></div>
-            </div>
-            <span className="text-xl font-bold text-brand-900 tracking-wide">LearnSphere</span>
-          </div>
 
           <motion.div 
             initial={{ opacity: 0, x: -30 }}
@@ -136,6 +154,14 @@ const Login: React.FC = () => {
             <div className="bg-nature-card/90 backdrop-blur-xl border border-brand-200/60 rounded-[2rem] p-8 sm:p-10 shadow-2xl shadow-brand-900/8 relative overflow-hidden">
               {/* Subtle ambient glow */}
               <div className="absolute -top-32 -right-32 w-64 h-64 bg-brand-300/30 rounded-full blur-[80px]"></div>
+
+              {/* App Logo */}
+              <div className="flex items-center justify-center gap-2.5 mb-6">
+                <div className="w-9 h-9 rounded-xl bg-brand-700 flex items-center justify-center shadow-md shadow-brand-900/15">
+                  <div className="w-3.5 h-3.5 bg-brand-50 rounded-full"></div>
+                </div>
+                <span className="text-lg font-bold text-brand-900 tracking-wide">LearnSphere</span>
+              </div>
               
               {/* Role Selector Pills */}
               <div className="flex p-1 bg-brand-100 rounded-2xl mb-8 border border-brand-200 relative">
@@ -237,6 +263,21 @@ const Login: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
+                  {mode === 'signup' && (
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 pt-1.5 px-1">
+                      {[
+                        { test: password.length >= 8, label: '8+ chars' },
+                        { test: /[a-z]/.test(password), label: 'lowercase' },
+                        { test: /[A-Z]/.test(password), label: 'uppercase' },
+                        { test: /[0-9]/.test(password), label: 'digit' },
+                        { test: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password), label: 'special' },
+                      ].map(r => (
+                        <span key={r.label} className={`text-[11px] font-medium transition-colors duration-200 ${r.test ? 'text-green-600' : 'text-brand-400'}`}>
+                          {r.test ? '✓' : '○'} {r.label}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   {mode === 'login' && !forgotMode && (
                     <div className="flex justify-end pt-1">
                       <button type="button" onClick={() => { setForgotMode(true); setForgotEmail(email); setMessage(null); }} className="text-sm text-brand-500 hover:text-brand-700 transition-colors font-medium">

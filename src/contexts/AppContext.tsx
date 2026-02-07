@@ -131,8 +131,6 @@ interface AppContextType {
   courses: Course[];
   userProgress: CourseProgress[];
   reviews: Review[];
-  theme: 'light' | 'dark';
-  toggleTheme: () => void;
   enrollInCourse: (courseId: string) => void;
   completeLesson: (courseId: string, lessonId: string) => void;
   submitQuiz: (courseId: string, lessonId: string, attempt: number) => number;
@@ -300,11 +298,7 @@ const getBadge = (points: number): string => {
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user: authUser, isLoggedIn } = useAuth();
 
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    if (document.documentElement.classList.contains('dark')) return 'dark';
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
-    return 'light';
-  });
+
 
   const [userPoints, setUserPoints] = useState(35);
 
@@ -339,14 +333,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   ]);
 
-  // Sync theme with DOM
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [theme]);
 
   // Derive user from AuthContext
   const user: AppUser | null = authUser ? {
@@ -405,10 +391,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
     fetchFromBackend();
   }, [authUser?.id]); // re-fetch when user changes
-
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
-  };
 
   const enrollInCourse = (courseId: string) => {
     if (!authUser) return;
@@ -626,8 +608,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         courses,
         userProgress,
         reviews,
-        theme,
-        toggleTheme,
         enrollInCourse,
         completeLesson,
         submitQuiz,

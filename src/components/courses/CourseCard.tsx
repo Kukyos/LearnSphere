@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MoreVertical, Eye, BookOpen, Clock, Share2, Edit } from 'lucide-react';
+import TiltCard from '../../../components/TiltCard';
 
 interface Course {
   id: string;
@@ -13,6 +14,7 @@ interface Course {
 }
 
 interface CourseCardProps {
+  key?: React.Key;
   course: Course;
   onEdit: (courseId: string) => void;
   onShare: (courseId: string) => void;
@@ -23,7 +25,7 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
   const [showTooltip, setShowTooltip] = useState(false);
 
   return (
-    <div 
+    <TiltCard
       className={`bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition border border-brand-200 group ${
         !course.isPublished ? 'opacity-85 hover:opacity-100' : ''
       }`}
@@ -58,7 +60,6 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
                 🔒 Draft
               </span>
               
-              {/* Tooltip */}
               {showTooltip && (
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-brand-900 text-white text-xs rounded px-3 py-2 whitespace-nowrap z-20">
                   Not visible to learners
@@ -74,8 +75,8 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
           <span
             className={`inline-block px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${
               course.isPublished
-                ? 'bg-green-100 text-green-800'
-                : 'bg-yellow-100 text-yellow-800'
+                ? 'bg-green-50 text-green-600'
+                : 'bg-yellow-50 text-yellow-600'
             }`}
           >
             {course.isPublished ? '✓ Published' : 'Draft'}
@@ -87,12 +88,11 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="p-2 bg-white rounded-full shadow-md hover:bg-brand-50 transition"
+              className="p-2 bg-surface rounded-full shadow-md hover:bg-surface-light transition"
             >
-              <MoreVertical className="h-5 w-5 text-brand-700" />
+              <MoreVertical className="h-5 w-5 text-brand-600" />
             </button>
 
-            {/* Dropdown Menu */}
             {showMenu && (
               <div className="absolute left-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-brand-200 z-10">
                 <button
@@ -100,7 +100,7 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
                     onEdit(course.id);
                     setShowMenu(false);
                   }}
-                  className="w-full px-4 py-2 text-left text-sm text-brand-700 hover:bg-brand-50 flex items-center gap-2 border-b border-brand-100"
+                  className="w-full px-4 py-2 text-left text-sm text-brand-700 hover:bg-brand-50 flex items-center gap-2 border-b border-brand-200"
                 >
                   <Edit className="h-4 w-4" />
                   Edit
@@ -123,22 +123,20 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
 
       {/* Card Content */}
       <div className={`p-4 ${!course.isPublished ? 'bg-brand-50' : ''}`}>
-        {/* Title */}
         <h3 className={`font-semibold mb-2 line-clamp-2 text-base ${
-          !course.isPublished ? 'text-brand-700' : 'text-brand-900'
+          !course.isPublished ? 'text-brand-500' : 'text-brand-900'
         }`}>
           {course.title}
         </h3>
 
-        {/* Tags */}
         <div className="flex flex-wrap gap-1 mb-4">
           {course.tags.map((tag) => (
             <span
               key={tag}
               className={`inline-block px-2 py-1 text-xs rounded font-medium ${
                 !course.isPublished
-                  ? 'bg-brand-200 text-brand-600'
-                  : 'bg-brand-50 text-brand-700'
+                  ? 'bg-brand-100 text-brand-500'
+                  : 'bg-brand-50 text-brand-600'
               }`}
             >
               {tag}
@@ -146,12 +144,11 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
           ))}
         </div>
 
-        {/* Stats */}
         <div className={`space-y-2 text-sm ${
           !course.isPublished ? 'text-brand-500' : 'text-brand-600'
         }`}>
           <div className="flex items-center gap-2">
-            <Eye className="h-4 w-4 text-brand-400" />
+            <Eye className="h-4 w-4 text-brand-500" />
             <span>
               {course.viewsCount === 0 
                 ? 'No views yet' 
@@ -159,24 +156,23 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-brand-400" />
+            <BookOpen className="h-4 w-4 text-brand-500" />
             <span>{course.totalLessons} lessons</span>
           </div>
           <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-brand-400" />
+            <Clock className="h-4 w-4 text-brand-500" />
             <span>{course.totalDuration}</span>
           </div>
         </div>
 
-        {/* Draft State Message */}
         {!course.isPublished && (
           <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-            <p className="text-xs text-yellow-800 font-medium">
+            <p className="text-xs text-yellow-700 font-medium">
               ⚠️ This course is not visible to learners. Publish to make it live.
             </p>
           </div>
         )}
       </div>
-    </div>
+    </TiltCard>
   );
 }

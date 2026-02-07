@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
-        darkMode: 'class',
         theme: {
           extend: {
             fontFamily: {
@@ -19,23 +18,29 @@
             colors: {
               // Sage & Forest Green Palette
               brand: {
-                50: '#f4f6f0',  // Lightest Beige/Green
-                100: '#e3e8dc', // Card Backgrounds
-                200: '#c8d4be', // Light Sage
+                50: '#f4f6f0',
+                100: '#e3e8dc',
+                200: '#c8d4be',
                 300: '#a3b896', 
                 400: '#7e9a6e',
-                500: '#5c7f4c', // Primary Sage Green
+                500: '#5c7f4c',
                 600: '#46623a',
-                700: '#384e2f', // Button Hover
+                700: '#384e2f',
                 800: '#2f3e29',
-                900: '#263323', // Dark Text
+                900: '#263323',
                 950: '#131b11',
               },
               nature: {
-                light: '#E6E8D6', // Main Background
-                card: '#F3F4ED',  // Card Background
-                accent: '#D9DCD6',
-                dark: '#1F2922',
+                light: '#f0f4eb',   // Main BG — light sage
+                card: '#ffffff',    // Card BG — white
+                accent: '#e8ede2',  // Accent surfaces
+                dark: '#263323',    // Deepest shade
+              },
+              surface: {
+                DEFAULT: '#ffffff',
+                light: '#f8faf5',
+                lighter: '#f0f4eb',
+                muted: '#e8ede2',
               }
             },
             animation: {
@@ -60,26 +65,10 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
-      
-      /* View Transition for Theme Switch */
-      ::view-transition-old(root),
-      ::view-transition-new(root) {
-        animation: none;
-        mix-blend-mode: normal;
-      }
-      
-      /* Dark mode transition helper */
-      html::view-transition-group(root) {
-        z-index: 9999;
-      }
-      
-      body {
-        transition: background-color 0.3s ease, color 0.3s ease;
-      }
     </style>
 <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-nature-light text-brand-900 dark:bg-brand-950 dark:text-brand-50 selection:bg-brand-500 selection:text-white">
+  <body class="bg-nature-light text-brand-900 selection:bg-brand-500 selection:text-white">
     <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>

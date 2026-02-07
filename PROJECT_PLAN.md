@@ -1,43 +1,128 @@
 # LearnSphere — Project Plan & AI Reference
 
 > **Last updated:** 2026-02-07  
-> **Deadline:** ~23 hours from now  
+> **Status:** Backend infrastructure added, UI refinements in progress  
 > **This file is for A (Architect / Tech Lead / Copilot's operator)**  
 > **AI assistants: Reference DEVELOPMENT_REFERENCE.md** for all technical details.  
 > Copilot: refer to this file before every major task.
 
 ---
 
-## 1. What Exists Right Now (Initial Commit State)
+## ⚡ Recent Updates (Feb 7, 2026)
+
+### Completed Features
+- ✅ **DomeGallery Component** — 3D interactive course thumbnail dome on login page
+- ✅ **Theme Unification** — Removed dual light/dark theme, unified to single light theme
+- ✅ **Admin Role Removal** — Removed admin from login role selector
+- ✅ **Backend Infrastructure** — Node.js/Express API server with PostgreSQL schema added
+- ✅ **API Service Layer** — Frontend-to-backend communication ready (src/services/api.ts)
+
+### Current Branch Status
+- **main:** Synced with remote, includes backend + UI updates
+- **feat/noAdmin/globe/theme:** Pushed to remote (26 files, +1,265 -382)
+  - PR available: https://github.com/Kukyos/LearnSphere/pull/new/feat/noAdmin/globe/theme
+
+---
+
+## 1. What Exists Right Now
 
 ### Current Stack
 | Layer | Tech | Notes |
 |-------|------|-------|
-| Framework | React 19 + TypeScript | Vite bundler, port 3000 |
-| Styling | Tailwind CSS (CDN `<script>` tag) | Dark mode via `class` strategy, custom `brand` + `nature` palette |
+| Framework | React 19 + TypeScript | Vite bundler, port 3002 |
+| Styling | Tailwind CSS (CDN `<script>` tag) | **Light theme ONLY** (dark mode removed), custom `brand` + `nature` palette |
 | Icons | lucide-react | Already imported throughout |
-| 3D Effects | Three.js (PixelBlast component) | Instanced mesh grid with mouse interaction on Hero |
+| 3D Effects | Three.js + @use-gesture/react | PixelBlast (Hero), DomeGallery (Login) |
+| Animations | Framer Motion 12.x | Page transitions, role selector animation |
+| Backend | Node.js + Express + PostgreSQL | API server, database schema, controllers/routes |
 | Fonts | Inter (Google Fonts) | Loaded in index.html |
 
 ### Current File Map
-```
-/ (root)
-├── App.tsx              → Single-page app: Navbar → Hero → CourseRows → Stats → Footer + Login modal
+```Router setup with pages
 ├── index.tsx            → ReactDOM entry
-├── index.html           → HTML shell with Tailwind CDN config, importmap, view-transition CSS
+├── index.html           → HTML shell with Tailwind CDN config (NO darkMode)
 ├── constants.ts         → 20 mock courses (MOCK_COURSES) + 3 review snippets
 ├── types.ts             → Course, FilterState, SortOption, Difficulty types
 ├── vite.config.ts       → Vite config with @/ alias, Gemini API key passthrough
 ├── tsconfig.json        → Standard React TS config
-├── package.json         → "lumina-learning" — react, react-dom, lucide-react, three
-├── metadata.json        → AI Studio metadata (can be removed/ignored)
-├── README.md            → AI Studio generated readme (will be replaced)
+├── package.json         → Dependencies: react, framer-motion, lucide-react, three, @use-gesture/react
+├── metadata.json        → AI Studio metadata
+├── README.md            → Updated project readme
+├── PROJECT_PLAN.md      → This file
+├── DEVELOPMENT_REFERENCE.md → Design system & patterns
+├── TEAM_INSTRUCTIONS.md     → Workflow & Git conventions
+├── UI_SESSION_REFERENCE.md  → Latest UI session context
 └── components/
-    ├── Navbar.tsx        → Floating pill navbar, theme toggle, sign-in button, mobile menu
+    ├── Navbar.tsx        → Floating pill navbar (NO theme toggle)
     ├── Hero.tsx          → Full-width hero with search bar + PixelBlast 3D background
-    ├── CourseCard.tsx    → Netflix-style card with hover pop-out (500ms delay)
-    ├── FilterPanel.tsx   → Category/Difficulty/Price filter sidebar (NOT wired into App.tsx yet)
+    ├── CourseCard.tsx    → Netflix-style card with hover pop-out
+    ├── FilterPanel.tsx   → Category/Difficulty/Price filter sidebar
     ├── StatsSection.tsx  → Stats counters + 3 review cards
+    ├── Footer.tsx        → 4-column footer with socials
+
+**⚠️ IMPORTANT: Dark mode has been REMOVED. Use light theme only.**
+
+```
+Primary Palette (Sage/Forest Green):
+  brand-50:  #f4f6f0   (lightest)
+  brand-100: #e3e8dc   (card bg, overlays)
+  brand-200: #c8d4be   (light sage)
+  brand-300: #a3b896  
+  brand-400: #7e9a6e
+  brand-500: #5c7f4c   (primary sage green)
+  brand-600: #46623a   (hover states)
+  brand-700: #384e2f   (button hover)
+  brand-800: #2f3e29
+  brand-900: #263323   (dark text)
+  brand-950: #131b11
+
+Semantic:
+  nature-light:  #E6E8D6  (main bg)
+  nature-card:   #F3F4ED  (card bg)
+  nature-accent: #D9DCD6
+  nature-dark:   #1F2922
+
+Font: Inter (300–700)
+Border radius: rounded-full for pills/buttons, rounded-xl/2xl/3xl for cards/modals
+Transitions: 300ms ease default
+```
+
+**Usage:**
+```tsx
+// NO MORE dark: classes! Light theme only.
+<div className="bg-nature-light text-brand-900">
+<button className="bg-brand-700 hover:bg-brand-600 text-white">
+<inpBackend now exists!** Server folder with Node/Express + PostgreSQL schema
+- **Routing implemented.** Using `react-router-dom` for multi-page navigation
+- **Auth system in progress.** Login page exists, backend auth endpoints needed
+- **Database schema ready.** Need to seed and wire up frontend
+- **Tailwind is CDN-loaded** via `<script>` tag in `index.html`, NOT PostCSS
+- **No global state management beyond Context API.** Using AppContext for courses, AuthContext for auth
+- **Three.js confined to visuals.** Used in PixelBlast (Hero) and DomeGallery (Login) only
+- **Theme system simplified.** NO dark mode toggle, light theme only
+    │   └── courses/
+    │       ├── CourseCard.tsx
+    │       ├── CourseTable.tsx
+    │       └── CreateCourseModal.tsx
+    ├── contexts/
+    │   └── AppContext.tsx  → Global state (NO theme state)
+    ├── pages/
+    │   ├── CourseDetailPage.tsx
+    │   ├── CoursesDashboard.tsx
+    │   ├── CoursesPage.tsx
+    │   ├── LessonPlayerPage.tsx
+    │   ├── MyCoursesPage.tsx
+    │   ├── QuizBuilder.tsx
+    │   ├── ReportingDashboard.tsx
+    │   └── course/
+    │       └── CourseForm.tsx
+    └── services/
+        └── api.ts          → API client for backend (NEW)
+└── server/                 → Backend (NEW)
+    ├── controllers/
+    ├── routes/
+    ├── schema.sql          → PostgreSQL database schema
+    └── seed.js             → Database seeding scrip
     ├── Footer.tsx        → 4-column footer with socials
     └── PixelBlast.tsx    → Three.js instanced mesh grid with mouse ripple effect
 ```

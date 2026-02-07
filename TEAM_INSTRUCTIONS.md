@@ -1,8 +1,32 @@
 # LearnSphere — Team Instructions
 
 > Read this FULLY before writing a single line of code.  
-> **Deadline: ~23 hours from now.**  
-> **No excuses. No freelancing. Follow this.**
+> **Last Updated:** 2026-02-07  
+> **Status:** Backend infrastructure added, UI refinements ongoing
+
+---
+
+## 🚨 RECENT UPDATES (Feb 7, 2026)
+
+### What Changed
+1. **Theme System Simplified** — Dark mode REMOVED, light theme ONLY
+   - Do NOT add `dark:` classes to any components
+   - Use only brand-* and nature-* light colors
+   
+2. **DomeGallery Component Added** — 3D course thumbnail dome on login page
+   - Location: `components/visuals/DomeGallery.tsx` + `.css`
+   - Used in: `pages/Login.tsx`
+   
+3. **Admin Role Removed** — Login/signup now only has Learner + Instructor
+   
+4. **Backend Infrastructure Added** — `server/` folder with Node.js/Express API
+   - PostgreSQL schema ready
+   - Controllers, routes, seeding scripts included
+   - Frontend API client: `src/services/api.ts`
+
+### Branch Status
+- **main** — Current stable branch (synced)
+- **feat/noAdmin/globe/theme** — Feature branch with above changes (pushed)
 
 ---
 
@@ -77,27 +101,37 @@ docs: update team instructions
 | What | Tech | Notes |
 |------|------|-------|
 | Frontend | React 19 + TypeScript | Already set up |
-| Styling | Tailwind CSS (CDN) | Colors defined in index.html |
+| Styling | Tailwind CSS (CDN) | Colors in index.html, **NO dark mode** |
 | Icons | lucide-react | `import { IconName } from 'lucide-react'` |
-| Routing | react-router-dom | **NEEDS TO BE INSTALLED** |
-| State | React Context API | For auth + global state |
-| Build | Vite | `npm run dev` → localhost:3000 |
-| Backend | TBD (D decides) | Supabase recommended for speed |
+| Routing | react-router-dom | **INSTALLED** |
+| Animations | framer-motion | Page transitions, animations |
+| Gestures | @use-gesture/react | Drag interactions (DomeGallery) |
+| State | React Context API | AuthContext, AppContext |
+| Build | Vite | `npm run dev` → localhost:3002 |
+| Backend | Node.js + Express | In `server/` folder |
+| Database | PostgreSQL | Schema in `server/schema.sql` |
 
 ### To run the project locally:
 ```bash
-# 1. Clone the repo
-git clone <repo-url>
+# 1. Clone the repo (if not already)
+git clone https://github.com/Kukyos/LearnSphere.git
 cd LearnSphere
 
-# 2. Install dependencies
+# 2. Install frontend dependencies
 npm install
 
-# 3. Start dev server
+# 3. Start frontend dev server
 npm run dev
+# Opens at http://localhost:3002
 
-# 4. Open http://localhost:3000
-```
+# 4. (Separate terminal) Start backend
+cd server
+npm install
+npm start
+# Runs on http://localhost:3001
+``⚠️ CRITICAL: Dark mode has been REMOVED. Use light theme ONLY.**
+
+**`
 
 **📖 For complete package details, color schemes, component patterns, and technical references: see [DEVELOPMENT_REFERENCE.md](DEVELOPMENT_REFERENCE.md)**
 
@@ -121,14 +155,18 @@ Backgrounds:
   nature-card:  #F3F4ED  ← card bg (light mode)
 
 Dark mode: use dark: prefix with brand-800/900/950
-```
+````
+- **Inputs:** `rounded-xl border border-brand-200`
+- **Modals:** `rounded-3xl` with `backdrop-blur-sm` overlay
 
-### Typography
-- **Font:** Inter (already loaded)
-- **Headings:** `font-bold` or `font-extrabold`
-- **Body:** `text-sm` or `text-base`
-- **Labels:** `text-xs font-bold uppercase tracking-wider`
+### Theme Guidelines
+**NO dark mode.** Every component uses light theme only. Example:
+```tsx
+// CORRECT
+<div className="bg-nature-card text-brand-900">
 
+// WRONG - do NOT add dark: classes
+<div className="bg-nature-card dark:bg-brand-800 text-brand-9
 ### Components
 - **Buttons:** `rounded-full` or `rounded-xl`, `bg-brand-700 text-white hover:bg-brand-600`
 - **Cards:** `rounded-xl` or `rounded-2xl`, `bg-nature-card dark:bg-brand-800`
@@ -250,24 +288,38 @@ lesson_progress, quiz_attempts, reviews
 ---
 
 ## Folder Structure (Where to put things)
-
-```
-LearnSphere/
-├── components/           → Reusable UI components
-│   ├── ui/               → Buttons, Inputs, Modals (shared)
-│   ├── layout/           → Navbar, Footer, Sidebar, AdminShell
-│   ├── Navbar.tsx         (exists)
-│   ├── Hero.tsx           (exists)
-│   ├── CourseCard.tsx     (exists)
+visuals/          → 3D components (DomeGallery, WorldGlobe, PixelBlast)
+│   ├── Navbar.tsx        (exists - no theme toggle)
+│   ├── Hero.tsx          (exists)
+│   ├── CourseCard.tsx    (exists)
 │   └── ...
 ├── pages/                → Full page components (one per route)
-│   ├── Landing.tsx
-│   ├── Login.tsx
+│   ├── Landing.tsx       (exists)
+│   ├── Login.tsx         (exists - with DomeGallery)
+│   ├── LearnerHome.tsx   (exists)
 │   ├── CourseList.tsx
 │   ├── CourseDetail.tsx
-│   ├── LessonPlayer.tsx
-│   └── admin/
-│       ├── Dashboard.tsx
+│   └── ...
+├── src/
+│   ├── components/       → Feature-specific components
+│   │   ├── course-form/  → Course creation UI
+│   │   └── courses/      → Course management
+│   ├── pages/            → Additional route pages
+│   │   ├── CourseDetailPage.tsx
+│   │   ├── LessonPlayerPage.tsx
+│   │   ├── QuizBuilder.tsx
+│   │   └── ReportingDashboard.tsx
+│   ├── contexts/
+│   │   └── AppContext.tsx (exists - no theme state)
+│   └── services/
+│       └── api.ts        (NEW - backend API client)
+├── context/              → React Context providers
+│   └── AuthContext.tsx
+├── server/               → Backend (NEW)
+│   ├── controllers/
+│   ├── routes/
+│   ├── schema.sql
+│   └── seed.js
 │       ├── CourseForm.tsx
 │       └── Reporting.tsx
 ├── context/              → React Context providers
