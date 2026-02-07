@@ -1,5 +1,7 @@
 import React from 'react';
-import { BookOpen, Search, Menu, X, User, Sun, Moon } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { BookOpen, Menu, X, LogOut, Sun, Moon } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 interface NavbarProps {
   onLoginClick: () => void;
@@ -9,6 +11,14 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ onLoginClick, isDark, toggleTheme }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+    setIsMobileMenuOpen(false);
+  };
 
   return (
     <>
@@ -16,24 +26,25 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, isDark, toggleTheme }) =>
         <nav className="pointer-events-auto flex w-full max-w-2xl items-center justify-between rounded-full border border-brand-200/50 bg-nature-card/80 dark:bg-brand-900/80 p-1.5 pl-6 shadow-lg shadow-brand-900/5 backdrop-blur-xl transition-all duration-300 dark:border-brand-700">
           
           {/* Logo */}
-          <div className="flex items-center gap-2 mr-4">
+          <Link to="/" className="flex items-center gap-2 mr-4 hover:opacity-80 transition-opacity">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-700 text-white shadow-md">
               <BookOpen size={16} strokeWidth={3} />
             </div>
-            <span className="text-sm font-bold tracking-tight text-brand-900 dark:text-white hidden sm:block">Lumina</span>
-          </div>
+            <span className="text-sm font-bold tracking-tight text-brand-900 dark:text-white hidden sm:block">LearnSphere</span>
+          </Link>
 
           {/* Desktop Links - Minimalist */}
           <div className="hidden md:flex items-center gap-1">
-            {['Home', 'Series', 'New'].map((item) => (
-              <a 
-                key={item}
-                href="#" 
-                className="rounded-full px-5 py-2 text-xs font-semibold text-brand-700 hover:bg-brand-200/50 hover:text-brand-900 transition-all dark:text-brand-200 dark:hover:bg-brand-800 dark:hover:text-white"
-              >
-                {item}
-              </a>
-            ))}
+            {user && (
+              <>
+                <Link 
+                  to="/courses"
+                  className="rounded-full px-5 py-2 text-xs font-semibold text-brand-700 hover:bg-brand-200/50 hover:text-brand-900 transition-all dark:text-brand-200 dark:hover:bg-brand-800 dark:hover:text-white"
+                >
+                  Courses
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Actions */}
@@ -47,12 +58,27 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, isDark, toggleTheme }) =>
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
 
-            <button 
-              onClick={onLoginClick}
-              className="ml-1 rounded-full bg-brand-800 px-5 py-2 text-xs font-bold text-white transition-all hover:bg-brand-900 hover:shadow-lg dark:bg-brand-600 dark:hover:bg-brand-500"
-            >
-              Sign In
-            </button>
+            {!user ? (
+              <button 
+                onClick={onLoginClick}
+                className="ml-1 rounded-full bg-brand-800 px-5 py-2 text-xs font-bold text-white transition-all hover:bg-brand-900 hover:shadow-lg dark:bg-brand-600 dark:hover:bg-brand-500"
+              >
+                Sign In
+              </button>
+            ) : (
+              <div className="flex items-center gap-2 ml-1">
+                <span className="text-xs font-semibold text-brand-700 dark:text-brand-200 hidden sm:block">
+                  {user.name}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="rounded-full bg-red-100 dark:bg-red-900/30 p-2 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition-all"
+                  title="Logout"
+                >
+                  <LogOut size={16} />
+                </button>
+              </div>
+            )}
             
             {/* Mobile Menu Trigger */}
             <button 
@@ -70,11 +96,23 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, isDark, toggleTheme }) =>
         <div className="fixed inset-0 z-[90] bg-brand-950/60 backdrop-blur-sm md:hidden" onClick={() => setIsMobileMenuOpen(false)}>
            <div className="absolute top-24 left-1/2 -translate-x-1/2 w-[90%] max-w-md rounded-2xl bg-nature-card dark:bg-brand-900 p-4 shadow-2xl border border-brand-200 dark:border-brand-700">
               <div className="flex flex-col gap-2">
-                {['Home', 'Series', 'New', 'Popular'].map((item) => (
-                  <a key={item} href="#" className="block rounded-xl px-4 py-3 text-sm font-bold text-brand-800 hover:bg-brand-100 dark:text-brand-100 dark:hover:bg-brand-800">
-                    {item}
-                  </a>
-                ))}
+                {user && (
+                  <>
+                    <Link 
+                      to="/courses"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block rounded-xl px-4 py-3 text-sm font-bold text-brand-800 hover:bg-brand-100 dark:text-brand-100 dark:hover:bg-brand-800"
+                    >
+                      Courses
+                    </Link>
+                    <button 
+                      onClick={handleLogout}
+                      className="block w-full text-left rounded-xl px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
+                    >
+                      Logout
+                    </button>
+                  </>
+                )}
               </div>
            </div>
         </div>

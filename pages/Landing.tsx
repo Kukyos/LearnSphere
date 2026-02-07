@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import CourseCard from '../components/CourseCard';
@@ -7,8 +8,10 @@ import Footer from '../components/Footer';
 import { MOCK_COURSES } from '../constants';
 import { Course } from '../types';
 import { BookOpen, ChevronRight, X } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Landing: React.FC = () => {
+  const { loginAsGuest } = useAuth();
   // Theme State
   const [isDark, setIsDark] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -158,16 +161,28 @@ const Landing: React.FC = () => {
               <p className="mb-8 text-sm text-brand-600 dark:text-brand-300">Join 250k+ learners. Create a free account to track your progress and save courses.</p>
               
               <div className="space-y-3">
-                <button className="w-full rounded-xl bg-brand-800 py-3.5 font-bold text-white transition-transform active:scale-95 hover:bg-brand-700 dark:bg-brand-600 dark:hover:bg-brand-500">
-                  Sign up with Email
-                </button>
-                <button className="w-full rounded-xl border border-brand-200 bg-white py-3.5 font-bold text-brand-700 transition-colors hover:bg-brand-50 dark:border-brand-600 dark:bg-transparent dark:text-white dark:hover:bg-brand-700">
-                  Continue with Google
+                <Link 
+                  to="/login"
+                  className="block w-full rounded-xl bg-brand-800 py-3.5 font-bold text-white transition-transform active:scale-95 hover:bg-brand-700 dark:bg-brand-600 dark:hover:bg-brand-500 text-center"
+                >
+                  Sign in with Email
+                </Link>
+                <button 
+                  onClick={() => {
+                    loginAsGuest();
+                    setShowLoginModal(false);
+                  }}
+                  className="w-full rounded-xl border border-brand-200 bg-white py-3.5 font-bold text-brand-700 transition-colors hover:bg-brand-50 dark:border-brand-600 dark:bg-transparent dark:text-white dark:hover:bg-brand-700"
+                >
+                  Continue as Guest
                 </button>
               </div>
               
               <p className="mt-6 text-xs text-brand-500">
-                Already have an account? <button onClick={() => setShowLoginModal(false)} className="font-bold text-brand-700 hover:underline dark:text-brand-300">Log in</button>
+                Want to try first? <button onClick={() => {
+                  loginAsGuest();
+                  setShowLoginModal(false);
+                }} className="font-bold text-brand-700 hover:underline dark:text-brand-300">Browse as guest</button>
               </p>
             </div>
           </div>
