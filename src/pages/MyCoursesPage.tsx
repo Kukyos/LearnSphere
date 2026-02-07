@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
-import { Search, TrendingUp, Award } from 'lucide-react';
+import { Search, TrendingUp, Award, ArrowLeft } from 'lucide-react';
 
 const MyCoursesPage: React.FC = () => {
   const { courses, user, userProgress, theme, enrollInCourse } = useApp();
@@ -81,6 +81,19 @@ const MyCoursesPage: React.FC = () => {
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-brand-950' : 'bg-nature-light'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className={`flex items-center gap-2 mb-6 px-4 py-2 rounded-lg transition-colors ${
+            theme === 'dark'
+              ? 'text-brand-300 hover:bg-brand-800 hover:text-white'
+              : 'text-brand-600 hover:bg-brand-100 hover:text-brand-900'
+          }`}
+        >
+          <ArrowLeft size={20} />
+          <span className="font-medium">Back</span>
+        </button>
+
         {/* Profile Summary */}
         <div className={`rounded-lg p-6 mb-8 ${theme === 'dark' ? 'bg-brand-900' : 'bg-white'} shadow-lg`}>
           <div className="flex items-center justify-between flex-wrap gap-4">

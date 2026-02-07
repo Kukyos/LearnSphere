@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
-import { ChevronLeft, ChevronRight, Menu, X, CheckCircle, Circle, Download, Award } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu, X, CheckCircle, Circle, Download, Award, ArrowLeft } from 'lucide-react';
 
 const LessonPlayerPage: React.FC = () => {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>();
@@ -288,7 +288,18 @@ const LessonPlayerPage: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'bg-brand-950' : 'bg-nature-light'} flex`}>
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-brand-950' : 'bg-nature-light'} flex`}>      {/* Back Button - Fixed Position */}
+      <button
+        onClick={() => navigate(`/course/${courseId}`)}
+        className={`fixed top-20 left-4 z-50 flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+          theme === 'dark'
+            ? 'bg-brand-800/90 text-brand-300 hover:bg-brand-700 hover:text-white'
+            : 'bg-white/90 text-brand-600 hover:bg-brand-100 hover:text-brand-900'
+        } backdrop-blur-sm shadow-lg`}
+      >
+        <ArrowLeft size={20} />
+        <span className="font-medium">Back to Course</span>
+      </button>
       {/* Sidebar */}
       {showSidebar && (
         <div className={`w-80 ${theme === 'dark' ? 'bg-brand-900 border-brand-800' : 'bg-white border-brand-200'} border-r overflow-y-auto`}>
