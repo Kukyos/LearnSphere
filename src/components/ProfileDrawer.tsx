@@ -1,17 +1,20 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
-import { X, Award, TrendingUp, CheckCircle, Clock, LogOut, BookOpen, Users } from 'lucide-react';
+import { X, Award, TrendingUp, CheckCircle, Clock, LogOut, BookOpen, Users, Shield, Settings, BarChart3 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const ProfileDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const { user, courses, userProgress, theme } = useApp();
+  const { user, courses, userProgress, theme, getReportData } = useApp();
   const { logout, user: authUser } = useAuth();
   const navigate = useNavigate();
 
   if (!user || !authUser) return null;
 
-  const isInstructor = authUser.role === 'instructor' || authUser.role === 'admin';
+  const role = authUser.role;
+  const isLearner = role === 'learner' || role === 'guest';
+  const isInstructor = role === 'instructor';
+  const isAdmin = role === 'admin';
 
   // Learner-specific data
   const badgeLevels = [
@@ -45,9 +48,22 @@ const ProfileDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     createdCourses.some(c => c.id === p.courseId)
   ).length;
 
+  // Admin-specific data
+  const reportData = isAdmin ? getReportData() : null;
+  const totalCourses = courses.length;
+  const totalPublished = courses.filter(c => c.published).length;
+
   const getCourseCompletionDate = (courseId: string) => {
     const p = userProgress.find(prog => prog.courseId === courseId);
     return p?.completedDate ? new Date(p.completedDate).toLocaleDateString() : '';
+  };
+
+  const getRoleLabel = () => {
+    switch (role) {
+      case 'admin': return '🛡️ Administrator';
+      case 'instructor': return '👨‍🏫 Instructor';
+      default: return '👨‍🎓 Learner';
+    }
   };
 
   const handleLogout = () => {
@@ -82,11 +98,77 @@ const ProfileDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <h3 className={`text-xl font-bold ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>{user.name}</h3>
             <p className={`text-sm ${theme === 'dark' ? 'text-brand-300' : 'text-brand-600'}`}>{user.email}</p>
             <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-brand-400' : 'text-brand-500'}`}>
-              {isInstructor ? '👨‍🏫 Instructor' : '👨‍🎓 Learner'}
+              {getRoleLabel()}
             </p>
           </div>
 
-          {/* Instructor Stats */}
+          {/* ========== ADMIN VIEW ========== */}
+          {isAdmin && (
+            <div className={`rounded-lg p-6 ${theme === 'dark' ? 'bg-brand-900' : 'bg-white'} shadow-lg`}>
+              <h4 className={`text-lg font-bold mb-4 flex items-center gap-2 ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>
+                <Shield className="text-brand-500" size={20} /> Platform Overview
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center">
+                  <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-2 ${theme === 'dark' ? 'bg-brand-800' : 'bg-brand-100'}`}>
+                    <BookOpen className="text-brand-500" size={28} />
+                  </div>
+                  <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>{totalCourses}</p>
+                  <p className={`text-xs ${theme === 'dark' ? 'text-brand-300' : 'text-brand-600'}`}>Total Courses</p>
+                </div>
+                <div className="text-center">
+                  <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-2 ${theme === 'dark' ? 'bg-brand-800' : 'bg-brand-100'}`}>
+                    <CheckCircle className="text-green-500" size={28} />
+                  </div>
+                  <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>{totalPublished}</p>
+                  <p className={`text-xs ${theme === 'dark' ? 'text-brand-300' : 'text-brand-600'}`}>Published</p>
+                </div>
+                <div className="text-center">
+                  <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-2 ${theme === 'dark' ? 'bg-brand-800' : 'bg-brand-100'}`}>
+                    <Users className="text-brand-500" size={28} />
+                  </div>
+                  <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>{reportData?.totalParticipants || 0}</p>
+                  <p className={`text-xs ${theme === 'dark' ? 'text-brand-300' : 'text-brand-600'}`}>Participants</p>
+                </div>
+                <div className="text-center">
+                  <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-2 ${theme === 'dark' ? 'bg-brand-800' : 'bg-brand-100'}`}>
+                    <BarChart3 className="text-blue-500" size={28} />
+                  </div>
+                  <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>{reportData?.completed || 0}</p>
+                  <p className={`text-xs ${theme === 'dark' ? 'text-brand-300' : 'text-brand-600'}`}>Completions</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Admin Quick Access */}
+          {isAdmin && (
+            <div>
+              <h4 className={`text-lg font-bold mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>
+                <Settings className="text-brand-500" size={20} /> Quick Access
+              </h4>
+              <div className="space-y-2">
+                <button onClick={() => { navigate('/courses'); onClose(); }}
+                  className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all text-left ${theme === 'dark' ? 'bg-brand-900 hover:bg-brand-800' : 'bg-white hover:bg-brand-50'}`}>
+                  <BookOpen size={18} className="text-brand-500" />
+                  <div>
+                    <p className={`font-semibold text-sm ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>Manage Courses</p>
+                    <p className={`text-xs ${theme === 'dark' ? 'text-brand-400' : 'text-brand-500'}`}>Create, edit, and manage all courses</p>
+                  </div>
+                </button>
+                <button onClick={() => { navigate('/reporting'); onClose(); }}
+                  className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all text-left ${theme === 'dark' ? 'bg-brand-900 hover:bg-brand-800' : 'bg-white hover:bg-brand-50'}`}>
+                  <BarChart3 size={18} className="text-blue-500" />
+                  <div>
+                    <p className={`font-semibold text-sm ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>Reporting Dashboard</p>
+                    <p className={`text-xs ${theme === 'dark' ? 'text-brand-400' : 'text-brand-500'}`}>View analytics and participant data</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ========== INSTRUCTOR VIEW ========== */}
           {isInstructor && (
             <div className={`rounded-lg p-6 ${theme === 'dark' ? 'bg-brand-900' : 'bg-white'} shadow-lg`}>
               <h4 className={`text-lg font-bold mb-4 ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>Teaching Stats</h4>
@@ -123,8 +205,8 @@ const ProfileDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
           )}
 
-          {/* Learner Progress Chart */}
-          {!isInstructor && (
+          {/* ========== LEARNER VIEW ========== */}
+          {isLearner && (
             <div className={`rounded-lg p-6 ${theme === 'dark' ? 'bg-brand-900' : 'bg-white'} shadow-lg`}>
               <div className="relative w-40 h-40 mx-auto mb-4">
                 <svg className="transform -rotate-90 w-40 h-40">
@@ -155,7 +237,7 @@ const ProfileDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           )}
 
           {/* Learner Achievements */}
-          {!isInstructor && (
+          {isLearner && (
             <div>
               <h4 className={`text-lg font-bold mb-3 ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>Achievements</h4>
               <div className="grid grid-cols-3 gap-3">
@@ -201,7 +283,7 @@ const ProfileDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           )}
 
           {/* Learner Completed Courses */}
-          {!isInstructor && completedCourses.length > 0 && (
+          {isLearner && completedCourses.length > 0 && (
             <div>
               <h4 className={`text-lg font-bold mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>
                 <CheckCircle className="text-green-500" size={20} /> Courses Completed ({completedCourses.length})
@@ -222,7 +304,7 @@ const ProfileDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           )}
 
           {/* Learner In Progress */}
-          {!isInstructor && inProgressCourses.length > 0 && (
+          {isLearner && inProgressCourses.length > 0 && (
             <div>
               <h4 className={`text-lg font-bold mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>
                 <Clock className="text-blue-500" size={20} /> In Progress ({inProgressCourses.length})
