@@ -34,52 +34,52 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-brand-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className="w-full max-w-6xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden grid md:grid-cols-2">
+    <div className="min-h-screen bg-nature-light dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <div className="w-full max-w-6xl bg-nature-card dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden grid md:grid-cols-2">
         
         {/* Left Panel - Branding */}
-        <div className="hidden md:flex flex-col justify-between p-12 bg-gradient-to-br from-brand-600 to-brand-800 text-white">
+        <div className="hidden md:flex flex-col justify-between p-12 bg-gradient-to-br from-brand-600 to-brand-700 text-white">
           <div>
             <div className="flex items-center gap-2 mb-6">
-              <Leaf className="w-8 h-8 text-brand-50" />
+              <Leaf className="w-8 h-8 text-brand-100" />
               <span className="text-2xl font-bold">LearnSphere</span>
             </div>
             <h1 className="text-4xl font-bold mb-4 leading-tight">
-              Your Learning Journey Starts Here
+              Grow naturally at your own pace
             </h1>
             <p className="text-brand-100 text-lg leading-relaxed">
-              Join thousands of learners and instructors building knowledge together.
+              Discover a calming environment to master new skills.
             </p>
           </div>
           
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-full bg-brand-500/30 flex items-center justify-center flex-shrink-0">
                 <span className="text-lg font-bold">✓</span>
               </div>
               <div>
                 <h3 className="font-semibold mb-1">Expert-Led Courses</h3>
-                <p className="text-brand-200 text-sm">Learn from industry professionals</p>
+                <p className="text-brand-100 text-sm">Learn from industry professionals</p>
               </div>
             </div>
             
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-full bg-brand-500/30 flex items-center justify-center flex-shrink-0">
                 <span className="text-lg font-bold">✓</span>
               </div>
               <div>
                 <h3 className="font-semibold mb-1">Interactive Learning</h3>
-                <p className="text-brand-200 text-sm">Engage with quizzes and projects</p>
+                <p className="text-brand-100 text-sm">Engage with quizzes and projects</p>
               </div>
             </div>
             
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-full bg-brand-500/30 flex items-center justify-center flex-shrink-0">
                 <span className="text-lg font-bold">✓</span>
               </div>
               <div>
                 <h3 className="font-semibold mb-1">Track Your Progress</h3>
-                <p className="text-brand-200 text-sm">Monitor your journey with analytics</p>
+                <p className="text-brand-100 text-sm">Monitor your journey with analytics</p>
               </div>
             </div>
           </div>
@@ -162,7 +162,7 @@ const Login: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading || !email || !password}
-                className="w-full py-3 px-4 bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 dark:disabled:bg-gray-700 text-white font-semibold rounded-lg transition-colors disabled:cursor-not-allowed"
+                className="w-full py-3 px-4 bg-brand-700 hover:bg-brand-600 disabled:bg-gray-400 dark:disabled:bg-gray-700 text-white font-semibold rounded-lg transition-colors disabled:cursor-not-allowed"
               >
                 {loading ? 'Signing in...' : 'Sign In'}
               </button>

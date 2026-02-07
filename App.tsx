@@ -1,8 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Landing from './pages/Landing';
-import LearnerHome from './pages/LearnerHome';
+import LandingHome from './pages/LandingHome';
 import Login from './pages/Login';
 
 // Protected Route Component
@@ -28,19 +27,20 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 const AppContent: React.FC = () => {
-  const { user } = useAuth();
+  const { isLoggedIn } = useAuth();
 
   return (
     <Routes>
-      <Route path="/" element={user ? <LearnerHome /> : <Landing />} />
-      <Route path="/login" element={<Login />} />
+      {/* Login page as homepage */}
+      <Route path="/" element={isLoggedIn ? <Navigate to="/home" replace /> : <Login />} />
+      <Route path="/login" element={isLoggedIn ? <Navigate to="/home" replace /> : <Login />} />
       
-      {/* Learner/Guest home */}
+      {/* Lumina landing page - protected route */}
       <Route
         path="/home"
         element={
           <ProtectedRoute>
-            <LearnerHome />
+            <LandingHome />
           </ProtectedRoute>
         }
       />
