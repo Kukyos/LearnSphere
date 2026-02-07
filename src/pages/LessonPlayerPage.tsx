@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
+import { useAuth } from '../../context/AuthContext';
 import {
   ArrowLeft, ChevronLeft, ChevronRight, CheckCircle, Play, FileText,
   HelpCircle, BookOpen, Download, Award, X
@@ -10,12 +11,15 @@ const LessonPlayerPage: React.FC = () => {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>();
   const navigate = useNavigate();
   const { user, courses, userProgress, theme, completeLesson, submitQuiz, completeCourse } = useApp();
+  const { user: authUser } = useAuth();
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [quizAnswers, setQuizAnswers] = useState<Record<string, number>>({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizScore, setQuizScore] = useState(0);
   const [pointsEarned, setPointsEarned] = useState<number | null>(null);
+
+  const isInstructor = authUser?.role === 'instructor' || authUser?.role === 'admin';
 
   const course = courses.find(c => c.id === courseId);
   const lesson = course?.lessons.find(l => l.id === lessonId);
@@ -84,13 +88,16 @@ const LessonPlayerPage: React.FC = () => {
     setQuizScore(score);
     setQuizSubmitted(true);
 
-    // Calculate attempt number
-    const lessonProg = courseProgress?.lessonsProgress.find(l => l.lessonId === lessonId);
-    const attempt = (lessonProg?.quizAttempts || 0) + 1;
+    // Only award points to learners, not instructors
+    if (!isInstructor) {
+      // Calculate attempt number
+      const lessonProg = courseProgress?.lessonsProgress.find(l => l.lessonId === lessonId);
+      const attempt = (lessonProg?.quizAttempts || 0) + 1;
 
-    const points = submitQuiz(courseId, lessonId, attempt);
-    if (points > 0) {
-      setPointsEarned(points);
+      const points = submitQuiz(courseId, lessonId, attempt);
+      if (points > 0) {
+        setPointsEarned(points);
+      }
     }
 
     // Mark lesson complete if passing score
@@ -250,8 +257,8 @@ const LessonPlayerPage: React.FC = () => {
 
   return (
     <div className={`min-h-screen flex ${theme === 'dark' ? 'bg-brand-950' : 'bg-nature-light'}`}>
-      {/* Points Earned Popup */}
-      {pointsEarned !== null && (
+      {/* Points Earned Popup - Only for learners */}
+      {!isInstructor && pointsEarned !== null && (
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[200] animate-bounce">
           <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-yellow-500 text-white shadow-2xl">
             <Award size={28} />

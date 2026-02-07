@@ -1,16 +1,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
-import { X, Award, TrendingUp, CheckCircle, Clock, LogOut } from 'lucide-react';
+import { X, Award, TrendingUp, CheckCircle, Clock, LogOut, BookOpen, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const ProfileDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { user, courses, userProgress, theme } = useApp();
-  const { logout } = useAuth();
+  const { logout, user: authUser } = useAuth();
   const navigate = useNavigate();
 
-  if (!user) return null;
+  if (!user || !authUser) return null;
 
+  const isInstructor = authUser.role === 'instructor' || authUser.role === 'admin';
+
+  // Learner-specific data
   const badgeLevels = [
     { name: 'Beginner', points: 0, color: '#9ca3af' },
     { name: 'Newbie', points: 20, color: '#a3b896' },
@@ -33,6 +36,14 @@ const ProfileDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const inProgressCourses = courses.filter(c =>
     user.enrolledCourses.includes(c.id) && !user.completedCourses.includes(c.id)
   );
+
+  // Instructor-specific data
+  const createdCourses = courses.filter(c => c.instructorId === authUser.id);
+  const publishedCourses = createdCourses.filter(c => c.published);
+  const draftCourses = createdCourses.filter(c => !c.published);
+  const totalEnrollments = userProgress.filter(p => 
+    createdCourses.some(c => c.id === p.courseId)
+  ).length;
 
   const getCourseCompletionDate = (courseId: string) => {
     const p = userProgress.find(prog => prog.courseId === courseId);
@@ -70,57 +81,127 @@ const ProfileDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <img src={user.avatar} alt={user.name} className="w-24 h-24 rounded-full mx-auto border-4 border-brand-500 mb-4" />
             <h3 className={`text-xl font-bold ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>{user.name}</h3>
             <p className={`text-sm ${theme === 'dark' ? 'text-brand-300' : 'text-brand-600'}`}>{user.email}</p>
+            <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-brand-400' : 'text-brand-500'}`}>
+              {isInstructor ? '👨‍🏫 Instructor' : '👨‍🎓 Learner'}
+            </p>
           </div>
 
-          {/* Progress Chart */}
-          <div className={`rounded-lg p-6 ${theme === 'dark' ? 'bg-brand-900' : 'bg-white'} shadow-lg`}>
-            <div className="relative w-40 h-40 mx-auto mb-4">
-              <svg className="transform -rotate-90 w-40 h-40">
-                <circle cx="80" cy="80" r="70" stroke={theme === 'dark' ? '#384e2f' : '#c8d4be'} strokeWidth="12" fill="none" />
-                <circle cx="80" cy="80" r="70" stroke="#5c7f4c" strokeWidth="12" fill="none"
-                  strokeDasharray={`${2 * Math.PI * 70}`}
-                  strokeDashoffset={`${2 * Math.PI * 70 * (1 - progressPercent / 100)}`}
-                  strokeLinecap="round" className="transition-all duration-500" />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <TrendingUp className="text-brand-500 mb-1" size={24} />
-                <span className={`text-3xl font-bold ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>{user.points}</span>
-                <span className={`text-xs ${theme === 'dark' ? 'text-brand-300' : 'text-brand-600'}`}>Points</span>
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Award className="text-yellow-500" size={20} />
-                <span className={`text-lg font-bold ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>{user.badge}</span>
-              </div>
-              {nextBadge && (
-                <p className={`text-sm ${theme === 'dark' ? 'text-brand-300' : 'text-brand-600'}`}>
-                  {nextBadge.points - user.points} points to {nextBadge.name}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Achievements */}
-          <div>
-            <h4 className={`text-lg font-bold mb-3 ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>Achievements</h4>
-            <div className="grid grid-cols-3 gap-3">
-              {badgeLevels.map((badge, index) => (
-                <div key={badge.name} className={`text-center p-3 rounded-lg ${
-                  index <= currentBadgeIndex
-                    ? theme === 'dark' ? 'bg-brand-900' : 'bg-white'
-                    : theme === 'dark' ? 'bg-brand-900 opacity-40' : 'bg-gray-100 opacity-60'
-                }`}>
-                  <Award size={32} className="mx-auto mb-2" style={{ color: index <= currentBadgeIndex ? badge.color : '#9ca3af' }} />
-                  <p className={`text-xs font-semibold ${theme === 'dark' ? 'text-brand-200' : 'text-brand-700'}`}>{badge.name}</p>
-                  <p className={`text-xs ${theme === 'dark' ? 'text-brand-400' : 'text-brand-500'}`}>{badge.points}pts</p>
+          {/* Instructor Stats */}
+          {isInstructor && (
+            <div className={`rounded-lg p-6 ${theme === 'dark' ? 'bg-brand-900' : 'bg-white'} shadow-lg`}>
+              <h4 className={`text-lg font-bold mb-4 ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>Teaching Stats</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center">
+                  <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-2 ${theme === 'dark' ? 'bg-brand-800' : 'bg-brand-100'}`}>
+                    <BookOpen className="text-brand-500" size={28} />
+                  </div>
+                  <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>{createdCourses.length}</p>
+                  <p className={`text-xs ${theme === 'dark' ? 'text-brand-300' : 'text-brand-600'}`}>Total Courses</p>
                 </div>
-              ))}
+                <div className="text-center">
+                  <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-2 ${theme === 'dark' ? 'bg-brand-800' : 'bg-brand-100'}`}>
+                    <Users className="text-brand-500" size={28} />
+                  </div>
+                  <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>{totalEnrollments}</p>
+                  <p className={`text-xs ${theme === 'dark' ? 'text-brand-300' : 'text-brand-600'}`}>Total Enrollments</p>
+                </div>
+                <div className="text-center">
+                  <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-2 ${theme === 'dark' ? 'bg-brand-800' : 'bg-brand-100'}`}>
+                    <CheckCircle className="text-green-500" size={28} />
+                  </div>
+                  <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>{publishedCourses.length}</p>
+                  <p className={`text-xs ${theme === 'dark' ? 'text-brand-300' : 'text-brand-600'}`}>Published</p>
+                </div>
+                <div className="text-center">
+                  <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-2 ${theme === 'dark' ? 'bg-brand-800' : 'bg-brand-100'}`}>
+                    <Clock className="text-yellow-500" size={28} />
+                  </div>
+                  <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>{draftCourses.length}</p>
+                  <p className={`text-xs ${theme === 'dark' ? 'text-brand-300' : 'text-brand-600'}`}>Drafts</p>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Completed Courses */}
-          {completedCourses.length > 0 && (
+          {/* Learner Progress Chart */}
+          {!isInstructor && (
+            <div className={`rounded-lg p-6 ${theme === 'dark' ? 'bg-brand-900' : 'bg-white'} shadow-lg`}>
+              <div className="relative w-40 h-40 mx-auto mb-4">
+                <svg className="transform -rotate-90 w-40 h-40">
+                  <circle cx="80" cy="80" r="70" stroke={theme === 'dark' ? '#384e2f' : '#c8d4be'} strokeWidth="12" fill="none" />
+                  <circle cx="80" cy="80" r="70" stroke="#5c7f4c" strokeWidth="12" fill="none"
+                    strokeDasharray={`${2 * Math.PI * 70}`}
+                    strokeDashoffset={`${2 * Math.PI * 70 * (1 - progressPercent / 100)}`}
+                    strokeLinecap="round" className="transition-all duration-500" />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <TrendingUp className="text-brand-500 mb-1" size={24} />
+                  <span className={`text-3xl font-bold ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>{user.points}</span>
+                  <span className={`text-xs ${theme === 'dark' ? 'text-brand-300' : 'text-brand-600'}`}>Points</span>
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Award className="text-yellow-500" size={20} />
+                  <span className={`text-lg font-bold ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>{user.badge}</span>
+                </div>
+                {nextBadge && (
+                  <p className={`text-sm ${theme === 'dark' ? 'text-brand-300' : 'text-brand-600'}`}>
+                    {nextBadge.points - user.points} points to {nextBadge.name}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Learner Achievements */}
+          {!isInstructor && (
+            <div>
+              <h4 className={`text-lg font-bold mb-3 ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>Achievements</h4>
+              <div className="grid grid-cols-3 gap-3">
+                {badgeLevels.map((badge, index) => (
+                  <div key={badge.name} className={`text-center p-3 rounded-lg ${
+                    index <= currentBadgeIndex
+                      ? theme === 'dark' ? 'bg-brand-900' : 'bg-white'
+                      : theme === 'dark' ? 'bg-brand-900 opacity-40' : 'bg-gray-100 opacity-60'
+                  }`}>
+                    <Award size={32} className="mx-auto mb-2" style={{ color: index <= currentBadgeIndex ? badge.color : '#9ca3af' }} />
+                    <p className={`text-xs font-semibold ${theme === 'dark' ? 'text-brand-200' : 'text-brand-700'}`}>{badge.name}</p>
+                    <p className={`text-xs ${theme === 'dark' ? 'text-brand-400' : 'text-brand-500'}`}>{badge.points}pts</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Instructor Created Courses */}
+          {isInstructor && createdCourses.length > 0 && (
+            <div>
+              <h4 className={`text-lg font-bold mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>
+                <BookOpen className="text-brand-500" size={20} /> My Courses ({createdCourses.length})
+              </h4>
+              <div className="space-y-3">
+                {createdCourses.map(course => {
+                  const enrollments = userProgress.filter(p => p.courseId === course.id).length;
+                  return (
+                    <div key={course.id} onClick={() => { navigate(`/course/${course.id}`); onClose(); }}
+                      className={`flex gap-3 p-3 rounded-lg cursor-pointer transition-all ${theme === 'dark' ? 'bg-brand-900 hover:bg-brand-800' : 'bg-white hover:bg-brand-50'}`}>
+                      <img src={course.coverImage || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&h=200&fit=crop'} alt={course.title} className="w-16 h-16 rounded object-cover" />
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-semibold truncate ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>{course.title}</p>
+                        <p className={`text-xs ${theme === 'dark' ? 'text-brand-400' : 'text-brand-500'}`}>
+                          {course.published ? '✓ Published' : '✎ Draft'} • {enrollments} enrollments
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Learner Completed Courses */}
+          {!isInstructor && completedCourses.length > 0 && (
             <div>
               <h4 className={`text-lg font-bold mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>
                 <CheckCircle className="text-green-500" size={20} /> Courses Completed ({completedCourses.length})
@@ -140,8 +221,8 @@ const ProfileDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
           )}
 
-          {/* In Progress */}
-          {inProgressCourses.length > 0 && (
+          {/* Learner In Progress */}
+          {!isInstructor && inProgressCourses.length > 0 && (
             <div>
               <h4 className={`text-lg font-bold mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-brand-50' : 'text-brand-900'}`}>
                 <Clock className="text-blue-500" size={20} /> In Progress ({inProgressCourses.length})
