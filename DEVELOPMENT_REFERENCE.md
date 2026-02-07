@@ -24,11 +24,27 @@
 | `tailwindcss` | CDN | Utility-first CSS | Loaded via `<script>` in index.html |
 | `three` | 0.160.0 | 3D graphics | Only for PixelBlast component |
 
+### Animation & Interaction
+| Package | Version | Purpose | Notes |
+|---------|---------|---------|-------|
+| `framer-motion` | ^12.33.0 | Animation library | Page transitions, UI animations |
+| `@use-gesture/react` | ^10.3.1 | Gesture handling | DomeGallery drag/swipe |
+
 ### Development Tools
 | Package | Version | Purpose | Notes |
 |---------|---------|---------|-------|
 | `@types/node` | ^22.14.0 | Node.js types | For build scripts |
 | `@vitejs/plugin-react` | ^5.0.0 | Vite React plugin | JSX/TSX compilation |
+
+### Backend (server/)
+| Package | Version | Purpose | Notes |
+|---------|---------|---------|-------|
+| `express` | ^4.21.0 | Web framework | REST API on port 5000 |
+| `pg` | ^8.13.0 | PostgreSQL client | Database queries via pool |
+| `bcrypt` | ^5.1.1 | Password hashing | 12 salt rounds |
+| `jsonwebtoken` | ^9.0.2 | JWT auth tokens | 24h expiry, includes name in payload |
+| `cors` | ^2.8.5 | CORS middleware | Configured via CORS_ORIGIN env |
+| `dotenv` | ^16.4.5 | Environment variables | Loads server/.env |
 
 ---
 
@@ -209,33 +225,75 @@ text-xs: 0.75rem (12px)  /* Captions, labels */
 
 ---
 
-## 6. File Structure (MANDATORY)
+## 6. File Structure (CURRENT)
 
 ```
 / (root)
+├── App.tsx               # React Router setup
+├── index.tsx             # React entry point
+├── index.html            # HTML shell + Tailwind CDN config
+├── constants.ts          # Mock course data (fallback seed)
+├── types.ts              # TypeScript interfaces (Course, User, etc.)
+├── vite.config.ts        # Vite config (@/ alias, port 3000)
+├── package.json          # Frontend dependencies
+│
 ├── components/           # Shared/reusable components
-│   ├── ui/               # Design system components (Button, Input, Modal)
-│   ├── layout/           # Layout components (Navbar, Footer, Sidebar)
-│   └── ...               # Feature-specific components
-├── pages/                # Route-level page components
-│   ├── Landing.tsx       # / route
-│   ├── Login.tsx         # /login route
-│   ├── CourseList.tsx    # /courses route (learner)
-│   └── admin/            # Admin pages
-│       ├── Dashboard.tsx # /admin/courses
-│       └── ...
-├── context/              # React Context providers
-│   ├── AuthContext.tsx   # Authentication state
-│   └── CourseContext.tsx # Course-related state
-├── hooks/                # Custom React hooks
-├── lib/                  # Utilities, API client, constants
-│   ├── api.ts            # API functions
-│   ├── supabase.ts       # Database client
-│   └── utils.ts          # Helper functions
-├── types/                # TypeScript type definitions
-├── constants.ts          # App-wide constants
-├── App.tsx               # Router setup only
-└── index.tsx             # React root render
+│   ├── Navbar.tsx        # Nav bar with auth-aware menu
+│   ├── Hero.tsx          # Landing hero with PixelBlast 3D bg
+│   ├── CourseCard.tsx    # Netflix-style course cards
+│   ├── FilterPanel.tsx   # Category/difficulty/price filters
+│   ├── StatsSection.tsx  # Stats counters + review cards
+│   ├── Footer.tsx        # 4-column footer
+│   ├── PixelBlast.tsx    # Three.js instanced mesh grid
+│   ├── ui/               # Design system (Button.tsx, Input.tsx)
+│   └── visuals/          # DomeGallery.tsx, WorldGlobe.tsx
+│
+├── pages/                # Top-level route pages
+│   ├── Landing.tsx       # / route (hero + courses + stats)
+│   ├── LearnerHome.tsx   # /home (learner dashboard)
+│   └── Login.tsx         # /login (DomeGallery + forgot-password)
+│
+├── src/
+│   ├── pages/            # Feature pages
+│   │   ├── CoursesDashboard.tsx   # Instructor/admin course mgmt
+│   │   ├── CoursesPage.tsx        # Public course listing
+│   │   ├── CourseDetailPage.tsx   # Course overview + enroll
+│   │   ├── LessonPlayerPage.tsx   # Full-screen lesson viewer
+│   │   ├── MyCoursesPage.tsx      # Learner enrolled courses
+│   │   ├── QuizBuilder.tsx        # Quiz creation + scoring
+│   │   ├── ReportingDashboard.tsx # Analytics dashboard
+│   │   ├── SettingsPage.tsx       # User settings
+│   │   └── course/                # Course form sub-components
+│   ├── contexts/
+│   │   └── AppContext.tsx         # Global state + API integration
+│   └── components/
+│       ├── ChatbotIcon.tsx
+│       ├── ProfileDrawer.tsx
+│       └── courses/               # Course list sub-components
+│
+├── context/
+│   └── AuthContext.tsx   # JWT auth (NO mock fallback)
+│
+├── services/
+│   └── api.ts            # Full API client (all endpoints)
+│
+└── server/               # Express backend
+    ├── server.js         # Entry point (port 5000)
+    ├── db.js             # PostgreSQL connection pool
+    ├── schema.sql        # 7 tables + 10 indexes
+    ├── seed.js           # Admin user seeder
+    ├── .env              # Environment config (not in git)
+    ├── package.json      # Backend dependencies
+    ├── controllers/
+    │   ├── authController.js      # Auth + profile + admin user mgmt
+    │   ├── courseController.js     # Course + lesson + quiz CRUD
+    │   └── progressController.js  # Enrollment + progress + reviews
+    ├── middleware/
+    │   └── authMiddleware.js      # JWT verify + role authorization
+    └── routes/
+        ├── auth.js       # /auth/* routes
+        ├── courses.js    # /courses/* routes
+        └── progress.js   # /api/* routes
 ```
 
 ### File Naming Conventions
@@ -311,84 +369,84 @@ export const useCourses = () => {
 
 ---
 
-## 8. API Patterns (When Backend Ready)
+## 8. API Patterns (IMPLEMENTED)
 
-### API Client Structure
+### API Client — `services/api.ts`
+The API client lives at `services/api.ts` and uses plain `fetch` with Bearer token auth.
+
 ```tsx
-// lib/api.ts
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// Base URL
+const API_BASE = 'http://localhost:5000';
 
-class ApiClient {
-  private baseURL: string;
+// Token management — stored in localStorage as 'ls_token'
+export function setToken(token: string) { localStorage.setItem('ls_token', token); }
+export function getToken(): string | null { return localStorage.getItem('ls_token'); }
+export function clearToken() { localStorage.removeItem('ls_token'); }
 
-  constructor(baseURL: string) {
-    this.baseURL = baseURL;
-  }
-
-  private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
-      ...options,
-    });
-
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
-    }
-
-    return response.json();
-  }
-
-  // Courses
-  async getCourses() {
-    return this.request<Course[]>('/courses');
-  }
-
-  async getCourse(id: string) {
-    return this.request<Course>(`/courses/${id}`);
-  }
-
-  async createCourse(course: Partial<Course>) {
-    return this.request<Course>('/courses', {
-      method: 'POST',
-      body: JSON.stringify(course),
-    });
-  }
-
-  // Auth
-  async login(credentials: { email: string; password: string }) {
-    return this.request<{ token: string; user: User }>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    });
-  }
-}
-
-export const api = new ApiClient(API_BASE);
+// All requests include Authorization: Bearer <token> when logged in
+// JSON Content-Type for POST/PUT requests
 ```
 
-### React Query/SWR Pattern (Future)
+### Backend Availability Check
 ```tsx
-// When we add React Query
-import { useQuery, useMutation } from '@tanstack/react-query';
+// isBackendAvailable() pings /health with 2s timeout, caches result
+// resetBackendCheck() clears the cache for re-checking
+// AuthContext re-checks on every login/register attempt
+```
 
-export const useCourses = () => {
-  return useQuery({
-    queryKey: ['courses'],
-    queryFn: api.getCourses,
-  });
-};
+### Key API Functions (all exported from services/api.ts)
+```tsx
+// Auth
+apiRegister(name, email, password, role)  → { token, user }
+apiLogin(email, password)                 → { token, user }
+apiForgotPassword(email)                  → { message }
+apiResetPassword(token, password)          → { message }
+apiGetProfile()                            → user object
+apiUpdateProfile(data)                     → updated user
+apiChangePassword(current, newPass)        → { message }
 
-export const useCreateCourse = () => {
-  return useMutation({
-    mutationFn: api.createCourse,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['courses'] });
-    },
-  });
-};
+// Admin user management
+apiListUsers()                             → user[]
+apiUpdateUserRole(userId, role)            → updated user
+apiDeleteUser(userId)                      → { message }
+
+// Courses
+apiFetchCourses()                          → course[]
+apiFetchCourse(id)                         → course with lessons
+apiCreateCourse(data)                      → created course
+apiUpdateCourse(id, data)                  → updated course
+apiDeleteCourse(id)                        → { message }
+
+// Lessons
+apiAddLesson(courseId, data)                → created lesson
+apiUpdateLesson(courseId, lessonId, data)   → updated lesson
+apiDeleteLesson(courseId, lessonId)         → { message }
+
+// Quiz
+apiSetQuizQuestions(courseId, questions)    → { message, questions }
+
+// Enrollment & Progress
+apiEnroll(courseId)                         → enrollment
+apiGetMyEnrollments()                      → enrollment[]
+apiCompleteLesson(enrollmentId, lessonId)  → progress
+apiGetCourseProgress(courseId)             → progress data
+
+// Reviews
+apiAddReview(courseId, rating, comment)     → review
+apiGetCourseReviews(courseId)               → review[]
+
+// Reporting & Points
+apiGetReportingData()                      → reporting stats
+apiAwardPoints(userId, points, reason)     → updated user
+```
+
+### State Integration Pattern (Optimistic UI)
+AppContext uses **fire-and-forget** API calls:
+```tsx
+// 1. Update local state immediately for instant UI
+// 2. Fire API call in background (no await)
+// 3. If API fails, console.error but don't revert UI
+// This keeps the app fast and responsive during demo
 ```
 
 ---
@@ -606,30 +664,33 @@ const Modal = ({ isOpen, onClose, children }) => {
 ## 13. Deployment & Environment
 
 ### Environment Variables
-```bash
-# .env.local (local development)
-VITE_API_URL=http://localhost:3001
-VITE_SUPABASE_URL=your-supabase-url
-VITE_SUPABASE_ANON_KEY=your-anon-key
 
-# .env.production (production)
-VITE_API_URL=https://api.learnsphere.com
-VITE_SUPABASE_URL=your-prod-supabase-url
-VITE_SUPABASE_ANON_KEY=your-prod-anon-key
+**Frontend** — no .env needed (API_BASE hardcoded to `http://localhost:5000` in `services/api.ts`)
+
+**Backend** — `server/.env`:
+```bash
+PORT=5000
+DB_USER=postgres
+DB_PASSWORD=your_postgres_password
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=learnsphere
+JWT_SECRET=your_secret_key_here
+CORS_ORIGIN=http://localhost:3000
 ```
 
 ### Build Commands
-```json
-// package.json scripts
-{
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "lint": "eslint src --ext ts,tsx",
-    "type-check": "tsc --noEmit"
-  }
-}
+```bash
+# Frontend
+npm run dev          # Start Vite dev server (port 3000)
+npm run build        # Build for production
+npm run preview      # Preview production build
+
+# Backend (from server/)
+npm run dev          # Start with NODE_ENV=development
+npm start            # Start production
+npm run db:init      # Run schema.sql against PostgreSQL
+npm run seed         # Seed admin user
 ```
 
 ### Deployment Checklist

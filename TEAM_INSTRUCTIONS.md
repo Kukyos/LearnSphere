@@ -76,13 +76,16 @@ docs: update team instructions
 
 | What | Tech | Notes |
 |------|------|-------|
-| Frontend | React 19 + TypeScript | Already set up |
+| Frontend | React 19 + TypeScript | Vite bundler, port 3000 |
 | Styling | Tailwind CSS (CDN) | Colors defined in index.html |
 | Icons | lucide-react | `import { IconName } from 'lucide-react'` |
-| Routing | react-router-dom | **NEEDS TO BE INSTALLED** |
-| State | React Context API | For auth + global state |
+| Routing | react-router-dom 7.x | BrowserRouter, role-based routes |
+| Animation | framer-motion, @use-gesture/react | Page transitions, DomeGallery |
+| State | React Context API | AuthContext (auth) + AppContext (courses) |
 | Build | Vite | `npm run dev` → localhost:3000 |
-| Backend | TBD (D decides) | Supabase recommended for speed |
+| Backend | Express 4.21 | REST API, port 5000 |
+| Database | PostgreSQL 18 | 7 tables, see server/schema.sql |
+| Auth | JWT + bcrypt | 24h tokens, 12 salt rounds |
 
 ### To run the project locally:
 ```bash
@@ -90,13 +93,30 @@ docs: update team instructions
 git clone <repo-url>
 cd LearnSphere
 
-# 2. Install dependencies
+# 2. Install frontend dependencies
 npm install
 
-# 3. Start dev server
+# 3. Set up PostgreSQL database
+psql -U postgres -c "CREATE DATABASE learnsphere;"
+cd server
+psql -U postgres -d learnsphere -f schema.sql
+
+# 4. Configure backend environment
+# Copy server/.env.example to server/.env and set your values
+
+# 5. Install backend dependencies & seed admin
+npm install
+npm run seed    # Creates admin@learnsphere.com / Admin@123
+
+# 6. Start backend (Terminal 1)
 npm run dev
 
-# 4. Open http://localhost:3000
+# 7. Start frontend (Terminal 2, from project root)
+cd ..
+npm run dev
+
+# 8. Open http://localhost:3000
+# NOTE: Backend MUST be running for login/register to work
 ```
 
 **📖 For complete package details, color schemes, component patterns, and technical references: see [DEVELOPMENT_REFERENCE.md](DEVELOPMENT_REFERENCE.md)**
@@ -254,30 +274,46 @@ lesson_progress, quiz_attempts, reviews
 ```
 LearnSphere/
 ├── components/           → Reusable UI components
-│   ├── ui/               → Buttons, Inputs, Modals (shared)
-│   ├── layout/           → Navbar, Footer, Sidebar, AdminShell
-│   ├── Navbar.tsx         (exists)
-│   ├── Hero.tsx           (exists)
-│   ├── CourseCard.tsx     (exists)
+│   ├── ui/               → Buttons, Inputs (shared design system)
+│   ├── visuals/          → DomeGallery, WorldGlobe
+│   ├── Navbar.tsx
+│   ├── Hero.tsx
+│   ├── CourseCard.tsx
 │   └── ...
-├── pages/                → Full page components (one per route)
+├── pages/                → Top-level route pages
 │   ├── Landing.tsx
 │   ├── Login.tsx
-│   ├── CourseList.tsx
-│   ├── CourseDetail.tsx
-│   ├── LessonPlayer.tsx
-│   └── admin/
-│       ├── Dashboard.tsx
-│       ├── CourseForm.tsx
-│       └── Reporting.tsx
-├── context/              → React Context providers
-│   └── AuthContext.tsx
-├── hooks/                → Custom React hooks
-├── lib/                  → Utilities, API client, Supabase init
-├── types.ts              → ALL TypeScript types go here
-├── constants.ts          → Mock data
+│   └── LearnerHome.tsx
+├── src/
+│   ├── pages/            → Feature pages
+│   │   ├── CoursesDashboard.tsx
+│   │   ├── CoursesPage.tsx
+│   │   ├── CourseDetailPage.tsx
+│   │   ├── LessonPlayerPage.tsx
+│   │   ├── MyCoursesPage.tsx
+│   │   ├── QuizBuilder.tsx
+│   │   ├── ReportingDashboard.tsx
+│   │   └── SettingsPage.tsx
+│   ├── contexts/
+│   │   └── AppContext.tsx    → Global state + API integration
+│   └── components/       → Feature-specific sub-components
+├── context/
+│   └── AuthContext.tsx   → JWT auth (no mock fallback)
+├── services/
+│   └── api.ts            → Full API client
+├── types.ts              → TypeScript interfaces
+├── constants.ts          → Mock data (initial seed)
 ├── App.tsx               → Router setup
-└── index.tsx             → Entry point (don't touch)
+├── index.tsx             → Entry point (don't touch)
+└── server/               → Express backend
+    ├── server.js         → Entry point (port 5000)
+    ├── db.js             → PostgreSQL pool
+    ├── schema.sql        → Database schema
+    ├── seed.js           → Admin seeder
+    ├── .env              → Config (not in git)
+    ├── controllers/      → authController, courseController, progressController
+    ├── middleware/        → authMiddleware (JWT verify + role auth)
+    └── routes/           → auth.js, courses.js, progress.js
 ```
 
 **Rule: If you're not sure where a file goes, ASK A.**
@@ -286,8 +322,8 @@ LearnSphere/
 
 ## Emergency Protocols
 
-### "The backend isn't ready"
-→ Use mock data. The frontend should NEVER be blocked by backend. Build with fake data, swap later.
+### "The backend isn't running"
+→ Login/register will fail with a clear error. Start it: `cd server && npm run dev`. Guest browsing still works without backend.
 
 ### "Git merge conflict"
 → Don't panic. Tell A. A will resolve it. Do NOT force push.

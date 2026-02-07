@@ -1,7 +1,7 @@
 # LearnSphere — Project Plan & AI Reference
 
-> **Last updated:** 2026-02-07  
-> **Deadline:** ~23 hours from now  
+> **Last updated:** 2026-02-08  
+> **Status:** Core features complete. Backend + Frontend integrated.  
 > **This file is for A (Architect / Tech Lead / Copilot's operator)**  
 > **AI assistants: Reference DEVELOPMENT_REFERENCE.md** for all technical details.  
 > Copilot: refer to this file before every major task.
@@ -76,13 +76,14 @@ Transitions: 300ms ease default, view-transition API for theme toggle
 - **Must cover:** Course CRUD, Lessons, Quizzes, Progress tracking, Points/Badges, Ratings, Reporting
 
 ### Technical Constraints
-- **No real backend yet.** Everything is mock data in `constants.ts`. D needs to set up backend.
-- **No routing.** Currently a single-page app. Need `react-router-dom` for multi-page.
-- **No auth system.** Login modal is visual only. Need real auth flow.
-- **No database.** Need to decide: Firebase/Supabase (fastest) vs. custom Node/Express + DB.
-- **Tailwind is CDN-loaded** via `<script>` tag in `index.html`, NOT PostCSS. This works for now but custom classes must go in the tailwind.config inside `index.html`.
-- **No state management.** Only React useState. May need Context API or Zustand for auth/user state.
-- **Three.js is a heavy dependency.** Only used for Hero background. Keep it isolated — don't spread it.
+- **Backend: Express + PostgreSQL** — fully built in `server/`. 3 controllers, 3 route files, JWT auth.
+- **Routing: react-router-dom** — multi-page app with role-based routes.
+- **Auth: Real JWT auth** — bcrypt password hashing, 24h token expiry. NO mock fallback.
+- **Database: PostgreSQL 18** — 7 tables, 10 indexes. Schema in `server/schema.sql`.
+- **Tailwind is CDN-loaded** via `<script>` tag in `index.html`, NOT PostCSS. Custom classes go in the tailwind.config inside `index.html`.
+- **State: React Context API** — AuthContext (auth) + AppContext (courses/state).
+- **API Pattern: Optimistic UI** — local state updates immediately, API fires in background.
+- **Three.js is a heavy dependency.** Only used for Hero background. Keep it isolated.
 
 ### What I (Copilot) CAN Do
 - ✅ Generate React components (TSX + Tailwind)
@@ -103,52 +104,52 @@ Transitions: 300ms ease default, view-transition API for theme toggle
 - ❌ Upload actual files to cloud storage (need S3/Firebase Storage config)
 - ❌ Create real OAuth (Google sign-in needs console setup)
 
-### Pragmatic Decisions for 23 Hours
-| Feature | Approach | Why |
-|---------|----------|-----|
-| Auth | Mock auth with Context (localStorage) OR Supabase Auth | No time for custom JWT |
-| Database | Supabase (Postgres + realtime) OR Firebase Firestore | Fastest to wire up |
-| File uploads | Mock with URLs / Supabase Storage | Real upload needs backend |
-| Payments | Show UI, mock the flow | No time for Stripe integration |
-| Email invites | Show UI, log to console | No SMTP setup in 23h |
-| Video player | Embed YouTube/iframe | Don't build custom player |
-| Document viewer | PDF.js embed or iframe | Keep it simple |
-| Quiz scoring | Client-side calculation, persist to DB | Works fine for demo |
+### Pragmatic Decisions Made
+| Feature | Approach | Status |
+|---------|----------|--------|
+| Auth | Real JWT auth (Express + bcrypt + jsonwebtoken) | ✅ Done |
+| Database | PostgreSQL 18 via `pg` library | ✅ Done |
+| File uploads | Mock with URLs | Unchanged |
+| Payments | Show UI, mock the flow | Unchanged |
+| Email invites | Show UI, log to console | Unchanged |
+| Video player | Embed YouTube/iframe | Unchanged |
+| Document viewer | PDF.js embed or iframe | Unchanged |
+| Quiz scoring | Client-side + backend points API | ✅ Done |
 
 ---
 
 ## 3. Full Feature Checklist (Priority Order)
 
 ### 🔴 CRITICAL — Must have for demo
-- [ ] **Routing setup** — react-router-dom with layout wrappers
-- [ ] **Auth context** — login/signup/logout, role-based (Admin, Instructor, Learner)
-- [ ] **Learner: Course browsing page** (B1/B2) — grid of published courses with search
-- [ ] **Learner: Course detail page** (B3) — overview, progress bar, lesson list
-- [ ] **Learner: Full-screen lesson player** (B5) — sidebar + video/doc/image viewer
-- [ ] **Instructor: Course dashboard** (A1) — list/kanban view of courses
-- [ ] **Instructor: Course form** (A2) — edit course details, publish toggle
-- [ ] **Instructor: Lesson management** (A3/A4) — add/edit/delete lessons
-- [ ] **Database schema + seed data** (D's job)
+- [x] **Routing setup** — react-router-dom with layout wrappers
+- [x] **Auth context** — login/signup/logout, role-based (Admin, Instructor, Learner)
+- [x] **Learner: Course browsing page** (B1/B2) — grid of published courses with search
+- [x] **Learner: Course detail page** (B3) — overview, progress bar, lesson list
+- [x] **Learner: Full-screen lesson player** (B5) — sidebar + video/doc/image viewer
+- [x] **Instructor: Course dashboard** (A1) — list/kanban view of courses
+- [x] **Instructor: Course form** (A2) — edit course details, publish toggle
+- [x] **Instructor: Lesson management** (A3/A4) — add/edit/delete lessons
+- [x] **Database schema + seed data** — PostgreSQL, 7 tables, admin seeded
 
 ### 🟡 IMPORTANT — Makes demo convincing
-- [ ] **Learner: Quiz flow** (B6) — one question per page, submit, score
-- [ ] **Instructor: Quiz builder** (A7) — add questions, set rewards
-- [ ] **Points & Badges** (B7/B2) — earn points from quizzes, badge levels display
-- [ ] **Course progress tracking** — lesson completion status, % bar
-- [ ] **Ratings & Reviews** (B4) — star rating + review text
-- [ ] **Instructor: Reporting dashboard** (A8) — overview cards + user table
+- [x] **Learner: Quiz flow** (B6) — quiz scoring mechanics
+- [x] **Instructor: Quiz builder** (A7) — add questions, set rewards
+- [x] **Points & Badges** (B7/B2) — earn points from quizzes, badge levels display
+- [x] **Course progress tracking** — lesson completion status, % bar
+- [x] **Ratings & Reviews** (B4) — star rating + review text
+- [x] **Instructor: Reporting dashboard** (A8) — overview cards + user table
 - [ ] **Course visibility/access rules** (A5) — Everyone/SignedIn, Open/Invite/Paid
 
 ### 🟢 NICE TO HAVE — If time allows
-- [ ] **Kanban view** for instructor dashboard (vs just list)
-- [ ] **Customizable columns** in reporting table
-- [ ] **Share course link** generation
-- [ ] **Contact attendees** wizard
-- [ ] **Additional attachments** on lessons
-- [ ] **Course completion certificate/popup**
-- [ ] **Dark mode** across ALL new pages (already works on landing)
-- [ ] **Mobile responsive** polish on all new pages
-- [ ] **Chatbot / AI feature** (J's optional task)
+- [ ] Kanban view for instructor dashboard (vs just list)
+- [ ] Customizable columns in reporting table
+- [ ] Share course link generation
+- [ ] Contact attendees wizard
+- [ ] Additional attachments on lessons
+- [ ] Course completion certificate/popup
+- [x] **Dark mode** across ALL new pages
+- [ ] Mobile responsive polish on all new pages
+- [ ] Chatbot / AI feature (J's optional task)
 
 ---
 
@@ -297,20 +298,31 @@ badges (id, name, min_points, icon)
 
 ---
 
-## 7. Next Steps (In Order)
+## 7. What's Done & What Remains
 
-1. **Create `.gitignore` and make initial commit** ← doing now
-2. **Install `react-router-dom`** and set up routing in App.tsx
-3. **Create page shell components** (empty pages with basic layout)
-4. **Create AuthContext** with mock login (localStorage)
-5. **Build Learner flow first** (most visible for demo):
-   - Course listing → Course detail → Lesson player
-6. **Build Instructor flow** (backoffice):
-   - Dashboard → Course form → Lesson editor → Quiz builder
-7. **Wire up to real backend** when D has APIs ready
-8. **Add polish**: progress tracking, points, badges, reviews
-9. **Final integration + bug fixes** in last 3-4 hours
+### ✅ Completed
+1. Full Express + PostgreSQL backend (all 3 roles)
+2. React Router with role-based routes
+3. AuthContext with real JWT auth (no mock)
+4. AppContext with API integration (optimistic UI)
+5. All learner pages (browse, detail, player, quiz, my courses)
+6. All instructor pages (dashboard, course form, lessons, quiz builder, reporting)
+7. Login page with DomeGallery + forgot-password flow
+8. Points/badges system with auto-award
+9. Ratings & reviews
+10. Admin user management (seeded admin only)
+11. Database schema, indexes, admin seed
+12. Full API client (services/api.ts)
+
+### 🔲 Remaining / Polish
+- Course visibility/access rules (everyone vs signed-in, open/invite/paid)
+- Mobile responsive polish on inner pages
+- SettingsPage may need re-checking (teammate branch may have broken it)
+- `backendOnline` indicator in UI (boolean exposed but not shown)
+- AppContext still has mock courses as initial seed (merges with backend data)
+- Course completion certificate/popup
+- Chatbot / AI feature
 
 ---
 
-*This file should be updated as tasks are completed. Check boxes off as you go.*
+*This file should be updated as tasks are completed.*
