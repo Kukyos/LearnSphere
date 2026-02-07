@@ -149,37 +149,37 @@ export default function CoursesDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-nature-light dark:bg-brand-900">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-nature-card dark:bg-brand-800 border-b border-brand-200 dark:border-brand-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col gap-4">
-            <h1 className="text-3xl font-bold text-gray-900">Courses Dashboard</h1>
+            <h1 className="text-3xl font-bold text-brand-900 dark:text-brand-50">Courses Dashboard</h1>
             
             {/* Topbar Controls */}
             <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
               {/* Search Bar */}
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <Search className="absolute left-3 top-3 h-5 w-5 text-brand-400 dark:text-brand-500" />
                 <input
                   type="text"
                   placeholder="Search courses by name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
+                  className="w-full pl-10 pr-4 py-2 bg-white dark:bg-brand-900 border border-brand-200 dark:border-brand-700 rounded-lg focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600 focus:border-transparent outline-none transition text-brand-900 dark:text-brand-50 placeholder:text-brand-400 dark:placeholder:text-brand-600"
                 />
               </div>
 
               {/* View Toggle and Create Button */}
               <div className="flex gap-3 items-center">
                 {/* View Toggle */}
-                <div className="inline-flex rounded-lg border border-gray-300 bg-white">
+                <div className="inline-flex rounded-lg border border-brand-200 dark:border-brand-700 bg-white dark:bg-brand-900">
                   <button
                     onClick={() => setView('kanban')}
                     className={`px-4 py-2 flex items-center gap-2 transition ${
                       view === 'kanban'
-                        ? 'bg-indigo-600 text-white'
-                        : 'text-gray-700 hover:bg-gray-50'
+                        ? 'bg-brand-700 text-white dark:bg-brand-600'
+                        : 'text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-800'
                     }`}
                   >
                     <LayoutGrid className="h-5 w-5" />
@@ -187,10 +187,10 @@ export default function CoursesDashboard() {
                   </button>
                   <button
                     onClick={() => setView('list')}
-                    className={`px-4 py-2 flex items-center gap-2 transition border-l border-gray-300 ${
+                    className={`px-4 py-2 flex items-center gap-2 transition border-l border-brand-200 dark:border-brand-700 ${
                       view === 'list'
-                        ? 'bg-indigo-600 text-white'
-                        : 'text-gray-700 hover:bg-gray-50'
+                        ? 'bg-brand-700 text-white dark:bg-brand-600'
+                        : 'text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-800'
                     }`}
                   >
                     <LayoutList className="h-5 w-5" />
@@ -201,7 +201,7 @@ export default function CoursesDashboard() {
                 {/* Create Course Button */}
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium"
+                  className="flex items-center gap-2 px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-brand-600 dark:bg-brand-600 dark:hover:bg-brand-500 transition font-medium"
                 >
                   <Plus className="h-5 w-5" />
                   <span className="hidden sm:inline">Create Course</span>
@@ -211,7 +211,7 @@ export default function CoursesDashboard() {
             </div>
 
             {/* Results Count */}
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-brand-600 dark:text-brand-300">
               Showing {filteredCourses.length} of {courses.length} courses
             </p>
           </div>
@@ -222,10 +222,10 @@ export default function CoursesDashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {filteredCourses.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-600 text-lg">No courses found matching your search.</p>
+            <p className="text-brand-600 dark:text-brand-300 text-lg">No courses found matching your search.</p>
             <button
               onClick={() => setSearchQuery('')}
-              className="mt-4 text-indigo-600 hover:text-indigo-700 font-medium"
+              className="mt-4 text-brand-700 hover:text-brand-600 dark:text-brand-300 dark:hover:text-brand-200 font-medium"
             >
               Clear search
             </button>

@@ -21,54 +21,54 @@ export default function CourseTable({ courses, onEdit, onShare }: CourseTablePro
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+    <div className="border border-brand-200 dark:border-brand-700 rounded-lg overflow-hidden shadow-sm bg-white dark:bg-brand-900">
       {/* Desktop Table */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Title</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Tags</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Views</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Lessons</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Duration</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Status</th>
-              <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">Actions</th>
+            <tr className="bg-brand-50 dark:bg-brand-800 border-b border-brand-200 dark:border-brand-700">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-brand-900 dark:text-brand-50">Title</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-brand-900 dark:text-brand-50">Tags</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-brand-900 dark:text-brand-50">Views</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-brand-900 dark:text-brand-50">Lessons</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-brand-900 dark:text-brand-50">Duration</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-brand-900 dark:text-brand-50">Status</th>
+              <th className="px-6 py-4 text-right text-sm font-semibold text-brand-900 dark:text-brand-50">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-brand-200 dark:divide-brand-700">
             {courses.map((course) => (
-              <tr key={course.id} className="hover:bg-gray-50 transition">
+              <tr key={course.id} className="hover:bg-brand-50/70 dark:hover:bg-brand-800/70 transition">
                 <td className="px-6 py-4">
-                  <p className="font-medium text-gray-900">{course.title}</p>
+                  <p className="font-medium text-brand-900 dark:text-brand-50">{course.title}</p>
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex flex-wrap gap-1">
                     {course.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="inline-block px-2 py-1 bg-indigo-50 text-indigo-700 text-xs rounded font-medium"
+                        className="inline-block px-2 py-1 bg-brand-100 dark:bg-brand-700 text-brand-700 dark:text-brand-100 text-xs rounded font-medium"
                       >
                         {tag}
                       </span>
                     ))}
                   </div>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
+                <td className="px-6 py-4 text-sm text-brand-600 dark:text-brand-300">
                   {course.viewsCount.toLocaleString()}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
+                <td className="px-6 py-4 text-sm text-brand-600 dark:text-brand-300">
                   {course.totalLessons}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
+                <td className="px-6 py-4 text-sm text-brand-600 dark:text-brand-300">
                   {course.totalDuration}
                 </td>
                 <td className="px-6 py-4">
                   <span
                     className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
                       course.isPublished
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-gray-200 text-gray-700'
+                        ? 'bg-brand-100 text-brand-800 dark:bg-brand-700 dark:text-brand-100'
+                        : 'bg-brand-200 text-brand-700 dark:bg-brand-800 dark:text-brand-200'
                     }`}
                   >
                     {course.isPublished ? 'Published' : 'Draft'}
@@ -78,14 +78,14 @@ export default function CourseTable({ courses, onEdit, onShare }: CourseTablePro
                   <div className="flex justify-end gap-2">
                     <button
                       onClick={() => onEdit(course.id)}
-                      className="p-2 text-gray-600 hover:bg-indigo-50 rounded-md transition"
+                      className="p-2 text-brand-600 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-800 rounded-md transition"
                       title="Edit course"
                     >
                       <Edit className="h-5 w-5" />
                     </button>
                     <button
                       onClick={() => onShare(course.id)}
-                      className="p-2 text-gray-600 hover:bg-indigo-50 rounded-md transition"
+                      className="p-2 text-brand-600 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-800 rounded-md transition"
                       title="Share course"
                     >
                       <Share2 className="h-5 w-5" />
@@ -99,23 +99,23 @@ export default function CourseTable({ courses, onEdit, onShare }: CourseTablePro
       </div>
 
       {/* Mobile Table */}
-      <div className="md:hidden divide-y divide-gray-200">
+      <div className="md:hidden divide-y divide-brand-200 dark:divide-brand-700">
         {courses.map((course) => (
-          <div key={course.id} className="border-b border-gray-200 last:border-0">
+          <div key={course.id} className="border-b border-brand-200 dark:border-brand-700 last:border-0">
             {/* Header Row */}
             <div
-              className="p-4 flex justify-between items-start cursor-pointer hover:bg-gray-50"
+              className="p-4 flex justify-between items-start cursor-pointer hover:bg-brand-50 dark:hover:bg-brand-800"
               onClick={() =>
                 setExpandedRow(expandedRow === course.id ? null : course.id)
               }
             >
               <div className="flex-1">
-                <p className="font-medium text-gray-900">{course.title}</p>
+                <p className="font-medium text-brand-900 dark:text-brand-50">{course.title}</p>
                 <div className="flex flex-wrap gap-1 mt-2">
                   {course.tags.slice(0, 2).map((tag) => (
                     <span
                       key={tag}
-                      className="inline-block px-2 py-1 bg-indigo-50 text-indigo-700 text-xs rounded font-medium"
+                      className="inline-block px-2 py-1 bg-brand-100 dark:bg-brand-700 text-brand-700 dark:text-brand-100 text-xs rounded font-medium"
                     >
                       {tag}
                     </span>
@@ -125,8 +125,8 @@ export default function CourseTable({ courses, onEdit, onShare }: CourseTablePro
               <span
                 className={`ml-2 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
                   course.isPublished
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-gray-200 text-gray-700'
+                    ? 'bg-brand-100 text-brand-800 dark:bg-brand-700 dark:text-brand-100'
+                    : 'bg-brand-200 text-brand-700 dark:bg-brand-800 dark:text-brand-200'
                 }`}
               >
                 {course.isPublished ? 'Published' : 'Draft'}
@@ -135,34 +135,34 @@ export default function CourseTable({ courses, onEdit, onShare }: CourseTablePro
 
             {/* Expanded Details */}
             {expandedRow === course.id && (
-              <div className="px-4 pb-4 bg-gray-50">
+              <div className="px-4 pb-4 bg-brand-50 dark:bg-brand-800">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-gray-600">Views</p>
-                    <p className="font-medium text-gray-900">
+                    <p className="text-brand-600 dark:text-brand-300">Views</p>
+                    <p className="font-medium text-brand-900 dark:text-brand-50">
                       {course.viewsCount.toLocaleString()}
                     </p>
                   </div>
                   <div>
-                    <p className="text-gray-600">Lessons</p>
-                    <p className="font-medium text-gray-900">{course.totalLessons}</p>
+                    <p className="text-brand-600 dark:text-brand-300">Lessons</p>
+                    <p className="font-medium text-brand-900 dark:text-brand-50">{course.totalLessons}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600">Duration</p>
-                    <p className="font-medium text-gray-900">{course.totalDuration}</p>
+                    <p className="text-brand-600 dark:text-brand-300">Duration</p>
+                    <p className="font-medium text-brand-900 dark:text-brand-50">{course.totalDuration}</p>
                   </div>
                 </div>
                 <div className="flex gap-2 mt-4">
                   <button
                     onClick={() => onEdit(course.id)}
-                    className="flex-1 px-3 py-2 bg-indigo-50 text-indigo-700 rounded-md hover:bg-indigo-100 transition font-medium text-sm flex items-center justify-center gap-2"
+                    className="flex-1 px-3 py-2 bg-brand-100 dark:bg-brand-700 text-brand-700 dark:text-brand-100 rounded-md hover:bg-brand-200 dark:hover:bg-brand-600 transition font-medium text-sm flex items-center justify-center gap-2"
                   >
                     <Edit className="h-4 w-4" />
                     Edit
                   </button>
                   <button
                     onClick={() => onShare(course.id)}
-                    className="flex-1 px-3 py-2 bg-indigo-50 text-indigo-700 rounded-md hover:bg-indigo-100 transition font-medium text-sm flex items-center justify-center gap-2"
+                    className="flex-1 px-3 py-2 bg-brand-100 dark:bg-brand-700 text-brand-700 dark:text-brand-100 rounded-md hover:bg-brand-200 dark:hover:bg-brand-600 transition font-medium text-sm flex items-center justify-center gap-2"
                   >
                     <Share2 className="h-4 w-4" />
                     Share
