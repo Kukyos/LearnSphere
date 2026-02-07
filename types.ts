@@ -1,24 +1,5 @@
 export type Difficulty = 'Beginner' | 'Intermediate' | 'Advanced';
 
-// Auth types from D's branch
-export type AuthMode = 'login' | 'signup';
-export type UserRole = 'learner' | 'instructor' | 'admin';
-
-export interface FormErrors {
-  name?: string;
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-}
-
-export interface AuthFormData {
-  name?: string;
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-  role?: UserRole;
-}
-
 export interface Course {
   id: string;
   title: string;
@@ -40,6 +21,32 @@ export interface Course {
   updatedAt: string;
 }
 
+export type ContentType = 'video' | 'article' | 'quiz';
+
+export interface QuizQuestion {
+  id: string;
+  text: string;
+  options: string[];
+  correctAnswer: number; // Index of correct option
+}
+
+export interface Lesson {
+  id: string;
+  title: string;
+  type: ContentType;
+  duration: string;
+  isCompleted: boolean;
+  videoUrl?: string; // For video
+  content?: string; // For article
+  questions?: QuizQuestion[]; // For quiz
+}
+
+export interface Module {
+  id: string;
+  title: string;
+  lessons: Lesson[];
+}
+
 export interface FilterState {
   searchQuery: string;
   categories: string[];
@@ -50,3 +57,19 @@ export interface FilterState {
 }
 
 export type SortOption = 'popularity' | 'rating' | 'newest' | 'price-low' | 'price-high';
+
+// Auth Types
+export type AuthMode = 'login' | 'signup';
+export type UserRole = 'learner' | 'instructor' | 'admin' | 'guest';
+
+export interface AuthFormData {
+  email?: string;
+  password?: string;
+  firstName?: string;
+  lastName?: string;
+  [key: string]: string | undefined;
+}
+
+export interface FormErrors {
+  [key: string]: string | undefined;
+}

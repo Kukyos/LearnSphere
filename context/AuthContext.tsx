@@ -1,18 +1,18 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
-export type UserRole = 'guest' | 'learner' | 'instructor' | 'admin';
+export type UserRole = 'learner' | 'instructor' | 'admin' | 'guest';
 
 export interface User {
   id: string;
-  email: string;
   name: string;
+  email: string;
   role: UserRole;
+  avatar?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isLoggedIn: boolean;
-  loading: boolean;
   login: (email: string, password: string, role: UserRole) => Promise<void>;
   logout: () => void;
   loginAsGuest: () => void;
@@ -20,83 +20,70 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 
-  // Load user from localStorage on mount
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+
+  // Check for saved session on mount
   useEffect(() => {
-    const storedUser = localStorage.getItem('learnsphere_user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        localStorage.removeItem('learnsphere_user');
-      }
+    const savedUser = localStorage.getItem('lumina_user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
     }
-    setLoading(false);
   }, []);
 
   const login = async (email: string, password: string, role: UserRole) => {
-    setLoading(true);
-    try {
-      // Simple mock login - just validate basic format
-      if (!email.includes('@') || password.length < 3) {
-        throw new Error('Invalid credentials');
-      }
+    // Simulate API call
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        const mockUser: User = {
+          id: 'u1',
+          name: email.split('@')[0] || 'User',
+          email: email,
+          role: role,
+          avatar: `https://ui-avatars.com/api/?name=${email}&background=random`
+        };
+        setUser(mockUser);
+        localStorage.setItem('lumina_user', JSON.stringify(mockUser));
+        resolve();
+      }, 500);
+    });
+  };
 
-      const mockUser: User = {
-        id: `user_${Date.now()}`,
-        email,
-        name: email.split('@')[0],
-        role,
-      };
-
-      setUser(mockUser);
-      localStorage.setItem('learnsphere_user', JSON.stringify(mockUser));
-    } catch (error) {
-      throw error;
-    } finally {
-      setLoading(false);
-    }
+  const loginAsGuest = () => {
+    // Create a temporary guest session
+    const guestUser: User = {
+      id: 'guest-' + Date.now(),
+      name: 'Guest User',
+      email: 'guest@example.com',
+      role: 'guest',
+      avatar: 'https://ui-avatars.com/api/?name=Guest&background=e3e8dc&color=5c7f4c'
+    };
+    setUser(guestUser);
+    // We don't save guest to localStorage so session is ephemeral
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('learnsphere_user');
-  };
-
-  const loginAsGuest = () => {
-    const guestUser: User = {
-      id: `guest_${Date.now()}`,
-      email: 'guest@learnsphere.local',
-      name: 'Guest User',
-      role: 'guest',
-    };
-    setUser(guestUser);
-    localStorage.setItem('learnsphere_user', JSON.stringify(guestUser));
+    localStorage.removeItem('lumina_user');
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isLoggedIn: user !== null,
-        loading,
-        login,
-        logout,
-        loginAsGuest,
-      }}
-    >
+    <AuthContext.Provider value={{ 
+      user, 
+      isLoggedIn: !!user, 
+      login, 
+      logout, 
+      loginAsGuest 
+    }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };

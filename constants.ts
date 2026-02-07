@@ -1,4 +1,4 @@
-import { Course } from './types';
+import { Course, Module } from './types';
 
 export const CATEGORIES = [
   "Development",
@@ -287,7 +287,6 @@ const generateCourses = (): Course[] => [
     accessType: 'Paid',
     updatedAt: '2024-02-10'
   },
-  // New Courses to fill up
   {
     id: '16',
     title: 'Mindfulness & Meditation',
@@ -382,6 +381,79 @@ const generateCourses = (): Course[] => [
 ];
 
 export const MOCK_COURSES = generateCourses();
+
+export const MOCK_CURRICULUM: Module[] = [
+    {
+      id: 'm1',
+      title: 'Module 1: Foundations',
+      lessons: [
+        {
+          id: 'l1',
+          title: 'Introduction to the Course',
+          type: 'video',
+          duration: '10:00',
+          isCompleted: true,
+          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+        },
+        {
+          id: 'l2',
+          title: 'Core Concepts Explained',
+          type: 'article',
+          duration: '5 min read',
+          isCompleted: false,
+          content: 'In this lesson, we cover the fundamental principles that will guide your journey. Understanding these core concepts is crucial for mastering the advanced topics later in the curriculum. We will explore the history, the theory, and the practical applications.'
+        },
+        {
+          id: 'l3',
+          title: 'Knowledge Check',
+          type: 'quiz',
+          duration: '5 questions',
+          isCompleted: false,
+          questions: [
+            {
+              id: 'q1',
+              text: 'What is the primary benefit of the "Sage" color palette in UI design?',
+              options: ['It induces anxiety', 'It promotes calmness and focus', 'It is the most popular color', 'It is invisible'],
+              correctAnswer: 1
+            },
+            {
+              id: 'q2',
+              text: 'Which of the following is a key principle of minimal design?',
+              options: ['Maximum clutter', 'Negative space', 'Using 10 different fonts', 'Blinking text'],
+              correctAnswer: 1
+            },
+             {
+              id: 'q3',
+              text: 'In the context of this app, what does the "PixelBlast" component do?',
+              options: ['Plays music', 'Renders a 3D particle background', 'Deletes data', 'Send emails'],
+              correctAnswer: 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'm2',
+      title: 'Module 2: Advanced Techniques',
+      lessons: [
+         {
+          id: 'l4',
+          title: 'Mastering the Workflow',
+          type: 'video',
+          duration: '15:30',
+          isCompleted: false,
+          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4'
+        },
+        {
+          id: 'l5',
+          title: 'Case Studies',
+          type: 'article',
+          duration: '10 min read',
+          isCompleted: false
+        }
+      ]
+    }
+  ];
 
 export const REVIEWS_SNIPPETS = [
   {
