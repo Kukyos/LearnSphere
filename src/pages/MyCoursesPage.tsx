@@ -60,7 +60,7 @@ const MyCoursesPage: React.FC = () => {
                 <div className="relative h-40 overflow-hidden">
                   <img src={course.coverImage} alt={course.title} className="w-full h-full object-cover" />
                   {showProgress && (
-                    <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-200 dark:bg-gray-700">
+                    <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-brand-200 dark:bg-brand-700">
                       <div className="h-full bg-brand-500 transition-all" style={{ width: `${pct}%` }} />
                     </div>
                   )}

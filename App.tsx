@@ -20,6 +20,7 @@ import CoursesDashboard from './src/pages/CoursesDashboard';
 import CourseForm from './src/pages/course/CourseForm';
 import ReportingDashboard from './src/pages/ReportingDashboard';
 import QuizBuilder from './src/pages/QuizBuilder';
+import SettingsPage from './src/pages/SettingsPage';
 
 const App: React.FC = () => {
   const { user, isLoggedIn } = useAuth();
@@ -75,6 +76,14 @@ const App: React.FC = () => {
         <Route path="/quiz-builder/:courseId/:lessonId" element={
           user?.role === 'instructor' || user?.role === 'admin' ? <QuizBuilder /> : <Navigate to="/" replace />
         } />
+
+        {/* Settings (all authenticated users) */}
+        <Route path="/settings" element={
+          isLoggedIn ? <SettingsPage /> : <Navigate to="/login" replace />
+        } />
+
+        {/* Guest Home redirect */}
+        <Route path="/home" element={<Navigate to="/" replace />} />
 
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />

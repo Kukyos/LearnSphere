@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { BookOpen, Menu, X, Sun, Moon, LogOut, Compass, BookMarked, User } from 'lucide-react';
+import { BookOpen, Menu, X, Sun, Moon, LogOut, Compass, BookMarked, User, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../src/contexts/AppContext';
 import ProfileDrawer from '../src/components/ProfileDrawer';
@@ -98,6 +98,9 @@ const Navbar: React.FC = () => {
                     Reporting
                   </Link>
                 )}
+                <Link to="/settings" className={linkClass('/settings')}>
+                  <Settings size={14} className="inline -mt-0.5" />
+                </Link>
               </>
             ) : (
               <Link to="/" className={linkClass('/')}>
@@ -177,6 +180,9 @@ const Navbar: React.FC = () => {
                         Reporting
                       </Link>
                     )}
+                    <Link to="/settings" className="block rounded-xl px-4 py-3 text-sm font-bold text-brand-800 hover:bg-brand-100 dark:text-brand-100 dark:hover:bg-brand-800" onClick={() => setIsMobileMenuOpen(false)}>
+                      Settings
+                    </Link>
                     <button 
                       onClick={() => { setShowProfile(true); setIsMobileMenuOpen(false); }}
                       className="block text-left w-full rounded-xl px-4 py-3 text-sm font-bold text-brand-800 hover:bg-brand-100 dark:text-brand-100 dark:hover:bg-brand-800"

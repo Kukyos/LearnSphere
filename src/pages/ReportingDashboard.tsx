@@ -95,16 +95,16 @@ export default function ReportingDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
+    <div className="min-h-screen bg-nature-light dark:bg-brand-950 pt-20">
       {/* Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-6">
         <div className="flex items-center gap-4 mb-8">
-          <button onClick={() => navigate('/courses')} className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500">
+          <button onClick={() => navigate('/courses')} className="p-2 rounded-lg hover:bg-brand-200 dark:hover:bg-brand-700 text-brand-500">
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reporting Dashboard</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Course-wise learner progress overview</p>
+            <h1 className="text-2xl font-bold text-brand-900 dark:text-white">Reporting Dashboard</h1>
+            <p className="text-sm text-brand-500 dark:text-brand-400">Course-wise learner progress overview</p>
           </div>
         </div>
 
@@ -116,15 +116,15 @@ export default function ReportingDashboard() {
               onClick={() => setStatusFilter(card.filter)}
               className={`p-5 rounded-xl border-2 transition-all text-left ${
                 statusFilter === card.filter
-                  ? 'border-brand-500 bg-white dark:bg-gray-800 shadow-lg'
-                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300'
+                  ? 'border-brand-500 bg-white dark:bg-brand-900 shadow-lg'
+                  : 'border-brand-200 dark:border-brand-700 bg-white dark:bg-brand-900 hover:border-brand-300'
               }`}
             >
               <div className={`w-10 h-10 ${card.color} rounded-lg flex items-center justify-center text-white mb-3`}>
                 {card.icon}
               </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{card.value}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{card.label}</p>
+              <p className="text-2xl font-bold text-brand-900 dark:text-white">{card.value}</p>
+              <p className="text-sm text-brand-500 dark:text-brand-400">{card.label}</p>
             </button>
           ))}
         </div>
@@ -132,17 +132,17 @@ export default function ReportingDashboard() {
         {/* Search + Column Toggle */}
         <div className="flex items-center gap-3 mb-4">
           <div className="flex-1 relative">
-            <Filter size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Filter size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-400" />
             <input
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+              className="w-full pl-9 pr-4 py-2.5 border border-brand-300 dark:border-brand-600 rounded-lg bg-white dark:bg-brand-900 text-brand-900 dark:text-white text-sm"
               placeholder="Search by course or participant name..."
             />
           </div>
           <button
             onClick={() => setShowColumnPanel(!showColumnPanel)}
-            className="flex items-center gap-1.5 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="flex items-center gap-1.5 px-4 py-2.5 border border-brand-300 dark:border-brand-600 rounded-lg text-sm font-semibold text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-700"
           >
             <Settings2 size={16} /> Columns
           </button>
@@ -150,16 +150,16 @@ export default function ReportingDashboard() {
 
         {/* Column Customizer */}
         {showColumnPanel && (
-          <div className="mb-4 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Show/Hide Columns</p>
+          <div className="mb-4 p-4 bg-white dark:bg-brand-900 rounded-xl border border-brand-200 dark:border-brand-700 shadow-sm">
+            <p className="text-sm font-semibold text-brand-700 dark:text-brand-300 mb-3">Show/Hide Columns</p>
             <div className="flex flex-wrap gap-3">
               {COLUMNS.map(col => (
-                <label key={col.key} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
+                <label key={col.key} className="flex items-center gap-2 text-sm text-brand-600 dark:text-brand-400 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={visibleColumns.has(col.key)}
                     onChange={() => toggleColumn(col.key)}
-                    className="rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                    className="rounded border-brand-300 text-brand-600 focus:ring-brand-500"
                   />
                   {col.label}
                 </label>
@@ -169,16 +169,16 @@ export default function ReportingDashboard() {
         )}
 
         {/* Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-brand-900 rounded-xl border border-brand-200 dark:border-brand-700 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                <tr className="bg-brand-50 dark:bg-brand-900/50 border-b border-brand-200 dark:border-brand-700">
                   {COLUMNS.filter(c => visibleColumns.has(c.key)).map(col => (
                     <th
                       key={col.key}
                       onClick={() => handleSort(col.key)}
-                      className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
+                      className="px-4 py-3 text-left font-semibold text-brand-600 dark:text-brand-400 cursor-pointer hover:text-brand-900 dark:hover:text-white whitespace-nowrap"
                     >
                       <div className="flex items-center gap-1">
                         {col.label}
@@ -191,33 +191,33 @@ export default function ReportingDashboard() {
               <tbody>
                 {filteredRows.length === 0 ? (
                   <tr>
-                    <td colSpan={visibleColumns.size} className="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
+                    <td colSpan={visibleColumns.size} className="px-4 py-12 text-center text-brand-500 dark:text-brand-400">
                       No data matching the current filters.
                     </td>
                   </tr>
                 ) : (
                   filteredRows.map((row, i) => (
-                    <tr key={i} className="border-b border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/30">
-                      {visibleColumns.has('srNo') && <td className="px-4 py-3 text-gray-500">{row.srNo}</td>}
-                      {visibleColumns.has('courseName') && <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{row.courseName}</td>}
-                      {visibleColumns.has('participantName') && <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{row.participantName}</td>}
-                      {visibleColumns.has('enrolledDate') && <td className="px-4 py-3 text-gray-500">{row.enrolledDate}</td>}
-                      {visibleColumns.has('startDate') && <td className="px-4 py-3 text-gray-500">{row.startDate}</td>}
-                      {visibleColumns.has('timeSpent') && <td className="px-4 py-3 text-gray-500">{row.timeSpent}</td>}
+                    <tr key={i} className="border-b border-brand-100 dark:border-brand-700/50 hover:bg-brand-50 dark:hover:bg-brand-700/30">
+                      {visibleColumns.has('srNo') && <td className="px-4 py-3 text-brand-500">{row.srNo}</td>}
+                      {visibleColumns.has('courseName') && <td className="px-4 py-3 font-medium text-brand-900 dark:text-white">{row.courseName}</td>}
+                      {visibleColumns.has('participantName') && <td className="px-4 py-3 text-brand-700 dark:text-brand-300">{row.participantName}</td>}
+                      {visibleColumns.has('enrolledDate') && <td className="px-4 py-3 text-brand-500">{row.enrolledDate}</td>}
+                      {visibleColumns.has('startDate') && <td className="px-4 py-3 text-brand-500">{row.startDate}</td>}
+                      {visibleColumns.has('timeSpent') && <td className="px-4 py-3 text-brand-500">{row.timeSpent}</td>}
                       {visibleColumns.has('completion') && (
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <div className="w-16 h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+                            <div className="w-16 h-2 bg-brand-200 dark:bg-brand-600 rounded-full overflow-hidden">
                               <div
                                 className="h-full bg-brand-500 rounded-full"
                                 style={{ width: `${row.completion}%` }}
                               />
                             </div>
-                            <span className="text-xs text-gray-600 dark:text-gray-400">{row.completion}%</span>
+                            <span className="text-xs text-brand-600 dark:text-brand-400">{row.completion}%</span>
                           </div>
                         </td>
                       )}
-                      {visibleColumns.has('completedDate') && <td className="px-4 py-3 text-gray-500">{row.completedDate}</td>}
+                      {visibleColumns.has('completedDate') && <td className="px-4 py-3 text-brand-500">{row.completedDate}</td>}
                       {visibleColumns.has('status') && <td className="px-4 py-3">{statusBadge(row.status)}</td>}
                     </tr>
                   ))

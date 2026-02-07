@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
+import { useAuth } from '../../context/AuthContext';
 import { Star, BookOpen, Clock, Users, ChevronRight, CheckCircle, Lock, Play, FileText, HelpCircle, ArrowLeft } from 'lucide-react';
 
 const CourseDetailPage: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
   const { user, courses, userProgress, reviews, theme, enrollInCourse, addReview } = useApp();
+  const { user: authUser, isLoggedIn } = useAuth();
+  const isGuest = authUser?.role === 'guest' || !isLoggedIn;
   const [activeTab, setActiveTab] = useState<'overview' | 'lessons' | 'reviews'>('overview');
   const [reviewText, setReviewText] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
@@ -49,7 +52,7 @@ const CourseDetailPage: React.FC = () => {
   };
 
   const handleEnroll = () => {
-    if (!user) {
+    if (!user || isGuest) {
       navigate('/login');
       return;
     }
@@ -102,7 +105,7 @@ const CourseDetailPage: React.FC = () => {
                 {completedLessons}/{course.lessons.length} lessons • {progressPct}%
               </span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+            <div className="w-full bg-brand-200 dark:bg-brand-700 rounded-full h-3">
               <div className={`h-3 rounded-full transition-all duration-500 ${isCompleted ? 'bg-green-500' : 'bg-brand-500'}`} style={{ width: `${progressPct}%` }} />
             </div>
           </div>
@@ -115,7 +118,7 @@ const CourseDetailPage: React.FC = () => {
               onClick={handleEnroll}
               className="w-full sm:w-auto px-8 py-4 bg-brand-600 text-white rounded-xl text-lg font-bold hover:bg-brand-700 transition-all hover:shadow-lg active:scale-95"
             >
-              {user ? 'Enroll Now — Start Learning' : 'Sign In to Enroll'}
+              {isGuest ? 'Sign In to Enroll' : 'Enroll Now — Start Learning'}
             </button>
           </div>
         )}
@@ -269,7 +272,7 @@ const CourseDetailPage: React.FC = () => {
                       <p className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-brand-900'}`}>{review.userName}</p>
                       <div className="flex items-center gap-1">
                         {Array.from({ length: 5 }).map((_, i) => (
-                          <Star key={i} size={12} className={i < review.rating ? 'text-yellow-500' : 'text-gray-300'} fill={i < review.rating ? 'currentColor' : 'none'} />
+                          <Star key={i} size={12} className={i < review.rating ? 'text-yellow-500' : 'text-brand-300'} fill={i < review.rating ? 'currentColor' : 'none'} />
                         ))}
                         <span className={`text-xs ml-1 ${theme === 'dark' ? 'text-brand-400' : 'text-brand-500'}`}>{review.date}</span>
                       </div>

@@ -1,12 +1,16 @@
 import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
+import { useAuth } from '../../context/AuthContext';
 import { Search, Star, BookOpen } from 'lucide-react';
 
 const CoursesPage: React.FC = () => {
   const { courses, theme } = useApp();
+  const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams] = useSearchParams();
+  const initialQ = searchParams.get('q') || '';
+  const [searchQuery, setSearchQuery] = useState(initialQ);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   const allTags = useMemo(() => {
@@ -92,11 +96,14 @@ const CoursesPage: React.FC = () => {
             <div className="relative h-48 overflow-hidden">
               <img src={course.coverImage} alt={course.title} className="w-full h-full object-cover transition-transform hover:scale-105" />
               <div className="absolute top-3 right-3 flex gap-2">
-                {course.access === 'Free' && (
+                {course.access === 'Open' && (
                   <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-500 text-white">Free</span>
                 )}
-                {course.access === 'Paid' && (
+                {course.access === 'On Payment' && (
                   <span className="px-3 py-1 rounded-full text-xs font-bold bg-yellow-500 text-white">${course.price}</span>
+                )}
+                {course.access === 'On Invitation' && (
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-brand-600 text-white">Invite Only</span>
                 )}
               </div>
             </div>

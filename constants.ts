@@ -460,7 +460,7 @@ export const REVIEWS_SNIPPETS = [
     id: 1,
     user: "Alex Johnson",
     role: "Frontend Developer",
-    text: "Lumina changed my career trajectory. The React course was the bridge I needed to land a senior role.",
+    text: "LearnSphere changed my career trajectory. The React course was the bridge I needed to land a senior role.",
     avatar: "https://picsum.photos/100/100?random=20"
   },
   {

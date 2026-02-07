@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { MOCK_COURSES as LANDING_COURSES } from '../../constants';
+import { Course as LandingCourse, Difficulty } from '../../types';
 
 // Types
 export interface AppUser {
@@ -31,6 +33,13 @@ export interface Course {
   viewsCount?: number;
   totalDuration?: string;
   createdAt?: string;
+  // Display-only fields for landing/browse pages
+  category?: string;
+  difficulty?: string;
+  enrollmentCount?: number;
+  reviewCount?: number;
+  isPopular?: boolean;
+  isNew?: boolean;
 }
 
 export interface Lesson {
@@ -134,6 +143,92 @@ export const useApp = () => {
   return context;
 };
 
+/** Convert an AppContext Course back to the shape the Landing page CourseCard expects */
+export function toDisplayCourse(c: Course): LandingCourse {
+  return {
+    id: c.id,
+    title: c.title,
+    description: c.description,
+    instructor: c.instructorName || '',
+    thumbnailUrl: c.coverImage,
+    category: c.category || 'Development',
+    tags: c.tags,
+    difficulty: (c.difficulty || 'Beginner') as Difficulty,
+    lessons: c.lessons.length,
+    duration: c.totalDuration || '0h',
+    rating: c.rating,
+    reviewCount: c.reviewCount || 0,
+    price: c.price || 0,
+    isPopular: c.isPopular,
+    isNew: c.isNew,
+    enrollmentCount: c.enrollmentCount || 0,
+    accessType: c.access === 'On Payment' ? 'Paid' : c.access === 'On Invitation' ? 'Invite-only' : 'Open',
+    updatedAt: c.createdAt || '',
+  };
+}
+
+// Detailed lesson data for the first 6 courses (with quizzes, videos, docs)
+const DETAILED_LESSONS: Record<string, Lesson[]> = {
+  '1': [
+    { id: 'l1', title: 'Introduction to React', description: 'Learn the basics of React', type: 'video', content: 'https://www.youtube.com/embed/Tn6-PIqc4UM' },
+    { id: 'l2', title: 'React Components Guide', description: 'Understanding functional and class components', type: 'document', content: '# React Components\n\nReact components are the building blocks of any React application.\n\n## Functional Components\nFunctional components are JavaScript functions that accept props and return React elements.\n\n## Class Components\nClass components are ES6 classes that extend React.Component.', downloadAllowed: true },
+    { id: 'l3', title: 'React Hooks Deep Dive', description: 'Master useState, useEffect, and custom hooks', type: 'video', content: 'https://www.youtube.com/embed/TNhaISOUy6Q' },
+    { id: 'l4', title: 'React Quiz', description: 'Test your React knowledge', type: 'quiz', content: '', quiz: { questions: [{ id: 'q1', question: 'What is React?', options: ['A JavaScript library', 'A database', 'A CSS framework', 'A backend language'], correctAnswer: 0 }, { id: 'q2', question: 'Which hook is used for side effects?', options: ['useState', 'useEffect', 'useContext', 'useReducer'], correctAnswer: 1 }, { id: 'q3', question: 'What does JSX stand for?', options: ['JavaScript XML', 'Java Syntax Extension', 'JSON XML', 'JavaScript Extension'], correctAnswer: 0 }], rewardRules: [{ attempt: 1, points: 15 }, { attempt: 2, points: 10 }, { attempt: 3, points: 5 }] } }
+  ],
+  '2': [
+    { id: 'l5', title: 'Design Thinking Process', description: 'Learn the 5 stages of design thinking', type: 'video', content: 'https://www.youtube.com/embed/a5KYlHNKQB8' },
+    { id: 'l6', title: 'UI Design Principles', description: 'Color theory, typography, and layout', type: 'document', content: '# UI Design Principles\n\n## Color Theory\nUnderstanding how colors interact and affect user perception.\n\n## Typography\nChoosing the right fonts for readability and hierarchy.\n\n## Layout\nGrid systems and spacing for clean, organized interfaces.', downloadAllowed: true }
+  ],
+  '3': [
+    { id: 'l7', title: 'Python Basics for Data Science', description: 'Variables, loops, and functions', type: 'video', content: 'https://www.youtube.com/embed/rfscVS0vtbw' },
+    { id: 'l8', title: 'Pandas DataFrames', description: 'Working with tabular data', type: 'document', content: '# Pandas DataFrames\n\nDataFrames are 2D labeled data structures.\n\n## Reading Data\nUse `pd.read_csv()` to load data.\n\n## Filtering\nUse boolean indexing to filter rows.', downloadAllowed: true },
+    { id: 'l9', title: 'Data Science Quiz', description: 'Test your Python knowledge', type: 'quiz', content: '', quiz: { questions: [{ id: 'pq1', question: 'What is a DataFrame?', options: ['A 2D labeled data structure', 'A function', 'A loop', 'A class'], correctAnswer: 0 }, { id: 'pq2', question: 'Which library is used for numerical computing?', options: ['pandas', 'numpy', 'flask', 'django'], correctAnswer: 1 }], rewardRules: [{ attempt: 1, points: 10 }, { attempt: 2, points: 7 }, { attempt: 3, points: 3 }] } }
+  ],
+  '5': [
+    { id: 'l10', title: 'Product Strategy Foundations', description: 'Building effective product strategies', type: 'video', content: 'https://www.youtube.com/embed/TlB_eWDSMt4' },
+    { id: 'l11', title: 'Agile Methodology Guide', description: 'Scrum, Kanban, and agile practices', type: 'document', content: '# Agile Methodology\n\n## Scrum\nIterative framework with sprints.\n\n## Kanban\nVisual workflow management.\n\n## Key Principles\n- Continuous delivery\n- Embrace change\n- Customer collaboration', downloadAllowed: true }
+  ],
+  '6': [
+    { id: 'l12', title: 'Microservices Architecture', description: 'Design patterns for distributed systems', type: 'video', content: 'https://www.youtube.com/embed/EcCTIExsqmI' },
+    { id: 'l13', title: 'Docker & Kubernetes Guide', description: 'Container orchestration fundamentals', type: 'document', content: '# Docker & Kubernetes\n\n## Docker\nContainerize your applications.\n\n## Kubernetes\nOrchestrate containers at scale.', downloadAllowed: false }
+  ],
+  '8': [
+    { id: 'l14', title: 'Neural Networks Introduction', description: 'Understanding neural network architecture', type: 'video', content: 'https://www.youtube.com/embed/aircAruvnKk' },
+    { id: 'l15', title: 'ML Quiz', description: 'Test your ML knowledge', type: 'quiz', content: '', quiz: { questions: [{ id: 'mq1', question: 'What is a neural network?', options: ['A computing system inspired by biological neural networks', 'A database', 'A web framework', 'A design tool'], correctAnswer: 0 }], rewardRules: [{ attempt: 1, points: 12 }, { attempt: 2, points: 8 }, { attempt: 3, points: 4 }] } }
+  ],
+};
+
+/** Convert constants.ts courses into AppContext Course format */
+function buildInitialCourses(): Course[] {
+  return LANDING_COURSES.map(lc => ({
+    id: lc.id,
+    title: lc.title,
+    shortDescription: lc.description.slice(0, 120),
+    description: lc.description,
+    coverImage: lc.thumbnailUrl,
+    tags: lc.tags,
+    rating: lc.rating,
+    visibility: 'Everyone' as const,
+    access: (lc.accessType === 'Paid' ? 'On Payment' : lc.accessType === 'Invite-only' ? 'On Invitation' : 'Open') as Course['access'],
+    price: lc.price > 0 ? lc.price : undefined,
+    published: true,
+    instructorId: 'inst-' + lc.id,
+    instructorName: lc.instructor,
+    lessons: DETAILED_LESSONS[lc.id] || [
+      { id: `${lc.id}-intro`, title: 'Course Introduction', description: `Welcome to ${lc.title}`, type: 'video' as const, content: '' },
+    ],
+    viewsCount: lc.enrollmentCount,
+    totalDuration: lc.duration,
+    createdAt: lc.updatedAt,
+    category: lc.category,
+    difficulty: lc.difficulty,
+    enrollmentCount: lc.enrollmentCount,
+    reviewCount: lc.reviewCount,
+    isPopular: lc.isPopular,
+    isNew: lc.isNew,
+  }));
+}
+
 // Badge calculation
 const getBadge = (points: number): string => {
   if (points >= 120) return 'Master';
@@ -200,215 +295,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     completedCourses: completedCoursesState,
   } : null;
 
-  // Mock courses data
-  const [courses, setCourses] = useState<Course[]>([
-    {
-      id: '1',
-      title: 'Complete React Development',
-      shortDescription: 'Master React from basics to advanced concepts',
-      description: 'A comprehensive course covering React fundamentals, hooks, state management, and modern development practices.',
-      coverImage: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&h=450&fit=crop',
-      tags: ['React', 'JavaScript', 'Frontend'],
-      rating: 4.5,
-      visibility: 'Everyone',
-      access: 'Open',
-      published: true,
-      instructorId: 'inst1',
-      instructorName: 'Sarah Drasner',
-      viewsCount: 1240,
-      totalDuration: '4h 30m',
-      createdAt: '2026-01-01',
-      lessons: [
-        {
-          id: 'l1',
-          title: 'Introduction to React',
-          description: 'Learn the basics of React and its component-based architecture',
-          type: 'video',
-          content: 'https://www.youtube.com/embed/Tn6-PIqc4UM',
-        },
-        {
-          id: 'l2',
-          title: 'React Components Guide',
-          description: 'Understanding functional and class components',
-          type: 'document',
-          content: '# React Components\n\nReact components are the building blocks of any React application. They let you split the UI into independent, reusable pieces.\n\n## Functional Components\nFunctional components are JavaScript functions that accept props and return React elements.\n\n## Class Components\nClass components are ES6 classes that extend React.Component. They have a render method and can maintain their own state.\n\n## Key Concepts\n- Props are read-only inputs\n- State is managed within the component\n- Lifecycle methods control component behavior\n- Hooks provide state and lifecycle features to functional components',
-          downloadAllowed: true,
-        },
-        {
-          id: 'l3',
-          title: 'React Hooks Deep Dive',
-          description: 'Master useState, useEffect, and custom hooks',
-          type: 'video',
-          content: 'https://www.youtube.com/embed/TNhaISOUy6Q',
-        },
-        {
-          id: 'l4',
-          title: 'React Quiz',
-          description: 'Test your React knowledge',
-          type: 'quiz',
-          content: '',
-          quiz: {
-            questions: [
-              {
-                id: 'q1',
-                question: 'What is React?',
-                options: ['A JavaScript library', 'A database', 'A CSS framework', 'A backend language'],
-                correctAnswer: 0
-              },
-              {
-                id: 'q2',
-                question: 'Which hook is used for side effects?',
-                options: ['useState', 'useEffect', 'useContext', 'useReducer'],
-                correctAnswer: 1
-              },
-              {
-                id: 'q3',
-                question: 'What does JSX stand for?',
-                options: ['JavaScript XML', 'Java Syntax Extension', 'JSON XML', 'JavaScript Extension'],
-                correctAnswer: 0
-              }
-            ],
-            rewardRules: [
-              { attempt: 1, points: 15 },
-              { attempt: 2, points: 10 },
-              { attempt: 3, points: 5 }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      id: '2',
-      title: 'Advanced TypeScript Patterns',
-      shortDescription: 'Learn advanced TypeScript techniques and patterns',
-      description: 'Deep dive into TypeScript generics, utility types, and advanced patterns for building type-safe applications.',
-      coverImage: 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=800&h=450&fit=crop',
-      tags: ['TypeScript', 'JavaScript', 'Programming'],
-      rating: 4.8,
-      visibility: 'Signed In',
-      access: 'Open',
-      published: true,
-      instructorId: 'inst1',
-      instructorName: 'Sarah Drasner',
-      viewsCount: 860,
-      totalDuration: '3h 15m',
-      createdAt: '2026-01-05',
-      lessons: [
-        {
-          id: 'l5',
-          title: 'TypeScript Generics',
-          description: 'Understanding and using generics effectively',
-          type: 'video',
-          content: 'https://www.youtube.com/embed/EcCTIExsqmI',
-        },
-        {
-          id: 'l6',
-          title: 'Utility Types in TypeScript',
-          description: 'Exploring built-in utility types',
-          type: 'document',
-          content: '# TypeScript Utility Types\n\nTypeScript provides several utility types to facilitate common type transformations.\n\n## Partial<T>\nMakes all properties optional.\n\n## Required<T>\nMakes all properties required.\n\n## Pick<T, K>\nPicks specific properties from a type.\n\n## Omit<T, K>\nRemoves specific properties from a type.\n\n## Record<K, V>\nCreates an object type with keys K and values V.',
-          downloadAllowed: false,
-        }
-      ]
-    },
-    {
-      id: '3',
-      title: 'UI/UX Design Fundamentals',
-      shortDescription: 'Create beautiful and intuitive user interfaces',
-      description: 'Learn the principles of great UI/UX design, from color theory to user research.',
-      coverImage: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=450&fit=crop',
-      tags: ['Design', 'UI/UX', 'Creative'],
-      rating: 4.6,
-      visibility: 'Everyone',
-      access: 'On Payment',
-      price: 49.99,
-      published: true,
-      instructorId: 'inst2',
-      instructorName: 'Gary Simon',
-      viewsCount: 2100,
-      totalDuration: '6h 45m',
-      createdAt: '2025-12-20',
-      lessons: [
-        {
-          id: 'l7',
-          title: 'Design Principles',
-          description: 'Core principles of effective design',
-          type: 'video',
-          content: 'https://www.youtube.com/embed/a5KYlHNKQB8',
-        }
-      ]
-    },
-    {
-      id: '4',
-      title: 'Node.js Backend Development',
-      shortDescription: 'Build scalable backend applications',
-      description: 'Learn to build robust APIs and backend services using Node.js and Express.',
-      coverImage: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=800&h=450&fit=crop',
-      tags: ['Node.js', 'Backend', 'JavaScript'],
-      rating: 4.4,
-      visibility: 'Signed In',
-      access: 'On Invitation',
-      published: true,
-      instructorId: 'inst2',
-      instructorName: 'Gary Simon',
-      viewsCount: 540,
-      totalDuration: '5h 10m',
-      createdAt: '2026-01-10',
-      lessons: [
-        {
-          id: 'l8',
-          title: 'Getting Started with Node.js',
-          description: 'Introduction to Node.js and npm',
-          type: 'video',
-          content: 'https://www.youtube.com/embed/TlB_eWDSMt4',
-        }
-      ]
-    },
-    {
-      id: '5',
-      title: 'Python for Data Science',
-      shortDescription: 'Analyze data and build ML models with Python',
-      description: 'Learn Python fundamentals, pandas, numpy, and scikit-learn for data science and machine learning.',
-      coverImage: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800&h=450&fit=crop',
-      tags: ['Python', 'Data Science', 'ML'],
-      rating: 4.7,
-      visibility: 'Everyone',
-      access: 'Open',
-      published: true,
-      instructorId: 'inst1',
-      instructorName: 'Sarah Drasner',
-      viewsCount: 3200,
-      totalDuration: '8h 20m',
-      createdAt: '2025-12-15',
-      lessons: [
-        { id: 'l9', title: 'Python Basics', description: 'Variables, loops, and functions', type: 'video', content: 'https://www.youtube.com/embed/rfscVS0vtbw' },
-        { id: 'l10', title: 'Pandas DataFrames', description: 'Working with tabular data', type: 'document', content: '# Pandas DataFrames\n\nDataFrames are 2D labeled data structures. Use `pd.read_csv()` to load data.', downloadAllowed: true },
-        { id: 'l11', title: 'Python Quiz', description: 'Test your Python knowledge', type: 'quiz', content: '', quiz: { questions: [{ id: 'pq1', question: 'What is a DataFrame?', options: ['A 2D labeled data structure', 'A function', 'A loop', 'A class'], correctAnswer: 0 }, { id: 'pq2', question: 'Which library is used for numerical computing?', options: ['pandas', 'numpy', 'flask', 'django'], correctAnswer: 1 }], rewardRules: [{ attempt: 1, points: 10 }, { attempt: 2, points: 7 }, { attempt: 3, points: 3 }] } }
-      ]
-    },
-    {
-      id: '6',
-      title: 'Digital Marketing Essentials',
-      shortDescription: 'Master SEO, social media, and content marketing',
-      description: 'A complete guide to digital marketing strategies including SEO, PPC, email marketing, and analytics.',
-      coverImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop',
-      tags: ['Marketing', 'SEO', 'Business'],
-      rating: 4.3,
-      visibility: 'Everyone',
-      access: 'On Payment',
-      price: 29.99,
-      published: true,
-      instructorId: 'inst2',
-      instructorName: 'Gary Simon',
-      viewsCount: 1800,
-      totalDuration: '5h 15m',
-      createdAt: '2026-01-12',
-      lessons: [
-        { id: 'l12', title: 'SEO Fundamentals', description: 'Understanding search engine optimization', type: 'video', content: 'https://www.youtube.com/embed/DvwS7cV9GmQ' },
-        { id: 'l13', title: 'Content Strategy Guide', description: 'Building an effective content strategy', type: 'document', content: '# Content Strategy\n\nA good content strategy aligns your content with business goals and audience needs.\n\n## Key Steps\n1. Define your audience\n2. Audit existing content\n3. Plan your content calendar\n4. Measure and iterate', downloadAllowed: true }
-      ]
-    }
-  ]);
+  // Mock courses data — seeded from constants.ts with detailed lessons for select courses
+  const [courses, setCourses] = useState<Course[]>(buildInitialCourses);
 
   // Mock enrollments for reporting (other users)
   const [allProgress, setAllProgress] = useState<CourseProgress[]>([

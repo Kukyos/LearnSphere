@@ -1,14 +1,16 @@
 import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import CourseCard from '../components/CourseCard';
 import Footer from '../components/Footer';
 import FilterPanel from '../components/FilterPanel';
-import { MOCK_COURSES } from '../constants';
+import { useApp, toDisplayCourse } from '../src/contexts/AppContext';
 import { Course, FilterState } from '../types';
 import { ChevronRight } from 'lucide-react';
 
 const LearnerHome: React.FC = () => {
   const navigate = useNavigate();
+  const { courses: appCourses } = useApp();
+  const displayCourses = useMemo(() => appCourses.filter(c => c.published).map(toDisplayCourse), [appCourses]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterState, setFilterState] = useState<FilterState>({
     searchQuery: '',
@@ -21,7 +23,7 @@ const LearnerHome: React.FC = () => {
 
   // Filter Logic
   const filteredCourses = useMemo(() => {
-    return MOCK_COURSES.filter(course => {
+    return displayCourses.filter(course => {
       // Search filter
       if (searchQuery && !course.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
           !course.description.toLowerCase().includes(searchQuery.toLowerCase())) {
@@ -72,7 +74,7 @@ const LearnerHome: React.FC = () => {
           </button>
         </div>
 
-        <div className="hide-scrollbar flex gap-4 overflow-x-auto px-4 pb-12 pt-4 sm:gap-4 sm:px-8 scroll-pl-8">
+        <div className="hide-scrollbar flex gap-4 overflow-x-auto px-4 pb-32 pt-16 sm:gap-4 sm:px-8 scroll-pl-8 -mb-20 -mt-12">
           {courses.map(course => (
             <CourseCard key={course.id} course={course} onPreview={handlePreview} />
           ))}
@@ -81,9 +83,9 @@ const LearnerHome: React.FC = () => {
     );
   };
 
-  const popularCourses = useMemo(() => [...MOCK_COURSES].sort((a, b) => b.enrollmentCount - a.enrollmentCount), []);
-  const newCourses = useMemo(() => [...MOCK_COURSES].reverse(), []);
-  const devCourses = useMemo(() => MOCK_COURSES.filter(c => c.category === 'Development' || c.category === 'Data Science'), []);
+  const popularCourses = useMemo(() => [...displayCourses].sort((a, b) => b.enrollmentCount - a.enrollmentCount), [displayCourses]);
+  const newCourses = useMemo(() => [...displayCourses].reverse(), [displayCourses]);
+  const devCourses = useMemo(() => displayCourses.filter(c => c.category === 'Development' || c.category === 'Data Science'), [displayCourses]);
 
   return (
     <div className="min-h-screen bg-nature-light transition-colors duration-300 dark:bg-brand-900 font-sans overflow-x-hidden">
@@ -111,7 +113,7 @@ const LearnerHome: React.FC = () => {
                 <h2 className="text-2xl font-bold text-brand-900 dark:text-white mb-2">
                   Browse All Courses
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-brand-600 dark:text-brand-300">
                   {filteredCourses.length} courses available
                 </p>
               </div>
@@ -126,7 +128,7 @@ const LearnerHome: React.FC = () => {
 
               {filteredCourses.length === 0 && (
                 <div className="py-16 text-center">
-                  <p className="text-gray-500 dark:text-gray-400">No courses found. Try adjusting your filters.</p>
+                  <p className="text-brand-500 dark:text-brand-400">No courses found. Try adjusting your filters.</p>
                 </div>
               )}
             </div>

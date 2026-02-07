@@ -34,7 +34,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Check for saved session on mount
   useEffect(() => {
-    const savedUser = localStorage.getItem('lumina_user');
+    const savedUser = localStorage.getItem('learnsphere_user');
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
@@ -51,7 +51,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email)}&background=random`
         };
         setUser(mockUser);
-        localStorage.setItem('lumina_user', JSON.stringify(mockUser));
+        localStorage.setItem('learnsphere_user', JSON.stringify(mockUser));
         resolve();
       }, 500);
     });
@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=5c7f4c&color=fff`
         };
         setUser(mockUser);
-        localStorage.setItem('lumina_user', JSON.stringify(mockUser));
+        localStorage.setItem('learnsphere_user', JSON.stringify(mockUser));
         resolve();
       }, 500);
     });
@@ -89,7 +89,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('lumina_user');
+    localStorage.removeItem('learnsphere_user');
   };
 
   return (

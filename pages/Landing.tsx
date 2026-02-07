@@ -4,7 +4,7 @@ import Hero from '../components/Hero';
 import CourseCard from '../components/CourseCard';
 import StatsSection from '../components/StatsSection';
 import Footer from '../components/Footer';
-import { MOCK_COURSES } from '../constants';
+import { useApp, toDisplayCourse } from '../src/contexts/AppContext';
 import { Course } from '../types';
 import { BookOpen, ChevronRight, X } from 'lucide-react';
 
@@ -17,18 +17,22 @@ const Landing: React.FC = () => {
     setShowLoginModal(true);
   };
 
+  const { courses: appCourses } = useApp();
+  const displayCourses = useMemo(() => appCourses.filter(c => c.published).map(toDisplayCourse), [appCourses]);
+
   const handleSearchSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-      // Placeholder: In a real app, navigate to /search
-      alert(`Navigating to search results for: ${searchQuery}`);
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/explore?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
   };
 
-  // Group Courses Logic - Ensure we have enough data to scroll
-  const popularCourses = useMemo(() => [...MOCK_COURSES].sort((a, b) => b.enrollmentCount - a.enrollmentCount), []);
-  const newCourses = useMemo(() => [...MOCK_COURSES].reverse(), []); // Just simple reverse for "new" to show different order
-  const devCourses = useMemo(() => MOCK_COURSES.filter(c => c.category === 'Development' || c.category === 'Data Science'), []);
-  const creativeCourses = useMemo(() => MOCK_COURSES.filter(c => c.category === 'Design' || c.category === 'Photography'), []);
-  const businessCourses = useMemo(() => MOCK_COURSES.filter(c => c.category === 'Business' || c.category === 'Marketing'), []);
+  // Group Courses Logic
+  const popularCourses = useMemo(() => [...displayCourses].sort((a, b) => b.enrollmentCount - a.enrollmentCount), [displayCourses]);
+  const newCourses = useMemo(() => [...displayCourses].reverse(), [displayCourses]);
+  const devCourses = useMemo(() => displayCourses.filter(c => c.category === 'Development' || c.category === 'Data Science'), [displayCourses]);
+  const creativeCourses = useMemo(() => displayCourses.filter(c => c.category === 'Design' || c.category === 'Photography'), [displayCourses]);
+  const businessCourses = useMemo(() => displayCourses.filter(c => c.category === 'Business' || c.category === 'Marketing'), [displayCourses]);
 
   // Generic Row Component
   const CourseRow = ({ title, courses }: { title: string, courses: Course[] }) => {
@@ -43,7 +47,7 @@ const Landing: React.FC = () => {
                 </button>
             </div>
             
-            <div className="hide-scrollbar flex gap-4 overflow-x-auto px-4 pb-12 pt-4 sm:gap-4 sm:px-8 scroll-pl-8">
+            <div className="hide-scrollbar flex gap-4 overflow-x-auto px-4 pb-32 pt-16 sm:gap-4 sm:px-8 scroll-pl-8 -mb-20 -mt-12">
                 {courses.map(course => (
                     <CourseCard key={course.id} course={course} onPreview={handlePreview} />
                 ))}

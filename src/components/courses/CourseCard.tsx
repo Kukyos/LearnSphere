@@ -24,13 +24,13 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
 
   return (
     <div 
-      className={`bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition border border-gray-200 group ${
+      className={`bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition border border-brand-200 group ${
         !course.isPublished ? 'opacity-85 hover:opacity-100' : ''
       }`}
     >
       {/* Cover Image */}
       <div 
-        className={`relative h-40 bg-gradient-to-br from-indigo-400 to-purple-500 overflow-hidden ${
+        className={`relative h-40 bg-gradient-to-br from-brand-400 to-brand-600 overflow-hidden ${
           !course.isPublished ? 'grayscale hover:grayscale-0 transition-all duration-300' : ''
         }`}
       >
@@ -60,9 +60,9 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
               
               {/* Tooltip */}
               {showTooltip && (
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-gray-900 text-white text-xs rounded px-3 py-2 whitespace-nowrap z-20">
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-brand-900 text-white text-xs rounded px-3 py-2 whitespace-nowrap z-20">
                   Not visible to learners
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-brand-900"></div>
                 </div>
               )}
             </div>
@@ -87,20 +87,20 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition"
+              className="p-2 bg-white rounded-full shadow-md hover:bg-brand-50 transition"
             >
-              <MoreVertical className="h-5 w-5 text-gray-700" />
+              <MoreVertical className="h-5 w-5 text-brand-700" />
             </button>
 
             {/* Dropdown Menu */}
             {showMenu && (
-              <div className="absolute left-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+              <div className="absolute left-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-brand-200 z-10">
                 <button
                   onClick={() => {
                     onEdit(course.id);
                     setShowMenu(false);
                   }}
-                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100"
+                  className="w-full px-4 py-2 text-left text-sm text-brand-700 hover:bg-brand-50 flex items-center gap-2 border-b border-brand-100"
                 >
                   <Edit className="h-4 w-4" />
                   Edit
@@ -110,7 +110,7 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
                     onShare(course.id);
                     setShowMenu(false);
                   }}
-                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  className="w-full px-4 py-2 text-left text-sm text-brand-700 hover:bg-brand-50 flex items-center gap-2"
                 >
                   <Share2 className="h-4 w-4" />
                   Share
@@ -122,10 +122,10 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
       </div>
 
       {/* Card Content */}
-      <div className={`p-4 ${!course.isPublished ? 'bg-gray-50/50' : ''}`}>
+      <div className={`p-4 ${!course.isPublished ? 'bg-brand-50' : ''}`}>
         {/* Title */}
         <h3 className={`font-semibold mb-2 line-clamp-2 text-base ${
-          !course.isPublished ? 'text-gray-700' : 'text-gray-900'
+          !course.isPublished ? 'text-brand-700' : 'text-brand-900'
         }`}>
           {course.title}
         </h3>
@@ -137,8 +137,8 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
               key={tag}
               className={`inline-block px-2 py-1 text-xs rounded font-medium ${
                 !course.isPublished
-                  ? 'bg-gray-200 text-gray-600'
-                  : 'bg-indigo-50 text-indigo-700'
+                  ? 'bg-brand-200 text-brand-600'
+                  : 'bg-brand-50 text-brand-700'
               }`}
             >
               {tag}
@@ -148,10 +148,10 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
 
         {/* Stats */}
         <div className={`space-y-2 text-sm ${
-          !course.isPublished ? 'text-gray-500' : 'text-gray-600'
+          !course.isPublished ? 'text-brand-500' : 'text-brand-600'
         }`}>
           <div className="flex items-center gap-2">
-            <Eye className="h-4 w-4 text-gray-400" />
+            <Eye className="h-4 w-4 text-brand-400" />
             <span>
               {course.viewsCount === 0 
                 ? 'No views yet' 
@@ -159,11 +159,11 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-gray-400" />
+            <BookOpen className="h-4 w-4 text-brand-400" />
             <span>{course.totalLessons} lessons</span>
           </div>
           <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-gray-400" />
+            <Clock className="h-4 w-4 text-brand-400" />
             <span>{course.totalDuration}</span>
           </div>
         </div>
