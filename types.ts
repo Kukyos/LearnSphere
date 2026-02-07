@@ -1,5 +1,24 @@
 export type Difficulty = 'Beginner' | 'Intermediate' | 'Advanced';
 
+// Auth types from D's branch
+export type AuthMode = 'login' | 'signup';
+export type UserRole = 'learner' | 'instructor' | 'admin';
+
+export interface FormErrors {
+  name?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+}
+
+export interface AuthFormData {
+  name?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  role?: UserRole;
+}
+
 export interface Course {
   id: string;
   title: string;
