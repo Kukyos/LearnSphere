@@ -6,7 +6,7 @@ import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { AuthMode, UserRole } from '../types';
 import { useAuth } from '../context/AuthContext';
-import { WorldGlobe } from '../components/visuals/WorldGlobe';
+import DomeGallery from '../components/visuals/DomeGallery';
 import { apiForgotPassword, isBackendAvailable } from '../services/api';
 
 const Login: React.FC = () => {
@@ -65,7 +65,7 @@ const Login: React.FC = () => {
         setMessage({ type: 'success', text: `Welcome, ${fullName}! Account created.` });
         setTimeout(() => navigate('/'), 800);
       } else {
-        await login(email, password, role);
+        await login(email, password);
         navigate('/');
       }
     } catch (error: any) {
@@ -360,23 +360,35 @@ const Login: React.FC = () => {
           </motion.div>
         </div>
 
-        {/* RIGHT SIDE: Interactive Globe */}
-        <div className="hidden lg:flex w-full lg:w-[55%] h-screen relative items-center justify-center overflow-hidden">
-          {/* Fade in animation for the globe */}
+        {/* RIGHT SIDE: Course Dome Gallery */}
+        <div className="hidden lg:flex w-full lg:w-[55%] h-screen relative items-center justify-center overflow-hidden bg-gradient-to-r from-nature-light/50 via-brand-100 to-brand-200">
+          {/* Fade in animation for the dome */}
           <motion.div
             className="w-full h-full absolute inset-0"
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
+            transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
           >
-            <WorldGlobe />
+            <DomeGallery
+              overlayBlurColor="#e3e8dc"
+              grayscale={true}
+              fit={0.32}
+              imageBorderRadius="12px"
+              dragDampening={2}
+              segments={25}
+            />
           </motion.div>
-          
-          {/* Vignette overlay */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_30%,_var(--tw-gradient-to))] to-nature-light pointer-events-none"></div>
-          
+
+          {/* Soft light vignette overlay */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_40%,_#e3e8dc_100%)] pointer-events-none z-[5]"></div>
+
           {/* Seamless transition gradient from left */}
-          <div className="absolute top-0 bottom-0 left-0 w-64 bg-gradient-to-r from-nature-light via-nature-light/70 to-transparent z-10 pointer-events-none"></div>
+          <div className="absolute top-0 bottom-0 left-0 w-full bg-gradient-to-r from-nature-light/95 via-nature-light/40 via-30% to-transparent to-50% z-10 pointer-events-none"></div>
+
+          {/* Bottom label */}
+          <div className="absolute bottom-8 left-0 right-0 text-center pointer-events-none z-[6] opacity-40">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-brand-600 font-medium">Explore Courses</p>
+          </div>
         </div>
 
       </div>

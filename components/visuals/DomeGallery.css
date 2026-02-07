@@ -1,0 +1,236 @@
+/* ===== DomeGallery – Sage / Olive-Green theme ===== */
+
+/* Scroll-lock when an image is enlarged */
+body.dg-scroll-lock {
+  overflow: hidden !important;
+}
+
+/* ---------- Root wrapper ---------- */
+.sphere-root {
+  --radius: 800px;
+  --viewer-pad: 40px;
+  --segments-x: 35;
+  --segments-y: 35;
+  --overlay-blur-color: #e3e8dc; /* brand-100 – light sage */
+  --tile-radius: 16px;
+  --enlarge-radius: 24px;
+  --image-filter: grayscale(0.6);
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ---------- Main area ---------- */
+.sphere-main {
+  position: absolute;
+  inset: 0;
+  perspective: 1600px;
+  perspective-origin: 50% 50%;
+  overflow: hidden;
+  cursor: grab;
+}
+
+.sphere-main:active {
+  cursor: grabbing;
+}
+
+/* ---------- Stage + Sphere ---------- */
+.stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.sphere {
+  position: absolute;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+  pointer-events: auto;
+}
+
+/* ---------- Individual tile item ---------- */
+.item {
+  --unit: calc(360deg / var(--segments-x) / 2);
+  --rot-y: calc(var(--unit) * (var(--offset-x) + (var(--item-size-x) - 1) / 2));
+  --rot-x: calc(var(--unit) * (var(--offset-y) - (var(--item-size-y) - 1) / 2));
+  --rot-y-delta: 0deg;
+  --rot-x-delta: 0deg;
+
+  position: absolute;
+  transform-style: preserve-3d;
+  transform: rotateY(var(--rot-y)) rotateX(var(--rot-x));
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* When an image is being enlarged, shift this tile toward the camera */
+.sphere-root[data-enlarging='true'] .item {
+  transform: rotateY(calc(var(--rot-y) + var(--rot-y-delta)))
+    rotateX(calc(var(--rot-x) + var(--rot-x-delta)));
+}
+
+/* ---------- Tile image ---------- */
+.item__image {
+  --tile-w: calc(var(--radius) * 0.13 * var(--item-size-x));
+  --tile-h: calc(var(--radius) * 0.13 * var(--item-size-y));
+
+  position: absolute;
+  width: var(--tile-w);
+  height: var(--tile-h);
+  left: calc(var(--tile-w) / -2);
+  top: calc(var(--tile-h) / -2);
+  transform: translateZ(var(--radius));
+  border-radius: var(--tile-radius);
+  overflow: hidden;
+  backface-visibility: hidden;
+  cursor: default;
+  box-shadow: 0 2px 12px rgba(19, 27, 17, 0.25); /* brand-950 shadow */
+  transition: box-shadow 0.3s ease, filter 0.3s ease;
+}
+
+.item__image:hover {
+  box-shadow: 0 4px 24px rgba(92, 127, 76, 0.35); /* brand-500 glow on hover */
+}
+
+.item__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: var(--image-filter);
+  transition: filter 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+
+.item__image:hover img {
+  filter: none;
+  transform: scale(1.06);
+}
+
+/* Hidden reference tile used for position calculation */
+.item__image--reference {
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* ---------- Overlays (depth-blur + colour wash) ---------- */
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 8;
+}
+
+.overlay--blur {
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
+  mask-image: radial-gradient(
+    ellipse 42% 42% at 50% 50%,
+    transparent 0%,
+    black 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 42% 42% at 50% 50%,
+    transparent 0%,
+    black 100%
+  );
+}
+
+/* ---------- Edge fades ---------- */
+.edge-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 22%;
+  pointer-events: none;
+  z-index: 9;
+}
+
+.edge-fade--top {
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--overlay-blur-color) 0%,
+    transparent 100%
+  );
+}
+
+.edge-fade--bottom {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    var(--overlay-blur-color) 0%,
+    transparent 100%
+  );
+}
+
+/* ---------- Viewer (scrim + frame) ---------- */
+.viewer {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(19, 27, 17, 0); /* brand-950 transparent */
+  transition: background 0.4s ease;
+  z-index: 20;
+}
+
+.sphere-root[data-enlarging='true'] .scrim {
+  pointer-events: auto;
+  background: rgba(19, 27, 17, 0.55); /* brand-950 overlay */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.frame {
+  position: absolute;
+  left: var(--viewer-pad);
+  top: var(--viewer-pad);
+  right: var(--viewer-pad);
+  bottom: var(--viewer-pad);
+  pointer-events: none;
+  z-index: 25;
+}
+
+/* ---------- Enlarged overlay ---------- */
+.enlarge {
+  position: absolute;
+  z-index: 30;
+  border-radius: var(--enlarge-radius);
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(19, 27, 17, 0.45),
+    0 0 60px rgba(92, 127, 76, 0.12); /* sage glow */
+  will-change: transform, opacity;
+  transform-origin: top left;
+}
+
+.enlarge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: none;
+}
+
+/* Closing animation helper */
+.enlarge-closing {
+  pointer-events: none;
+}
+
+.enlarge-closing img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

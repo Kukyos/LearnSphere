@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import {
   isBackendAvailable,
+  resetBackendCheck,
   apiLogin,
   apiRegister,
   apiGetProfile,
@@ -24,24 +25,23 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   isLoggedIn: boolean;
-  login: (email: string, password: string, role?: UserRole) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
   logout: () => void;
   loginAsGuest: () => void;
   backendOnline: boolean;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
 
-/** Convert API user (id: number) → local user (id: string) */
+/** Convert API user → local user */
 const toLocalUser = (apiUser: any): User => ({
   id: String(apiUser.id),
   name: apiUser.name,
@@ -58,97 +58,93 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [backendOnline, setBackendOnline] = useState(false);
 
-  // ── Bootstrap: restore session from localStorage / JWT ─────
+  // ── Bootstrap: restore session from JWT ────────────────────
   useEffect(() => {
     const bootstrap = async () => {
       const online = await isBackendAvailable();
       setBackendOnline(online);
 
-      // If we have a JWT, try to fetch the real profile
+      // If we have a JWT and backend is up, restore session
       if (online && getToken()) {
-        const res = await apiGetProfile();
-        if (res.success && res.data?.user) {
-          const u = toLocalUser(res.data.user);
-          setUser(u);
-          localStorage.setItem('learnsphere_user', JSON.stringify(u));
-          return;
+        try {
+          const res = await apiGetProfile();
+          if (res.success && res.data?.user) {
+            const u = toLocalUser(res.data.user);
+            setUser(u);
+            localStorage.setItem('learnsphere_user', JSON.stringify(u));
+            return;
+          }
+        } catch {
+          // Token invalid
         }
-        // Token expired / invalid — fall through to localStorage
         removeToken();
+        localStorage.removeItem('learnsphere_user');
       }
 
-      // Fallback: saved mock session
+      // Check for guest session only
       const saved = localStorage.getItem('learnsphere_user');
-      if (saved) setUser(JSON.parse(saved));
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.role === 'guest') {
+          setUser(parsed);
+        } else if (!online) {
+          // Backend is down — don't restore non-guest sessions
+          localStorage.removeItem('learnsphere_user');
+        }
+      }
     };
     bootstrap();
   }, []);
 
-  // ── Login ──────────────────────────────────────────────────
-  const login = async (email: string, password: string, role?: UserRole) => {
-    // Try real backend first
-    if (backendOnline) {
-      const res = await apiLogin(email, password);
-      if (res.success && res.data) {
-        saveToken(res.data.token);
-        const u = toLocalUser(res.data.user);
-        setUser(u);
-        localStorage.setItem('learnsphere_user', JSON.stringify(u));
-        return;
-      }
-      // If backend rejected credentials, throw so the UI can show the error
-      throw new Error(res.message || 'Invalid email or password');
+  // ── Login (REAL auth only — no mock) ───────────────────────
+  const login = async (email: string, password: string) => {
+    resetBackendCheck();
+    const online = await isBackendAvailable();
+    setBackendOnline(online);
+
+    if (!online) {
+      throw new Error('Cannot connect to the server. Please make sure the backend is running (npm run dev in the server folder).');
     }
 
-    // Mock fallback (no DB)
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        const mockUser: User = {
-          id: 'u1',
-          name: email.split('@')[0] || 'User',
-          email,
-          role: role || 'learner',
-          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email)}&background=random`,
-        };
-        setUser(mockUser);
-        localStorage.setItem('learnsphere_user', JSON.stringify(mockUser));
-        resolve();
-      }, 400);
-    });
+    const res = await apiLogin(email, password);
+    if (res.success && res.data) {
+      saveToken(res.data.token);
+      const u = toLocalUser(res.data.user);
+      setUser(u);
+      localStorage.setItem('learnsphere_user', JSON.stringify(u));
+      return;
+    }
+
+    throw new Error(res.message || 'Invalid email or password');
   };
 
-  // ── Register ───────────────────────────────────────────────
+  // ── Register (REAL auth only — no mock) ────────────────────
   const register = async (name: string, email: string, password: string, role: UserRole) => {
-    if (backendOnline) {
-      const res = await apiRegister(name, email, password, role);
-      if (res.success && res.data) {
-        saveToken(res.data.token);
-        const u = toLocalUser(res.data.user);
-        setUser(u);
-        localStorage.setItem('learnsphere_user', JSON.stringify(u));
-        return;
-      }
-      throw new Error(res.message || 'Registration failed');
+    resetBackendCheck();
+    const online = await isBackendAvailable();
+    setBackendOnline(online);
+
+    if (!online) {
+      throw new Error('Cannot connect to the server. Please make sure the backend is running.');
     }
 
-    // Mock fallback
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        const mockUser: User = {
-          id: 'u-' + Date.now(),
-          name,
-          email,
-          role,
-          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=5c7f4c&color=fff`,
-        };
-        setUser(mockUser);
-        localStorage.setItem('learnsphere_user', JSON.stringify(mockUser));
-        resolve();
-      }, 400);
-    });
+    if (role === 'admin') {
+      throw new Error('Admin accounts cannot be registered. Contact the system administrator.');
+    }
+
+    const res = await apiRegister(name, email, password, role);
+    if (res.success && res.data) {
+      saveToken(res.data.token);
+      const u = toLocalUser(res.data.user);
+      setUser(u);
+      localStorage.setItem('learnsphere_user', JSON.stringify(u));
+      return;
+    }
+
+    throw new Error(res.message || 'Registration failed');
   };
 
-  // ── Guest ──────────────────────────────────────────────────
+  // ── Guest (no backend needed) ──────────────────────────────
   const loginAsGuest = () => {
     const guestUser: User = {
       id: 'guest-' + Date.now(),
@@ -158,6 +154,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       avatar: 'https://ui-avatars.com/api/?name=Guest&background=e3e8dc&color=5c7f4c',
     };
     setUser(guestUser);
+    localStorage.setItem('learnsphere_user', JSON.stringify(guestUser));
+  };
+
+  // ── Refresh profile from backend ───────────────────────────
+  const refreshProfile = async () => {
+    if (!getToken()) return;
+    try {
+      const res = await apiGetProfile();
+      if (res.success && res.data?.user) {
+        const u = toLocalUser(res.data.user);
+        setUser(u);
+        localStorage.setItem('learnsphere_user', JSON.stringify(u));
+      }
+    } catch {
+      // silently fail
+    }
   };
 
   // ── Logout ─────────────────────────────────────────────────
@@ -169,7 +181,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoggedIn: !!user, login, register, logout, loginAsGuest, backendOnline }}
+      value={{ user, isLoggedIn: !!user, login, register, logout, loginAsGuest, backendOnline, refreshProfile }}
     >
       {children}
     </AuthContext.Provider>
