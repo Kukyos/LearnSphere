@@ -1,201 +1,126 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, LayoutGrid, LayoutList, MoreVertical } from 'lucide-react';
+import { Search, Plus, LayoutGrid, LayoutList, BarChart3, Trash2 } from 'lucide-react';
+import { useApp, Course } from '../contexts/AppContext';
 import CourseCard from '../components/courses/CourseCard';
 import CourseTable from '../components/courses/CourseTable';
 import CreateCourseModal from '../components/courses/CreateCourseModal';
 
-// Types
-interface Course {
-  id: string;
-  title: string;
-  tags: string[];
-  viewsCount: number;
-  totalLessons: number;
-  totalDuration: string;
-  isPublished: boolean;
-  coverImage?: string;
-}
-
 type ViewType = 'kanban' | 'list';
 
-// Mock Data
-const MOCK_COURSES: Course[] = [
-  {
-    id: '1',
-    title: 'Introduction to React',
-    tags: ['Frontend', 'JavaScript', 'Beginner'],
-    viewsCount: 1240,
-    totalLessons: 24,
-    totalDuration: '6h 30m',
-    isPublished: true,
-    coverImage: 'https://images.unsplash.com/photo-1633356122544-f134324ef6db?w=400&h=250&fit=crop',
-  },
-  {
-    id: '2',
-    title: 'Advanced TypeScript Patterns',
-    tags: ['Backend', 'TypeScript', 'Advanced'],
-    viewsCount: 856,
-    totalLessons: 18,
-    totalDuration: '4h 15m',
-    isPublished: true,
-    coverImage: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=250&fit=crop',
-  },
-  {
-    id: '3',
-    title: 'Web Design Fundamentals',
-    tags: ['Design', 'CSS', 'UI/UX'],
-    viewsCount: 2150,
-    totalLessons: 32,
-    totalDuration: '8h 45m',
-    isPublished: true,
-    coverImage: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=250&fit=crop',
-  },
-  {
-    id: '4',
-    title: 'Full Stack Development with Node.js',
-    tags: ['Backend', 'Node.js', 'Database'],
-    viewsCount: 0,
-    totalLessons: 28,
-    totalDuration: '7h 20m',
-    isPublished: false,
-    coverImage: 'https://images.unsplash.com/photo-1516534775068-bb57ad1ea270?w=400&h=250&fit=crop',
-  },
-  {
-    id: '5',
-    title: 'React Hooks Deep Dive',
-    tags: ['Frontend', 'React', 'Intermediate'],
-    viewsCount: 1580,
-    totalLessons: 20,
-    totalDuration: '5h 10m',
-    isPublished: true,
-    coverImage: 'https://images.unsplash.com/photo-1633356122544-f134324ef6db?w=400&h=250&fit=crop',
-  },
-  {
-    id: '6',
-    title: 'Database Design with PostgreSQL',
-    tags: ['Database', 'SQL', 'Backend'],
-    viewsCount: 920,
-    totalLessons: 22,
-    totalDuration: '6h 00m',
-    isPublished: false,
-    coverImage: 'https://images.unsplash.com/photo-1516321318423-f06f70504b8e?w=400&h=250&fit=crop',
-  },
-  {
-    id: '7',
-    title: 'Mobile App Development with React Native',
-    tags: ['Mobile', 'React', 'Advanced'],
-    viewsCount: 1340,
-    totalLessons: 30,
-    totalDuration: '8h 30m',
-    isPublished: true,
-    coverImage: 'https://images.unsplash.com/photo-1516534775068-bb57ad1ea270?w=400&h=250&fit=crop',
-  },
-  {
-    id: '8',
-    title: 'CSS Grid and Flexbox Mastery',
-    tags: ['Frontend', 'CSS', 'Beginner'],
-    viewsCount: 1760,
-    totalLessons: 16,
-    totalDuration: '3h 45m',
-    isPublished: true,
-    coverImage: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=250&fit=crop',
-  },
-];
-
 export default function CoursesDashboard() {
-  const [courses, setCourses] = useState<Course[]>(MOCK_COURSES);
+  const { courses, createCourse, deleteCourse } = useApp();
   const [view, setView] = useState<ViewType>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Filter courses based on search query
+  // Adapt AppContext courses to the shape the child components expect
+  const dashCourses = useMemo(() =>
+    courses.map(c => ({
+      id: c.id,
+      title: c.title,
+      tags: c.tags,
+      viewsCount: c.viewsCount ?? 0,
+      totalLessons: c.lessons.length,
+      totalDuration: c.totalDuration ?? '0h 0m',
+      isPublished: c.published,
+      coverImage: c.coverImage,
+    })), [courses]);
+
+  // Filter
   const filteredCourses = useMemo(() => {
-    return courses.filter((course) =>
+    return dashCourses.filter((course) =>
       course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       course.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
     );
-  }, [courses, searchQuery]);
+  }, [dashCourses, searchQuery]);
 
-  // Handle create course
+  // Create
   const handleCreateCourse = (courseName: string) => {
-    const newCourse: Course = {
-      id: String(courses.length + 1),
-      title: courseName,
-      tags: ['New'],
-      viewsCount: 0,
-      totalLessons: 0,
-      totalDuration: '0h 0m',
-      isPublished: false,
-      coverImage: 'https://images.unsplash.com/photo-1633356122544-f134324ef6db?w=400&h=250&fit=crop',
-    };
-    setCourses([...courses, newCourse]);
+    const newCourse = createCourse(courseName);
     setIsModalOpen(false);
+    nav(`/course-form/${newCourse.id}`);
   };
 
   const nav = useNavigate();
 
-  // Handle edit course
+  // Edit
   const handleEditCourse = (courseId: string) => {
     nav(`/course-form/${courseId}`);
   };
 
-  // Handle share course
+  // Share
   const handleShareCourse = (courseId: string) => {
     const course = courses.find((c) => c.id === courseId);
     if (course) {
-      const courseLink = `${window.location.origin}?course=${courseId}`;
+      const courseLink = `${window.location.origin}/#/course/${courseId}`;
       navigator.clipboard.writeText(courseLink);
-      alert(`Course link copied: ${courseLink}`);
+      alert(`Course link copied!`);
+    }
+  };
+
+  // Delete
+  const handleDeleteCourse = (courseId: string) => {
+    if (window.confirm('Are you sure you want to delete this course?')) {
+      deleteCourse(courseId);
     }
   };
 
   return (
-    <div className="min-h-screen bg-nature-light dark:bg-brand-900">
+    <div className="min-h-screen bg-nature-bg dark:bg-brand-950 pt-24 transition-colors">
       {/* Header */}
-      <header className="bg-nature-card dark:bg-brand-800 border-b border-brand-200 dark:border-brand-700">
+      <header className="bg-nature-card/60 dark:bg-brand-900/60 backdrop-blur-md border-b border-brand-200/40 dark:border-brand-700/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col gap-4">
-            <h1 className="text-3xl font-bold text-brand-900 dark:text-brand-50">Courses Dashboard</h1>
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl font-bold text-brand-900 dark:text-white">Courses Dashboard</h1>
+              <button
+                onClick={() => nav('/reporting')}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-brand-300 dark:border-brand-600 text-brand-700 dark:text-brand-200 hover:bg-brand-100 dark:hover:bg-brand-800 transition font-medium text-sm"
+              >
+                <BarChart3 className="h-4 w-4" />
+                Reporting
+              </button>
+            </div>
             
             {/* Topbar Controls */}
             <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
               {/* Search Bar */}
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-3 h-5 w-5 text-brand-400 dark:text-brand-500" />
+                <Search className="absolute left-3 top-3 h-5 w-5 text-brand-400" />
                 <input
                   type="text"
-                  placeholder="Search courses by name..."
+                  placeholder="Search courses by name or tag..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-white dark:bg-brand-900 border border-brand-200 dark:border-brand-700 rounded-lg focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600 focus:border-transparent outline-none transition text-brand-900 dark:text-brand-50 placeholder:text-brand-400 dark:placeholder:text-brand-600"
+                  className="w-full pl-10 pr-4 py-2 border border-brand-300 dark:border-brand-600 bg-white dark:bg-brand-800 text-brand-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition placeholder:text-brand-400"
                 />
               </div>
 
               {/* View Toggle and Create Button */}
               <div className="flex gap-3 items-center">
                 {/* View Toggle */}
-                <div className="inline-flex rounded-lg border border-brand-200 dark:border-brand-700 bg-white dark:bg-brand-900">
+                <div className="inline-flex rounded-lg border border-brand-300 dark:border-brand-600 overflow-hidden">
                   <button
                     onClick={() => setView('kanban')}
-                    className={`px-4 py-2 flex items-center gap-2 transition ${
+                    className={`px-4 py-2 flex items-center gap-2 transition text-sm ${
                       view === 'kanban'
-                        ? 'bg-brand-700 text-white dark:bg-brand-600'
-                        : 'text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-800'
+                        ? 'bg-brand-700 text-white'
+                        : 'bg-white dark:bg-brand-800 text-brand-700 dark:text-brand-200 hover:bg-brand-50 dark:hover:bg-brand-700'
                     }`}
                   >
-                    <LayoutGrid className="h-5 w-5" />
+                    <LayoutGrid className="h-4 w-4" />
                     <span className="hidden sm:inline">Kanban</span>
                   </button>
                   <button
                     onClick={() => setView('list')}
-                    className={`px-4 py-2 flex items-center gap-2 transition border-l border-brand-200 dark:border-brand-700 ${
+                    className={`px-4 py-2 flex items-center gap-2 transition border-l border-brand-300 dark:border-brand-600 text-sm ${
                       view === 'list'
-                        ? 'bg-brand-700 text-white dark:bg-brand-600'
-                        : 'text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-800'
+                        ? 'bg-brand-700 text-white'
+                        : 'bg-white dark:bg-brand-800 text-brand-700 dark:text-brand-200 hover:bg-brand-50 dark:hover:bg-brand-700'
                     }`}
                   >
-                    <LayoutList className="h-5 w-5" />
+                    <LayoutList className="h-4 w-4" />
                     <span className="hidden sm:inline">List</span>
                   </button>
                 </div>
@@ -203,9 +128,9 @@ export default function CoursesDashboard() {
                 {/* Create Course Button */}
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-brand-600 dark:bg-brand-600 dark:hover:bg-brand-500 transition font-medium"
+                  className="flex items-center gap-2 px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition font-medium text-sm shadow-md"
                 >
-                  <Plus className="h-5 w-5" />
+                  <Plus className="h-4 w-4" />
                   <span className="hidden sm:inline">Create Course</span>
                   <span className="sm:hidden">Create</span>
                 </button>
@@ -214,7 +139,7 @@ export default function CoursesDashboard() {
 
             {/* Results Count */}
             <p className="text-sm text-brand-600 dark:text-brand-300">
-              Showing {filteredCourses.length} of {courses.length} courses
+              Showing {filteredCourses.length} of {dashCourses.length} courses
             </p>
           </div>
         </div>
@@ -227,7 +152,7 @@ export default function CoursesDashboard() {
             <p className="text-brand-600 dark:text-brand-300 text-lg">No courses found matching your search.</p>
             <button
               onClick={() => setSearchQuery('')}
-              className="mt-4 text-brand-700 hover:text-brand-600 dark:text-brand-300 dark:hover:text-brand-200 font-medium"
+              className="mt-4 text-brand-700 dark:text-brand-400 hover:text-brand-900 dark:hover:text-brand-200 font-medium"
             >
               Clear search
             </button>

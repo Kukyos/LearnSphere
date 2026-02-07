@@ -22,11 +22,15 @@ export interface Course {
   tags: string[];
   rating: number;
   visibility: 'Everyone' | 'Signed In';
-  access: 'Free' | 'Paid';
+  access: 'Open' | 'On Invitation' | 'On Payment';
   price?: number;
   published: boolean;
   instructorId: string;
+  instructorName?: string;
   lessons: Lesson[];
+  viewsCount?: number;
+  totalDuration?: string;
+  createdAt?: string;
 }
 
 export interface Lesson {
@@ -35,9 +39,17 @@ export interface Lesson {
   description: string;
   type: 'video' | 'document' | 'image' | 'quiz';
   content: string;
+  duration?: string;
   downloadAllowed?: boolean;
-  attachments?: string[];
+  attachments?: Attachment[];
   quiz?: Quiz;
+}
+
+export interface Attachment {
+  id: string;
+  name: string;
+  type: 'file' | 'link';
+  url: string;
 }
 
 export interface Quiz {
@@ -56,13 +68,17 @@ export interface LessonProgress {
   lessonId: string;
   completed: boolean;
   quizAttempts?: number;
+  timeSpent?: number;
 }
 
 export interface CourseProgress {
   courseId: string;
   enrolledDate: string;
+  startDate?: string;
   completedDate?: string;
   lessonsProgress: LessonProgress[];
+  userId: string;
+  userName: string;
 }
 
 export interface Review {
@@ -74,6 +90,18 @@ export interface Review {
   rating: number;
   text: string;
   date: string;
+}
+
+export interface ReportRow {
+  srNo: number;
+  courseName: string;
+  participantName: string;
+  enrolledDate: string;
+  startDate: string;
+  timeSpent: string;
+  completion: number;
+  completedDate: string;
+  status: 'Yet to Start' | 'In Progress' | 'Completed';
 }
 
 interface AppContextType {
@@ -88,6 +116,12 @@ interface AppContextType {
   submitQuiz: (courseId: string, lessonId: string, attempt: number) => number;
   completeCourse: (courseId: string) => void;
   addReview: (courseId: string, rating: number, text: string) => void;
+  // Instructor CRUD
+  createCourse: (title: string) => Course;
+  updateCourse: (courseId: string, updates: Partial<Course>) => void;
+  deleteCourse: (courseId: string) => void;
+  // Reporting
+  getReportData: () => { totalParticipants: number; yetToStart: number; inProgress: number; completed: number; rows: ReportRow[] };
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -167,7 +201,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   } : null;
 
   // Mock courses data
-  const [courses] = useState<Course[]>([
+  const [courses, setCourses] = useState<Course[]>([
     {
       id: '1',
       title: 'Complete React Development',
@@ -177,9 +211,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       tags: ['React', 'JavaScript', 'Frontend'],
       rating: 4.5,
       visibility: 'Everyone',
-      access: 'Free',
+      access: 'Open',
       published: true,
       instructorId: 'inst1',
+      instructorName: 'Sarah Drasner',
+      viewsCount: 1240,
+      totalDuration: '4h 30m',
+      createdAt: '2026-01-01',
       lessons: [
         {
           id: 'l1',
@@ -248,9 +286,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       tags: ['TypeScript', 'JavaScript', 'Programming'],
       rating: 4.8,
       visibility: 'Signed In',
-      access: 'Free',
+      access: 'Open',
       published: true,
       instructorId: 'inst1',
+      instructorName: 'Sarah Drasner',
+      viewsCount: 860,
+      totalDuration: '3h 15m',
+      createdAt: '2026-01-05',
       lessons: [
         {
           id: 'l5',
@@ -278,10 +320,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       tags: ['Design', 'UI/UX', 'Creative'],
       rating: 4.6,
       visibility: 'Everyone',
-      access: 'Paid',
+      access: 'On Payment',
       price: 49.99,
       published: true,
       instructorId: 'inst2',
+      instructorName: 'Gary Simon',
+      viewsCount: 2100,
+      totalDuration: '6h 45m',
+      createdAt: '2025-12-20',
       lessons: [
         {
           id: 'l7',
@@ -301,9 +347,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       tags: ['Node.js', 'Backend', 'JavaScript'],
       rating: 4.4,
       visibility: 'Signed In',
-      access: 'Free',
+      access: 'On Invitation',
       published: true,
       instructorId: 'inst2',
+      instructorName: 'Gary Simon',
+      viewsCount: 540,
+      totalDuration: '5h 10m',
+      createdAt: '2026-01-10',
       lessons: [
         {
           id: 'l8',
@@ -313,7 +363,61 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           content: 'https://www.youtube.com/embed/TlB_eWDSMt4',
         }
       ]
+    },
+    {
+      id: '5',
+      title: 'Python for Data Science',
+      shortDescription: 'Analyze data and build ML models with Python',
+      description: 'Learn Python fundamentals, pandas, numpy, and scikit-learn for data science and machine learning.',
+      coverImage: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800&h=450&fit=crop',
+      tags: ['Python', 'Data Science', 'ML'],
+      rating: 4.7,
+      visibility: 'Everyone',
+      access: 'Open',
+      published: true,
+      instructorId: 'inst1',
+      instructorName: 'Sarah Drasner',
+      viewsCount: 3200,
+      totalDuration: '8h 20m',
+      createdAt: '2025-12-15',
+      lessons: [
+        { id: 'l9', title: 'Python Basics', description: 'Variables, loops, and functions', type: 'video', content: 'https://www.youtube.com/embed/rfscVS0vtbw' },
+        { id: 'l10', title: 'Pandas DataFrames', description: 'Working with tabular data', type: 'document', content: '# Pandas DataFrames\n\nDataFrames are 2D labeled data structures. Use `pd.read_csv()` to load data.', downloadAllowed: true },
+        { id: 'l11', title: 'Python Quiz', description: 'Test your Python knowledge', type: 'quiz', content: '', quiz: { questions: [{ id: 'pq1', question: 'What is a DataFrame?', options: ['A 2D labeled data structure', 'A function', 'A loop', 'A class'], correctAnswer: 0 }, { id: 'pq2', question: 'Which library is used for numerical computing?', options: ['pandas', 'numpy', 'flask', 'django'], correctAnswer: 1 }], rewardRules: [{ attempt: 1, points: 10 }, { attempt: 2, points: 7 }, { attempt: 3, points: 3 }] } }
+      ]
+    },
+    {
+      id: '6',
+      title: 'Digital Marketing Essentials',
+      shortDescription: 'Master SEO, social media, and content marketing',
+      description: 'A complete guide to digital marketing strategies including SEO, PPC, email marketing, and analytics.',
+      coverImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop',
+      tags: ['Marketing', 'SEO', 'Business'],
+      rating: 4.3,
+      visibility: 'Everyone',
+      access: 'On Payment',
+      price: 29.99,
+      published: true,
+      instructorId: 'inst2',
+      instructorName: 'Gary Simon',
+      viewsCount: 1800,
+      totalDuration: '5h 15m',
+      createdAt: '2026-01-12',
+      lessons: [
+        { id: 'l12', title: 'SEO Fundamentals', description: 'Understanding search engine optimization', type: 'video', content: 'https://www.youtube.com/embed/DvwS7cV9GmQ' },
+        { id: 'l13', title: 'Content Strategy Guide', description: 'Building an effective content strategy', type: 'document', content: '# Content Strategy\n\nA good content strategy aligns your content with business goals and audience needs.\n\n## Key Steps\n1. Define your audience\n2. Audit existing content\n3. Plan your content calendar\n4. Measure and iterate', downloadAllowed: true }
+      ]
     }
+  ]);
+
+  // Mock enrollments for reporting (other users)
+  const [allProgress, setAllProgress] = useState<CourseProgress[]>([
+    { courseId: '1', enrolledDate: '2026-01-15', startDate: '2026-01-16', userId: 'user2', userName: 'Sarah Johnson', lessonsProgress: [{ lessonId: 'l1', completed: true }, { lessonId: 'l2', completed: true }, { lessonId: 'l3', completed: false }] },
+    { courseId: '1', enrolledDate: '2026-01-18', startDate: '2026-01-20', completedDate: '2026-02-01', userId: 'user3', userName: 'Mike Chen', lessonsProgress: [{ lessonId: 'l1', completed: true }, { lessonId: 'l2', completed: true }, { lessonId: 'l3', completed: true }, { lessonId: 'l4', completed: true }] },
+    { courseId: '2', enrolledDate: '2026-01-20', userId: 'user4', userName: 'Emily Davis', lessonsProgress: [] },
+    { courseId: '1', enrolledDate: '2026-01-22', startDate: '2026-01-23', userId: 'user5', userName: 'Alex Rivera', lessonsProgress: [{ lessonId: 'l1', completed: true }] },
+    { courseId: '3', enrolledDate: '2026-01-25', startDate: '2026-01-25', userId: 'user2', userName: 'Sarah Johnson', lessonsProgress: [{ lessonId: 'l7', completed: false }] },
+    { courseId: '5', enrolledDate: '2026-01-28', startDate: '2026-01-29', completedDate: '2026-02-05', userId: 'user3', userName: 'Mike Chen', lessonsProgress: [{ lessonId: 'l9', completed: true }, { lessonId: 'l10', completed: true }, { lessonId: 'l11', completed: true }] },
   ]);
 
   const toggleTheme = () => {
@@ -328,7 +432,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       {
         courseId,
         enrolledDate: new Date().toISOString(),
-        lessonsProgress: []
+        lessonsProgress: [],
+        userId: authUser.id,
+        userName: authUser.name,
       }
     ]);
   };
@@ -420,6 +526,68 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setReviews(prev => [...prev, newReview]);
   };
 
+  // Instructor CRUD
+  const createCourse = (title: string): Course => {
+    const newCourse: Course = {
+      id: `c-${Date.now()}`,
+      title,
+      shortDescription: '',
+      description: '',
+      coverImage: '',
+      tags: [],
+      rating: 0,
+      visibility: 'Everyone',
+      access: 'Open',
+      published: false,
+      instructorId: authUser?.id || '',
+      instructorName: authUser?.name || '',
+      lessons: [],
+      viewsCount: 0,
+      totalDuration: '0h 0m',
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+    setCourses(prev => [...prev, newCourse]);
+    return newCourse;
+  };
+
+  const updateCourse = (courseId: string, updates: Partial<Course>) => {
+    setCourses(prev => prev.map(c => c.id === courseId ? { ...c, ...updates } : c));
+  };
+
+  const deleteCourse = (courseId: string) => {
+    setCourses(prev => prev.filter(c => c.id !== courseId));
+  };
+
+  // Reporting
+  const getReportData = () => {
+    const combined = [...allProgress, ...userProgress];
+    const rows: ReportRow[] = combined.map((p, i) => {
+      const course = courses.find(c => c.id === p.courseId);
+      const totalLessons = course?.lessons.length || 1;
+      const completedLessons = p.lessonsProgress.filter(l => l.completed).length;
+      const completion = Math.round((completedLessons / totalLessons) * 100);
+      const status: ReportRow['status'] = p.completedDate ? 'Completed' : p.startDate || p.lessonsProgress.length > 0 ? 'In Progress' : 'Yet to Start';
+      return {
+        srNo: i + 1,
+        courseName: course?.title || 'Unknown',
+        participantName: p.userName,
+        enrolledDate: p.enrolledDate?.split('T')[0] || '',
+        startDate: p.startDate?.split('T')[0] || '-',
+        timeSpent: p.lessonsProgress.length > 0 ? `${p.lessonsProgress.length * 15}m` : '-',
+        completion,
+        completedDate: p.completedDate?.split('T')[0] || '-',
+        status,
+      };
+    });
+    return {
+      totalParticipants: rows.length,
+      yetToStart: rows.filter(r => r.status === 'Yet to Start').length,
+      inProgress: rows.filter(r => r.status === 'In Progress').length,
+      completed: rows.filter(r => r.status === 'Completed').length,
+      rows,
+    };
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -433,7 +601,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         completeLesson,
         submitQuiz,
         completeCourse,
-        addReview
+        addReview,
+        createCourse,
+        updateCourse,
+        deleteCourse,
+        getReportData,
       }}
     >
       {children}

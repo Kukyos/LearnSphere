@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Save, Eye, Image, Tag, ToggleLeft, ToggleRight,
   BookOpen, FileText, Settings, HelpCircle, Users, Mail, X
 } from 'lucide-react';
+import { useApp } from '../../contexts/AppContext';
 import ContentTab from '../../components/course-form/tabs/ContentTab';
 import DescriptionTab from '../../components/course-form/tabs/DescriptionTab';
 import OptionsTab from '../../components/course-form/tabs/OptionsTab';
@@ -30,10 +31,12 @@ interface QuizQuestion {
 export default function CourseForm() {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
+  const { courses, updateCourse } = useApp();
   const isEditing = !!courseId;
+  const existingCourse = isEditing ? courses.find(c => c.id === courseId) : null;
 
   // Form state
-  const [title, setTitle] = useState(isEditing ? 'Sample Course' : '');
+  const [title, setTitle] = useState('');
   const [coverImage, setCoverImage] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
@@ -43,10 +46,40 @@ export default function CourseForm() {
   const [description, setDescription] = useState('');
   const [options, setOptions] = useState({
     visibility: 'Everyone' as 'Everyone' | 'Signed In',
-    access: 'Free' as 'Free' | 'Paid',
+    access: 'Open' as 'Open' | 'On Invitation' | 'On Payment',
     price: '',
+    courseAdmin: '',
   });
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
+
+  // Load existing course data
+  useEffect(() => {
+    if (existingCourse) {
+      setTitle(existingCourse.title);
+      setCoverImage(existingCourse.coverImage || '');
+      setTags(existingCourse.tags || []);
+      setPublished(existingCourse.published);
+      setDescription(existingCourse.description || '');
+      setLessons(existingCourse.lessons.map(l => ({
+        id: l.id,
+        title: l.title,
+        type: l.type,
+        content: l.content,
+        description: l.description,
+      })));
+      setOptions({
+        visibility: existingCourse.visibility,
+        access: existingCourse.access,
+        price: existingCourse.price?.toString() || '',
+        courseAdmin: existingCourse.instructorName || '',
+      });
+      // Load quiz questions from lessons
+      const quizLesson = existingCourse.lessons.find(l => l.type === 'quiz' && l.quiz);
+      if (quizLesson?.quiz) {
+        setQuizQuestions(quizLesson.quiz.questions);
+      }
+    }
+  }, [courseId]);
 
   // Modal state
   const [showAddAttendee, setShowAddAttendee] = useState(false);
@@ -65,18 +98,35 @@ export default function CourseForm() {
   };
 
   const handleSave = () => {
+    if (!title.trim()) {
+      alert('Please enter a course title');
+      return;
+    }
     const courseData = {
       title,
       coverImage,
       tags,
       published,
-      lessons,
       description,
-      options,
-      quizQuestions,
+      shortDescription: description.slice(0, 120),
+      visibility: options.visibility as 'Everyone' | 'Signed In',
+      access: options.access as 'Open' | 'On Invitation' | 'On Payment',
+      price: options.price ? parseFloat(options.price) : undefined,
+      lessons: lessons.map(l => ({
+        id: l.id,
+        title: l.title,
+        type: l.type,
+        content: l.content,
+        description: l.description,
+        quiz: l.type === 'quiz' && quizQuestions.length > 0 ? {
+          questions: quizQuestions,
+          rewardRules: [{ attempt: 1, points: 15 }, { attempt: 2, points: 10 }, { attempt: 3, points: 5 }],
+        } : undefined,
+      })),
     };
-    console.log('Saving course:', courseData);
-    alert('Course saved successfully!');
+    if (courseId) {
+      updateCourse(courseId, courseData);
+    }
     navigate('/courses');
   };
 
