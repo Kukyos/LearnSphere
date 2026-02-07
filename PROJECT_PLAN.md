@@ -1,10 +1,21 @@
 # LearnSphere — Project Plan & AI Reference
 
-> **Last updated:** 2026-02-07  
-> **Deadline:** ~23 hours from now  
+> **Last updated:** 2026-02-07 12:20  
+> **Deadline:** ~22 hours remaining  
 > **This file is for A (Architect / Tech Lead / Copilot's operator)**  
 > **AI assistants: Reference DEVELOPMENT_REFERENCE.md** for all technical details.  
 > Copilot: refer to this file before every major task.
+
+## ✅ COMPLETED (As of 12:20 Feb 7)
+- ✅ Repo setup with main + dev branches
+- ✅ React Router setup with 3 routes (/, /login, /courses)
+- ✅ D's login system integrated (AuthForm with role selector, backend auth APIs)
+- ✅ Backend auth server with PostgreSQL (register/login/forgot/reset endpoints)
+- ✅ Courses dashboard with kanban/list views (J's work integrated)
+- ✅ Landing page with Hero, PixelBlast, course rows, stats
+- ✅ All docs created (PROJECT_PLAN, TEAM_INSTRUCTIONS, DEVELOPMENT_REFERENCE)
+- ✅ Framer-motion installed for auth animations
+- ✅ Brand color scheme applied (sage green #5c7f4c palette)
 
 ---
 
@@ -22,24 +33,53 @@
 ### Current File Map
 ```
 / (root)
-├── App.tsx              → Single-page app: Navbar → Hero → CourseRows → Stats → Footer + Login modal
+├── App.tsx              → Router with 3 routes: / (Landing), /login (Login), /courses (Dashboard)
 ├── index.tsx            → ReactDOM entry
 ├── index.html           → HTML shell with Tailwind CDN config, importmap, view-transition CSS
 ├── constants.ts         → 20 mock courses (MOCK_COURSES) + 3 review snippets
-├── types.ts             → Course, FilterState, SortOption, Difficulty types
-├── vite.config.ts       → Vite config with @/ alias, Gemini API key passthrough
+├── types.ts             → Course, FilterState, Auth types (AuthMode, UserRole, AuthFormData)
+├── vite.config.ts       → Vite config with @/ alias
 ├── tsconfig.json        → Standard React TS config
-├── package.json         → "lumina-learning" — react, react-dom, lucide-react, three
-├── metadata.json        → AI Studio metadata (can be removed/ignored)
-├── README.md            → AI Studio generated readme (will be replaced)
-└── components/
-    ├── Navbar.tsx        → Floating pill navbar, theme toggle, sign-in button, mobile menu
-    ├── Hero.tsx          → Full-width hero with search bar + PixelBlast 3D background
-    ├── CourseCard.tsx    → Netflix-style card with hover pop-out (500ms delay)
-    ├── FilterPanel.tsx   → Category/Difficulty/Price filter sidebar (NOT wired into App.tsx yet)
-    ├── StatsSection.tsx  → Stats counters + 3 review cards
-    ├── Footer.tsx        → 4-column footer with socials
-    └── PixelBlast.tsx    → Three.js instanced mesh grid with mouse ripple effect
+├── package.json         → react, react-dom, react-router-dom, lucide-react, three, framer-motion
+├── PROJECT_PLAN.md      → This file
+├── TEAM_INSTRUCTIONS.md → Git workflow, design system, team roles
+├── DEVELOPMENT_REFERENCE.md → Comprehensive technical reference (700+ lines)
+├── pages/
+│   ├── Landing.tsx      → Public landing page (Hero, course rows, stats, footer)
+│   └── Login.tsx        → Auth page using D's AuthForm component
+├── components/
+│   ├── Navbar.tsx       → Floating pill navbar, theme toggle, login link, mobile menu
+│   ├── Hero.tsx         → Full-width hero with search bar + PixelBlast 3D background
+│   ├── CourseCard.tsx   → Netflix-style card with hover pop-out
+│   ├── FilterPanel.tsx  → Category/Difficulty/Price filter sidebar
+│   ├── StatsSection.tsx → Stats counters + 3 review cards
+│   ├── Footer.tsx       → 4-column footer with socials
+│   ├── PixelBlast.tsx   → Three.js instanced mesh grid with mouse ripple effect
+│   ├── auth/
+│   │   └── AuthForm.tsx → D's auth form with role selector, login/signup toggle
+│   └── ui/
+│       ├── Button.tsx   → Reusable button component with loading states
+│       └── Input.tsx    → Input component with password toggle
+├── src/
+│   ├── pages/
+│   │   └── CoursesDashboard.tsx → Instructor/admin dashboard (J's work)
+│   └── components/courses/
+│       ├── CourseCard.tsx       → Kanban view course card
+│       ├── CourseTable.tsx      → List view course table
+│       └── CreateCourseModal.tsx → New course modal
+├── services/
+│   └── api.ts           → Auth API client (register, login, forgot, reset, profile)
+└── server/              → D's backend (Node.js + Express + PostgreSQL)
+    ├── server.js        → Express server setup
+    ├── db.js            → PostgreSQL connection pool
+    ├── schema.sql       → Database schema
+    ├── .env.example     → Environment variables template
+    ├── controllers/
+    │   └── authController.js → Auth endpoints logic
+    ├── middleware/
+    │   └── authMiddleware.js → JWT verification
+    └── routes/
+        └── auth.js      → Auth routes (/register, /login, /forgot, /reset, /me)
 ```
 
 ### Design System (REFERENCE — keep consistent everywhere)
@@ -91,15 +131,18 @@ Transitions: 300ms ease default, view-transition API for theme toggle
 - ✅ Build mock data structures and local state logic
 - ✅ Create quiz builder UI, lesson editors, kanban boards
 - ✅ Implement client-side filtering, sorting, searching
-- ✅ Generate TypeScript types and interfaces
-- ✅ Help with Supabase/Firebase integration patterns
-- ✅ Create reporting tables and chart layouts
-
-### What I (Copilot) CANNOT Do
-- ❌ Deploy to production hosting (need human for Vercel/Netlify/Firebase deploy)
-- ❌ Create actual cloud database instances (need D to provision)
-- ❌ Send real emails (attendee invites need backend service)
-- ❌ Process real payments (Stripe/Razorpay needs backend + keys)
+- ✅x] **Routing setup** — react-router-dom with 3 routes (/, /login, /courses)
+- [x] **Auth UI** — login/signup page with role selector (learner/instructor/admin)
+- [x] **Auth backend** — register/login/forgot/reset endpoints (PostgreSQL)
+- [x] **Database schema** — users table with role, auth endpoints working
+- [x] **Instructor: Course dashboard** (A1) — list/kanban view of courses ✅
+- [ ] **Auth context** — wire up localStorage token → protected routes
+- [ ] **Learner: Course browsing page** (B1/B2) — grid of published courses with search
+- [ ] **Learner: Course detail page** (B3) — overview, progress bar, lesson list
+- [ ] **Learner: Full-screen lesson player** (B5) — sidebar + video/doc/image viewer
+- [ ] **Instructor: Course form** (A2) — edit course details, publish toggle
+- [ ] **Instructor: Lesson management** (A3/A4) — add/edit/delete lessons
+- [ ] **Database expansion** — courses, lessons, enrollments tablesorpay needs backend + keys)
 - ❌ Upload actual files to cloud storage (need S3/Firebase Storage config)
 - ❌ Create real OAuth (Google sign-in needs console setup)
 
