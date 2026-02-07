@@ -13,7 +13,6 @@ interface Course {
 }
 
 interface CourseCardProps {
-  key?: React.Key;
   course: Course;
   onEdit: (courseId: string) => void;
   onShare: (courseId: string) => void;
