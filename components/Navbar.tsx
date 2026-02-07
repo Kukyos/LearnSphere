@@ -37,12 +37,22 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, isDark, toggleTheme }) =>
           <div className="hidden md:flex items-center gap-1">
             {user && (
               <>
-                <Link 
-                  to="/courses"
-                  className="rounded-full px-5 py-2 text-xs font-semibold text-brand-700 hover:bg-brand-200/50 hover:text-brand-900 transition-all dark:text-brand-200 dark:hover:bg-brand-800 dark:hover:text-white"
-                >
-                  Courses
-                </Link>
+                {(user.role === 'instructor' || user.role === 'admin') && (
+                  <Link 
+                    to="/courses"
+                    className="rounded-full px-5 py-2 text-xs font-semibold text-brand-700 hover:bg-brand-200/50 hover:text-brand-900 transition-all dark:text-brand-200 dark:hover:bg-brand-800 dark:hover:text-white"
+                  >
+                    Dashboard
+                  </Link>
+                )}
+                {(user.role === 'learner' || user.role === 'guest') && (
+                  <Link 
+                    to="/home"
+                    className="rounded-full px-5 py-2 text-xs font-semibold text-brand-700 hover:bg-brand-200/50 hover:text-brand-900 transition-all dark:text-brand-200 dark:hover:bg-brand-800 dark:hover:text-white"
+                  >
+                    Browse Courses
+                  </Link>
+                )}
               </>
             )}
           </div>
@@ -98,13 +108,24 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, isDark, toggleTheme }) =>
               <div className="flex flex-col gap-2">
                 {user && (
                   <>
-                    <Link 
-                      to="/courses"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="block rounded-xl px-4 py-3 text-sm font-bold text-brand-800 hover:bg-brand-100 dark:text-brand-100 dark:hover:bg-brand-800"
-                    >
-                      Courses
-                    </Link>
+                    {(user.role === 'instructor' || user.role === 'admin') && (
+                      <Link 
+                        to="/courses"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block rounded-xl px-4 py-3 text-sm font-bold text-brand-800 hover:bg-brand-100 dark:text-brand-100 dark:hover:bg-brand-800"
+                      >
+                        Dashboard
+                      </Link>
+                    )}
+                    {(user.role === 'learner' || user.role === 'guest') && (
+                      <Link 
+                        to="/home"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block rounded-xl px-4 py-3 text-sm font-bold text-brand-800 hover:bg-brand-100 dark:text-brand-100 dark:hover:bg-brand-800"
+                      >
+                        Browse Courses
+                      </Link>
+                    )}
                     <button 
                       onClick={handleLogout}
                       className="block w-full text-left rounded-xl px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"

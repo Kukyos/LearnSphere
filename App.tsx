@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Landing from './pages/Landing';
+import LearnerHome from './pages/LearnerHome';
 import Login from './pages/Login';
 import CoursesDashboard from './src/pages/CoursesDashboard';
 
@@ -28,10 +29,24 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 const AppContent: React.FC = () => {
+  const { user } = useAuth();
+
   return (
     <Routes>
-      <Route path="/" element={<Landing />} />
+      <Route path="/" element={user ? <LearnerHome /> : <Landing />} />
       <Route path="/login" element={<Login />} />
+      
+      {/* Learner/Guest home */}
+      <Route
+        path="/home"
+        element={
+          <ProtectedRoute>
+            <LearnerHome />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Instructor dashboard */}
       <Route
         path="/courses"
         element={
@@ -40,6 +55,7 @@ const AppContent: React.FC = () => {
           </ProtectedRoute>
         }
       />
+
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

@@ -23,7 +23,7 @@ const Login: React.FC = () => {
       if (role === 'instructor' || role === 'admin') {
         navigate('/courses');
       } else {
-        navigate('/courses');
+        navigate('/home');
       }
     } catch (err) {
       setError('Invalid email or password');
@@ -35,7 +35,7 @@ const Login: React.FC = () => {
   const handleGuestLogin = async () => {
     setError('');
     loginAsGuest();
-    navigate('/courses');
+    navigate('/home');
   };
 
   return (

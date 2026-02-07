@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import CourseCard from '../components/CourseCard';
@@ -11,6 +11,7 @@ import { BookOpen, ChevronRight, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Landing: React.FC = () => {
+  const navigate = useNavigate();
   const { loginAsGuest } = useAuth();
   // Theme State
   const [isDark, setIsDark] = useState(false);
@@ -170,7 +171,7 @@ const Landing: React.FC = () => {
                 <button 
                   onClick={() => {
                     loginAsGuest();
-                    setShowLoginModal(false);
+                    navigate('/home');
                   }}
                   className="w-full rounded-xl border border-brand-200 bg-white py-3.5 font-bold text-brand-700 transition-colors hover:bg-brand-50 dark:border-brand-600 dark:bg-transparent dark:text-white dark:hover:bg-brand-700"
                 >
@@ -181,7 +182,7 @@ const Landing: React.FC = () => {
               <p className="mt-6 text-xs text-brand-500">
                 Want to try first? <button onClick={() => {
                   loginAsGuest();
-                  setShowLoginModal(false);
+                  navigate('/home');
                 }} className="font-bold text-brand-700 hover:underline dark:text-brand-300">Browse as guest</button>
               </p>
             </div>
