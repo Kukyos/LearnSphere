@@ -18,6 +18,8 @@ import LessonPlayerPage from './src/pages/LessonPlayerPage';
 import MyCoursesPage from './src/pages/MyCoursesPage';
 import CoursesDashboard from './src/pages/CoursesDashboard';
 import CourseForm from './src/pages/course/CourseForm';
+import ReportingDashboard from './src/pages/ReportingDashboard';
+import QuizBuilder from './src/pages/QuizBuilder';
 
 const App: React.FC = () => {
   const { user, isLoggedIn } = useAuth();
@@ -64,6 +66,14 @@ const App: React.FC = () => {
         
         <Route path="/course-form/:courseId" element={
           user?.role === 'instructor' || user?.role === 'admin' ? <CourseForm /> : <Navigate to="/" replace />
+        } />
+
+        <Route path="/reporting" element={
+          user?.role === 'instructor' || user?.role === 'admin' ? <ReportingDashboard /> : <Navigate to="/" replace />
+        } />
+
+        <Route path="/quiz-builder/:courseId/:lessonId" element={
+          user?.role === 'instructor' || user?.role === 'admin' ? <QuizBuilder /> : <Navigate to="/" replace />
         } />
 
         {/* Catch all */}

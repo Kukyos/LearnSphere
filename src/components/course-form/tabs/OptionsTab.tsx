@@ -1,10 +1,11 @@
 import React from 'react';
-import { Eye, Lock, DollarSign, Users } from 'lucide-react';
+import { Eye, Lock, DollarSign, Users, Mail, UserCheck } from 'lucide-react';
 
 interface CourseOptions {
   visibility: 'Everyone' | 'Signed In';
-  access: 'Free' | 'Paid';
+  access: 'Open' | 'On Invitation' | 'On Payment';
   price: string;
+  courseAdmin: string;
 }
 
 interface OptionsTabProps {
@@ -20,7 +21,7 @@ export default function OptionsTab({ options, onChange }: OptionsTabProps) {
       {/* Visibility */}
       <div className="space-y-3">
         <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-          <Eye size={16} /> Visibility
+          <Eye size={16} /> Show course to (Visibility)
         </label>
         <div className="grid grid-cols-2 gap-3">
           {(['Everyone', 'Signed In'] as const).map(vis => (
@@ -38,38 +39,43 @@ export default function OptionsTab({ options, onChange }: OptionsTabProps) {
                 <span className="font-semibold text-gray-900 dark:text-white">{vis}</span>
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {vis === 'Everyone' ? 'Anyone can see and access this course' : 'Only signed-in users can access'}
+                {vis === 'Everyone' ? 'Anyone can see this course' : 'Only signed-in users can see this course'}
               </p>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Access */}
+      {/* Access Rule */}
       <div className="space-y-3">
         <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-          <DollarSign size={16} /> Access & Pricing
+          <Lock size={16} /> Access Rule
         </label>
-        <div className="grid grid-cols-2 gap-3">
-          {(['Free', 'Paid'] as const).map(acc => (
+        <div className="grid grid-cols-3 gap-3">
+          {([
+            { value: 'Open' as const, icon: <Users size={18} className="text-green-500" />, desc: 'Anyone can start learning' },
+            { value: 'On Invitation' as const, icon: <Mail size={18} className="text-blue-500" />, desc: 'Only invited/enrolled users' },
+            { value: 'On Payment' as const, icon: <DollarSign size={18} className="text-amber-500" />, desc: 'Users must pay to access' },
+          ]).map(acc => (
             <button
-              key={acc}
-              onClick={() => onChange({ ...options, access: acc })}
+              key={acc.value}
+              onClick={() => onChange({ ...options, access: acc.value })}
               className={`p-4 rounded-xl border-2 text-left transition-all ${
-                options.access === acc
+                options.access === acc.value
                   ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30'
                   : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
-              <span className="font-semibold text-gray-900 dark:text-white">{acc}</span>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {acc === 'Free' ? 'No charge for enrollment' : 'Set a price for this course'}
-              </p>
+              <div className="flex items-center gap-2 mb-1">
+                {acc.icon}
+                <span className="font-semibold text-gray-900 dark:text-white text-sm">{acc.value}</span>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{acc.desc}</p>
             </button>
           ))}
         </div>
 
-        {options.access === 'Paid' && (
+        {options.access === 'On Payment' && (
           <div className="mt-3">
             <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 block mb-1">Price (USD)</label>
             <div className="relative">
@@ -86,6 +92,20 @@ export default function OptionsTab({ options, onChange }: OptionsTabProps) {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Course Admin */}
+      <div className="space-y-3">
+        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+          <UserCheck size={16} /> Course Admin / Responsible
+        </label>
+        <input
+          type="text"
+          value={options.courseAdmin || ''}
+          onChange={e => onChange({ ...options, courseAdmin: e.target.value })}
+          className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          placeholder="Select or type course admin name..."
+        />
       </div>
     </div>
   );
