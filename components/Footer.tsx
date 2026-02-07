@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
           <div className="col-span-1 md:col-span-1">
             <div className="mb-6 flex items-center gap-2 text-white">
               <BookOpen size={24} className="text-brand-600" />
-              <span className="text-xl font-bold">Lumina</span>
+              <span className="text-xl font-bold">LearnSphere</span>
             </div>
             <p className="mb-6 text-sm leading-relaxed text-brand-400">
               Empowering the next generation of creators and leaders through accessible, high-quality education.
@@ -52,7 +52,7 @@ const Footer: React.FC = () => {
         </div>
         
         <div className="border-t border-brand-800 pt-8 text-center text-xs text-brand-500">
-          © {new Date().getFullYear()} Lumina Learning Inc. All rights reserved.
+          © {new Date().getFullYear()} LearnSphere Inc. All rights reserved.
         </div>
       </div>
     </footer>

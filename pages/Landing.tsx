@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import CourseCard from '../components/CourseCard';
@@ -13,6 +14,7 @@ const Landing: React.FC = () => {
   const [isDark, setIsDark] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const navigate = useNavigate();
 
   // Initialize Theme
   useEffect(() => {
@@ -118,7 +120,7 @@ const Landing: React.FC = () => {
   return (
     <div className="min-h-screen bg-nature-light transition-colors duration-300 dark:bg-brand-900 font-sans overflow-x-hidden">
       
-      <Navbar onLoginClick={() => setShowLoginModal(true)} isDark={isDark} toggleTheme={toggleTheme} />
+      <Navbar isDark={isDark} toggleTheme={toggleTheme} />
       
       <Hero 
         searchQuery={searchQuery}
@@ -128,7 +130,7 @@ const Landing: React.FC = () => {
 
       {/* Main Content Area */}
       <main className="pb-12 -mt-10 relative z-20">
-         <CourseRow title="Popular on Lumina" courses={popularCourses} />
+         <CourseRow title="Popular on LearnSphere" courses={popularCourses} />
          <CourseRow title="New Releases" courses={newCourses} />
          <CourseRow title="Tech & Data" courses={devCourses} />
          <CourseRow title="Creative Arts" courses={creativeCourses} />
@@ -158,16 +160,22 @@ const Landing: React.FC = () => {
               <p className="mb-8 text-sm text-brand-600 dark:text-brand-300">Join 250k+ learners. Create a free account to track your progress and save courses.</p>
               
               <div className="space-y-3">
-                <button className="w-full rounded-xl bg-brand-800 py-3.5 font-bold text-white transition-transform active:scale-95 hover:bg-brand-700 dark:bg-brand-600 dark:hover:bg-brand-500">
+                <button 
+                  onClick={() => { setShowLoginModal(false); navigate('/login'); }}
+                  className="w-full rounded-xl bg-brand-800 py-3.5 font-bold text-white transition-transform active:scale-95 hover:bg-brand-700 dark:bg-brand-600 dark:hover:bg-brand-500"
+                >
                   Sign up with Email
                 </button>
-                <button className="w-full rounded-xl border border-brand-200 bg-white py-3.5 font-bold text-brand-700 transition-colors hover:bg-brand-50 dark:border-brand-600 dark:bg-transparent dark:text-white dark:hover:bg-brand-700">
+                <button 
+                  onClick={() => { setShowLoginModal(false); navigate('/login'); }}
+                  className="w-full rounded-xl border border-brand-200 bg-white py-3.5 font-bold text-brand-700 transition-colors hover:bg-brand-50 dark:border-brand-600 dark:bg-transparent dark:text-white dark:hover:bg-brand-700"
+                >
                   Continue with Google
                 </button>
               </div>
               
               <p className="mt-6 text-xs text-brand-500">
-                Already have an account? <button onClick={() => setShowLoginModal(false)} className="font-bold text-brand-700 hover:underline dark:text-brand-300">Log in</button>
+                Already have an account? <button onClick={() => { setShowLoginModal(false); navigate('/login'); }} className="font-bold text-brand-700 hover:underline dark:text-brand-300">Log in</button>
               </p>
             </div>
           </div>

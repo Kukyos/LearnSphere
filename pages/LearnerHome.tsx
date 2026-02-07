@@ -152,7 +152,7 @@ const LearnerHome: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-nature-light transition-colors duration-300 dark:bg-brand-900 font-sans overflow-x-hidden">
-      <Navbar onLoginClick={() => {}} isDark={isDark} toggleTheme={toggleTheme} />
+      <Navbar isDark={isDark} toggleTheme={toggleTheme} />
 
       {/* Top Padding for Navbar */}
       <div className="h-32"></div>
@@ -168,7 +168,7 @@ const LearnerHome: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Filters Sidebar */}
             <div className="lg:col-span-1">
-              <FilterPanel state={filterState} onChange={setFilterState} />
+              <FilterPanel filters={filterState} onChange={setFilterState} />
             </div>
 
             {/* Courses Grid */}
