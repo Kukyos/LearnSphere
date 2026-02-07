@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LearnSphere - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+              display: ['"Outfit"', 'sans-serif'],
+            },
+            colors: {
+              brand: {
+                50: '#f7f8f4',  /* Lightest - input backgrounds */
+                100: '#eef0e8', /* Card backgrounds */
+                200: '#dce1d3', /* Borders, dividers */
+                300: '#c4ccb8', /* Muted elements */
+                400: '#9aa88a', /* Placeholder text */
+                500: '#6b7f5a', /* Secondary text */
+                600: '#526344', /* Body text */
+                700: '#3d4a33', /* Primary buttons, headings */
+                800: '#2f3a28', /* Button hover */
+                900: '#242d1f', /* Dark text, primary actions */
+                950: '#151a12', /* Darkest */
+              },
+              nature: {
+                light: '#f0f2e8',  /* Main page background */
+                card: '#f7f8f4',   /* Card surfaces */
+                muted: '#e8eadf',  /* Subtle backgrounds */
+                dark: '#242d1f'    /* Dark accents */
+              }
+            },
+            animation: {
+              'blob': 'blob 7s infinite',
+              'tilt': 'tilt 10s infinite linear',
+            },
+            keyframes: {
+              blob: {
+                '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                '100%': { transform: 'translate(0px, 0px) scale(1)' },
+              },
+              tilt: {
+                '0%, 50%, 100%': { transform: 'rotate(0deg)' },
+                '25%': { transform: 'rotate(1deg)' },
+                '75%': { transform: 'rotate(-1deg)' },
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #c4ccb8;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #9aa88a;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "framer-motion": "https://esm.sh/framer-motion@^12.33.0",
+    "ogl": "https://esm.sh/ogl@1.0.11",
+    "three": "https://esm.sh/three@0.160.0",
+    "three/examples/jsm/environments/RoomEnvironment.js": "https://esm.sh/three@0.160.0/examples/jsm/environments/RoomEnvironment.js",
+    "three/examples/jsm/controls/OrbitControls.js": "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js",
+    "three/": "https://esm.sh/three@^0.182.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
