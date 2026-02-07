@@ -57,22 +57,21 @@ export interface FilterState {
 }
 
 export type SortOption = 'popularity' | 'rating' | 'newest' | 'price-low' | 'price-high';
-// Authentication Types
+// Auth Types
 export type AuthMode = 'login' | 'signup';
-
-export type UserRole = 'learner' | 'instructor' | 'admin';
-
-export interface FormErrors {
-  name?: string;
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-}
+export type UserRole = 'learner' | 'instructor' | 'admin' | 'guest';
 
 export interface AuthFormData {
-  name?: string;
   email?: string;
   password?: string;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
   confirmPassword?: string;
   role?: UserRole;
+  [key: string]: string | undefined;
+}
+
+export interface FormErrors {
+  [key: string]: string | undefined;
 }

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { authAPI } from '../services/api';
 
 export type UserRole = 'guest' | 'learner' | 'instructor' | 'admin';
@@ -14,7 +14,7 @@ interface AuthContextType {
   user: User | null;
   isLoggedIn: boolean;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, role?: UserRole) => Promise<void>;
   logout: () => void;
   loginAsGuest: () => void;
   register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
@@ -26,15 +26,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Load user from localStorage on mount
   useEffect(() => {
     const storedUser = localStorage.getItem('learnsphere_user');
     const token = authAPI.getToken();
-    
+
     if (storedUser && token) {
       try {
         setUser(JSON.parse(storedUser));
-      } catch (e) {
+      } catch (error) {
         localStorage.removeItem('learnsphere_user');
         authAPI.removeToken();
       }
@@ -46,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     try {
       const response = await authAPI.login(email, password);
-      
+
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Login failed');
       }
@@ -72,7 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     try {
       const response = await authAPI.register(name, email, password, role);
-      
+
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Registration failed');
       }

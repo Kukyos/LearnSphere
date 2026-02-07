@@ -62,38 +62,31 @@ const Login: React.FC = () => {
   };
 
   const getWelcomeMessage = () => {
-    if (mode === 'signup') return "Begin your path.";
+    if (mode === 'signup') return 'Begin your path.';
     switch (role) {
-      case 'admin': return "System Control";
-      case 'instructor': return "Welcome back, Mentor.";
-      case 'learner': return "Continue your journey.";
-      default: return "Welcome Back";
+      case 'admin': return 'System Control';
+      case 'instructor': return 'Welcome back, Mentor.';
+      case 'learner': return 'Continue your journey.';
+      default: return 'Welcome Back';
     }
   };
 
   const getSubMessage = () => {
-    if (mode === 'signup') return "Create your account to start learning.";
+    if (mode === 'signup') return 'Create your account to start learning.';
     switch (role) {
-      case 'admin': return "Manage users and platform settings.";
-      case 'instructor': return "Your students await guidance.";
-      case 'learner': return "Ready to grow today?";
-      default: return "Enter your credentials to access your account.";
+      case 'admin': return 'Manage users and platform settings.';
+      case 'instructor': return 'Your students await guidance.';
+      case 'learner': return 'Ready to grow today?';
+      default: return 'Enter your credentials to access your account.';
     }
   };
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden font-sans bg-nature-light selection:bg-brand-300/40 text-brand-900">
-      
-      {/* Background gradient */}
       <div className="fixed inset-0 z-0 bg-gradient-to-br from-nature-card via-nature-light to-brand-100"></div>
 
-      {/* Main Content Container - Split Screen */}
       <div className="relative z-10 w-full min-h-screen flex flex-col lg:flex-row">
-        
-        {/* LEFT SIDE: Auth Form */}
         <div className="w-full lg:w-[45%] flex flex-col justify-center px-6 sm:px-12 lg:px-20 py-12 lg:py-0 relative z-20">
-          
-          {/* Logo area */}
           <div className="absolute top-8 left-8 lg:left-12 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-brand-700 flex items-center justify-center shadow-lg shadow-brand-900/15">
               <div className="w-4 h-4 bg-brand-50 rounded-full"></div>
@@ -101,33 +94,31 @@ const Login: React.FC = () => {
             <span className="text-xl font-bold text-brand-900 tracking-wide">LearnSphere</span>
           </div>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
             className="w-full max-w-md mx-auto lg:ml-0 lg:mr-auto mt-16 lg:mt-0"
           >
-            {/* Card */}
             <div className="bg-nature-card/90 backdrop-blur-xl border border-brand-200/60 rounded-[2rem] p-8 sm:p-10 shadow-2xl shadow-brand-900/8 relative overflow-hidden">
-              {/* Subtle ambient glow */}
               <div className="absolute -top-32 -right-32 w-64 h-64 bg-brand-300/30 rounded-full blur-[80px]"></div>
-              
-              {/* Role Selector Pills */}
+
               <div className="flex p-1 bg-brand-100 rounded-2xl mb-8 border border-brand-200 relative">
                 {(['learner', 'instructor', 'admin'] as UserRole[]).map((r) => (
                   <button
                     key={r}
                     onClick={() => setRole(r)}
-                    className={`
-                      relative flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-xl transition-all duration-300
-                      ${role === r ? 'text-brand-50' : 'text-brand-600 hover:text-brand-800'}
-                    `}
+                    className={
+                      `relative flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
+                        role === r ? 'text-brand-50' : 'text-brand-600 hover:text-brand-800'
+                      }`
+                    }
                   >
                     {role === r && (
                       <motion.div
                         layoutId="activeRole"
                         className="absolute inset-0 bg-brand-700 shadow-md rounded-xl"
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                       />
                     )}
                     <span className="relative z-10 flex items-center gap-2 capitalize">
@@ -138,7 +129,6 @@ const Login: React.FC = () => {
                 ))}
               </div>
 
-              {/* Welcome Header */}
               <div className="mb-8">
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -159,11 +149,9 @@ const Login: React.FC = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
-                
-                {/* Name fields for signup */}
-                <AnimatePresence mode='popLayout'>
+                <AnimatePresence mode="popLayout">
                   {mode === 'signup' && (
-                    <motion.div 
+                    <motion.div
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
@@ -214,15 +202,18 @@ const Login: React.FC = () => {
                   />
                   {mode === 'login' && (
                     <div className="flex justify-end pt-1">
-                      <button type="button" className="text-sm text-brand-500 hover:text-brand-700 transition-colors font-medium">
+                      <button
+                        type="button"
+                        className="text-sm text-brand-500 hover:text-brand-700 transition-colors font-medium"
+                      >
                         Forgot password?
                       </button>
                     </div>
                   )}
                 </div>
 
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   fullWidth
                   className="rounded-2xl mt-4 py-4 font-bold"
                   isLoading={isLoading}
@@ -230,7 +221,6 @@ const Login: React.FC = () => {
                   {mode === 'login' ? 'Sign In' : 'Create Account'}
                 </Button>
 
-                {/* Guest Login - only in login mode */}
                 {mode === 'login' && (
                   <>
                     <div className="relative py-2">
@@ -253,7 +243,6 @@ const Login: React.FC = () => {
                   </>
                 )}
 
-                {/* Status Message */}
                 <AnimatePresence>
                   {message && (
                     <motion.div
@@ -261,8 +250,8 @@ const Login: React.FC = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
                       className={`flex items-center gap-2 p-4 rounded-xl mt-4 ${
-                        message.type === 'success' 
-                          ? 'bg-green-50 text-green-700 border border-green-200' 
+                        message.type === 'success'
+                          ? 'bg-green-50 text-green-700 border border-green-200'
                           : 'bg-red-50 text-red-700 border border-red-200'
                       }`}
                     >
@@ -272,10 +261,9 @@ const Login: React.FC = () => {
                   )}
                 </AnimatePresence>
 
-                {/* Toggle Login/Signup */}
                 <div className="mt-8 text-center">
                   <p className="text-brand-500">
-                    {mode === 'login' ? "New here?" : 'Already a member?'}
+                    {mode === 'login' ? 'New here?' : 'Already a member?'}
                     <button
                       type="button"
                       onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setMessage(null); }}
@@ -287,32 +275,26 @@ const Login: React.FC = () => {
                 </div>
               </form>
             </div>
-            
+
             <div className="mt-8 text-center lg:text-left text-xs text-brand-500 font-medium">
               &copy; 2026 LearnSphere Inc. &bull; <a href="#" className="hover:text-brand-700 transition-colors">Privacy</a> &bull; <a href="#" className="hover:text-brand-700 transition-colors">Terms</a>
             </div>
           </motion.div>
         </div>
 
-        {/* RIGHT SIDE: Interactive Globe */}
         <div className="hidden lg:flex w-full lg:w-[55%] h-screen relative items-center justify-center overflow-hidden">
-          {/* Fade in animation for the globe */}
           <motion.div
             className="w-full h-full absolute inset-0"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
+            transition={{ duration: 1.5, delay: 0.2, ease: 'easeOut' }}
           >
             <WorldGlobe />
           </motion.div>
-          
-          {/* Vignette overlay */}
+
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_30%,_var(--tw-gradient-to))] to-nature-light pointer-events-none"></div>
-          
-          {/* Seamless transition gradient from left */}
           <div className="absolute top-0 bottom-0 left-0 w-64 bg-gradient-to-r from-nature-light via-nature-light/70 to-transparent z-10 pointer-events-none"></div>
         </div>
-
       </div>
     </div>
   );

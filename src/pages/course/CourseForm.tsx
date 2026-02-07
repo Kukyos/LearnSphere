@@ -1,425 +1,260 @@
 import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Save,
-  X,
-  Upload,
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
-  Users,
-  Mail,
-  ChevronDown,
-  AlertCircle,
-  Check,
+  ArrowLeft, Save, Eye, Image, Tag, ToggleLeft, ToggleRight,
+  BookOpen, FileText, Settings, HelpCircle, Users, Mail, X
 } from 'lucide-react';
-import AddAttendeeModal from './modals/AddAttendeeModal';
-import ContactAttendeeModal from './modals/ContactAttendeeModal';
-import PreviewModal from './modals/PreviewModal';
-import ContentTab from './tabs/ContentTab';
-import DescriptionTab from './tabs/DescriptionTab';
-import OptionsTab from './tabs/OptionsTab';
-import QuizTab from './tabs/QuizTab';
-
-// Types
-interface Course {
-  id: string;
-  title: string;
-  description: string;
-  isPublished: boolean;
-  coverImage?: string;
-  visibility: 'everyone' | 'signed_in';
-  accessRule: 'open' | 'invitation' | 'payment';
-  price?: number;
-  adminId?: string;
-  attendeesCount?: number;
-}
+import ContentTab from '../../components/course-form/tabs/ContentTab';
+import DescriptionTab from '../../components/course-form/tabs/DescriptionTab';
+import OptionsTab from '../../components/course-form/tabs/OptionsTab';
+import QuizTab from '../../components/course-form/tabs/QuizTab';
+import AddAttendeeModal from '../../components/course-form/modals/AddAttendeeModal';
+import ContactAttendeeModal from '../../components/course-form/modals/ContactAttendeeModal';
+import PreviewModal from '../../components/course-form/modals/PreviewModal';
 
 interface Lesson {
   id: string;
   title: string;
-  type: 'video' | 'doc' | 'quiz';
-  order: number;
+  type: 'video' | 'document' | 'image' | 'quiz';
+  content: string;
+  description: string;
 }
 
-interface Quiz {
+interface QuizQuestion {
   id: string;
-  title: string;
-  questionCount: number;
+  question: string;
+  options: string[];
+  correctAnswer: number;
 }
-
-type TabType = 'content' | 'description' | 'options' | 'quiz';
-
-// Mock Data
-const MOCK_COURSE: Course = {
-  id: '1',
-  title: 'Advanced React Patterns',
-  description: 'Learn advanced React patterns and best practices for building scalable applications.',
-  isPublished: true,
-  coverImage: 'https://images.unsplash.com/photo-1633356122544-f134324ef6db?w=600&h=400&fit=crop',
-  visibility: 'everyone',
-  accessRule: 'open',
-  adminId: 'user-1',
-  attendeesCount: 1250,
-};
-
-const MOCK_LESSONS: Lesson[] = [
-  { id: '1', title: 'Introduction to React Hooks', type: 'video', order: 1 },
-  { id: '2', title: 'useState & useEffect Deep Dive', type: 'video', order: 2 },
-  { id: '3', title: 'Custom Hooks Pattern', type: 'doc', order: 3 },
-  { id: '4', title: 'React Hooks Quiz', type: 'quiz', order: 4 },
-];
-
-const MOCK_QUIZZES: Quiz[] = [
-  { id: 'q1', title: 'React Fundamentals', questionCount: 10 },
-  { id: 'q2', title: 'Hooks Mastery', questionCount: 15 },
-];
-
-const ADMIN_USERS = [
-  { id: 'user-1', name: 'John Doe', email: 'john@example.com' },
-  { id: 'user-2', name: 'Jane Smith', email: 'jane@example.com' },
-  { id: 'user-3', name: 'Bob Wilson', email: 'bob@example.com' },
-];
 
 export default function CourseForm() {
-  // State Management
-  const [course, setCourse] = useState<Course>(MOCK_COURSE);
-  const [lessons, setLessons] = useState<Lesson[]>(MOCK_LESSONS);
-  const [quizzes, setQuizzes] = useState<Quiz[]>(MOCK_QUIZZES);
-  const [activeTab, setActiveTab] = useState<TabType>('content');
+  const { courseId } = useParams<{ courseId: string }>();
+  const navigate = useNavigate();
+  const isEditing = !!courseId;
 
-  // Modal States
+  // Form state
+  const [title, setTitle] = useState(isEditing ? 'Sample Course' : '');
+  const [coverImage, setCoverImage] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState('');
+  const [published, setPublished] = useState(false);
+  const [activeTab, setActiveTab] = useState<'content' | 'description' | 'options' | 'quiz'>('content');
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [description, setDescription] = useState('');
+  const [options, setOptions] = useState({
+    visibility: 'Everyone' as 'Everyone' | 'Signed In',
+    access: 'Free' as 'Free' | 'Paid',
+    price: '',
+  });
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
+
+  // Modal state
   const [showAddAttendee, setShowAddAttendee] = useState(false);
   const [showContactAttendee, setShowContactAttendee] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
-  // Form State
-  const [hasChanges, setHasChanges] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
-
-  // Handle title change
-  const handleTitleChange = (newTitle: string) => {
-    setCourse({ ...course, title: newTitle });
-    setHasChanges(true);
-  };
-
-  // Handle publish toggle
-  const handlePublishToggle = () => {
-    setCourse({ ...course, isPublished: !course.isPublished });
-    setHasChanges(true);
-  };
-
-  // Handle image upload
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('File size must be less than 5MB');
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setCourse({
-          ...course,
-          coverImage: event.target?.result as string,
-        });
-        setHasChanges(true);
-      };
-      reader.readAsDataURL(file);
+  const addTag = () => {
+    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
+      setTags([...tags, tagInput.trim()]);
+      setTagInput('');
     }
   };
 
-  // Handle drag and drop
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const removeTag = (tag: string) => {
+    setTags(tags.filter(t => t !== tag));
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setCourse({
-          ...course,
-          coverImage: event.target?.result as string,
-        });
-        setHasChanges(true);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleSave = () => {
+    const courseData = {
+      title,
+      coverImage,
+      tags,
+      published,
+      lessons,
+      description,
+      options,
+      quizQuestions,
+    };
+    console.log('Saving course:', courseData);
+    alert('Course saved successfully!');
+    navigate('/courses');
   };
 
-  // Handle save
-  const handleSave = async () => {
-    setSaveStatus('saving');
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setSaveStatus('saved');
-    setHasChanges(false);
-
-    setTimeout(() => {
-      setSaveStatus('idle');
-    }, 3000);
-  };
-
-  // Handle discard
-  const handleDiscard = () => {
-    if (hasChanges && !window.confirm('Discard unsaved changes?')) {
-      return;
-    }
-    setCourse(MOCK_COURSE);
-    setHasChanges(false);
-  };
-
-  // Tab Configuration
-  const tabs: Array<{ id: TabType; label: string; icon?: React.ReactNode }> = [
-    { id: 'content', label: 'Content' },
-    { id: 'description', label: 'Description' },
-    { id: 'options', label: 'Options' },
-    { id: 'quiz', label: 'Quiz' },
+  const tabs = [
+    { id: 'content' as const, label: 'Content', icon: <BookOpen size={16} /> },
+    { id: 'description' as const, label: 'Description', icon: <FileText size={16} /> },
+    { id: 'options' as const, label: 'Options', icon: <Settings size={16} /> },
+    { id: 'quiz' as const, label: 'Quiz', icon: <HelpCircle size={16} /> },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Fixed Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Top Action Bar */}
-          <div className="py-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            {/* Title Input */}
-            <div className="flex-1 mr-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
+      {/* Header */}
+      <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm" style={{ top: '0', paddingTop: '80px' }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/courses')}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
+              >
+                <ArrowLeft size={20} />
+              </button>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                  {isEditing ? 'Edit Course' : 'Create Course'}
+                </h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {published ? '🟢 Published' : '🔴 Draft'}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowPreview(true)}
+                className="flex items-center gap-1.5 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <Eye size={16} /> Preview
+              </button>
+              <button
+                onClick={handleSave}
+                className="flex items-center gap-1.5 px-5 py-2 bg-brand-600 text-white rounded-lg text-sm font-bold hover:bg-brand-700 transition-colors"
+              >
+                <Save size={16} /> Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Sidebar */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Course Title */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+              <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 block mb-2">Course Title</label>
               <input
-                type="text"
-                value={course.title}
-                onChange={(e) => handleTitleChange(e.target.value)}
-                className="text-2xl font-bold text-gray-900 bg-transparent border-0 focus:ring-0 p-0 w-full outline-none placeholder-gray-400"
-                placeholder="Course title..."
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-semibold"
+                placeholder="Enter course title..."
               />
-              {hasChanges && (
-                <p className="text-xs text-amber-600 mt-1">Unsaved changes</p>
+            </div>
+
+            {/* Cover Image */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+              <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 block mb-2 flex items-center gap-1.5">
+                <Image size={16} /> Cover Image
+              </label>
+              <input
+                value={coverImage}
+                onChange={e => setCoverImage(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                placeholder="Image URL..."
+              />
+              {coverImage && (
+                <img src={coverImage} alt="Cover" className="mt-3 w-full h-32 object-cover rounded-lg" />
               )}
             </div>
 
-            {/* Right Side Actions */}
-            <div className="flex gap-3 items-center flex-wrap sm:flex-nowrap">
-              {/* Publish Toggle */}
-              <button
-                onClick={handlePublishToggle}
-                className={`px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 whitespace-nowrap ${
-                  course.isPublished
-                    ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    course.isPublished ? 'bg-green-600' : 'bg-gray-500'
-                  }`}
-                />
-                {course.isPublished ? 'Published' : 'Draft'}
-              </button>
-
-              {/* Save/Discard Buttons */}
-              <button
-                onClick={handleDiscard}
-                disabled={!hasChanges}
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
-              >
-                Discard
-              </button>
-
-              <button
-                onClick={handleSave}
-                disabled={!hasChanges || saveStatus === 'saving'}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2 whitespace-nowrap"
-              >
-                {saveStatus === 'saving' ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Saving...
-                  </>
-                ) : saveStatus === 'saved' ? (
-                  <>
-                    <Check className="h-4 w-4" />
-                    Saved
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-4 w-4" />
-                    Save
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Second Row: Action Buttons */}
-          <div className="py-4 border-t border-gray-200 flex gap-2 flex-wrap">
-            <button
-              onClick={() => setShowPreview(true)}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition flex items-center gap-2 text-sm"
-            >
-              <Eye className="h-4 w-4" />
-              Preview
-            </button>
-            <button
-              onClick={() => setShowAddAttendee(true)}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition flex items-center gap-2 text-sm"
-            >
-              <Users className="h-4 w-4" />
-              Add Attendees
-            </button>
-            <button
-              onClick={() => setShowContactAttendee(true)}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition flex items-center gap-2 text-sm"
-            >
-              <Mail className="h-4 w-4" />
-              Contact Attendees
-            </button>
-            {course.attendeesCount && (
-              <div className="px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 text-sm font-medium">
-                {course.attendeesCount} Attendees
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content - Offset for Fixed Header */}
-      <main className="pt-40 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-        {/* Image Upload Section */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Course Cover Image</h3>
-          <div className="flex flex-col sm:flex-row gap-6">
-            {/* Image Preview */}
-            <div className="flex-shrink-0">
-              <div className="w-40 h-40 bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-gray-300">
-                {course.coverImage ? (
-                  <img
-                    src={course.coverImage}
-                    alt="Course cover"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    <Upload className="h-8 w-8" />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Upload Area */}
-            <div className="flex-1">
-              <div
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-indigo-400 hover:bg-indigo-50 transition cursor-pointer group"
-              >
+            {/* Tags */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+              <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 block mb-2 flex items-center gap-1.5">
+                <Tag size={16} /> Tags
+              </label>
+              <div className="flex gap-2 mb-2">
                 <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  id="image-upload"
+                  value={tagInput}
+                  onChange={e => setTagInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                  placeholder="Add a tag..."
                 />
-                <label htmlFor="image-upload" className="cursor-pointer block">
-                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2 group-hover:text-indigo-400 transition" />
-                  <p className="text-sm font-medium text-gray-700">
-                    Drop an image here or click to upload
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 5MB</p>
-                </label>
+                <button onClick={addTag} className="px-3 py-2 bg-brand-600 text-white rounded-lg text-sm font-semibold hover:bg-brand-700">Add</button>
               </div>
+              <div className="flex flex-wrap gap-1.5">
+                {tags.map(tag => (
+                  <span key={tag} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-brand-100 text-brand-700 dark:bg-brand-900/50 dark:text-brand-300">
+                    {tag}
+                    <button onClick={() => removeTag(tag)} className="hover:text-red-500"><X size={12} /></button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Publish Toggle */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+              <button
+                onClick={() => setPublished(!published)}
+                className="flex items-center justify-between w-full"
+              >
+                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Published</span>
+                {published ? (
+                  <ToggleRight size={32} className="text-brand-600" />
+                ) : (
+                  <ToggleLeft size={32} className="text-gray-400" />
+                )}
+              </button>
+            </div>
+
+            {/* Attendee Actions */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 space-y-3">
+              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                <Users size={16} /> Attendees
+              </h4>
+              <button
+                onClick={() => setShowAddAttendee(true)}
+                className="w-full flex items-center justify-center gap-1.5 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <Users size={14} /> Add Attendees
+              </button>
+              <button
+                onClick={() => setShowContactAttendee(true)}
+                className="w-full flex items-center justify-center gap-1.5 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <Mail size={14} /> Contact Attendees
+              </button>
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            {/* Tab Buttons */}
+            <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl mb-6 border border-gray-200 dark:border-gray-700">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-lg text-sm font-semibold transition-all ${
+                    activeTab === tab.id
+                      ? 'bg-white dark:bg-gray-700 text-brand-700 dark:text-brand-300 shadow-sm'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                  }`}
+                >
+                  {tab.icon} {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Tab Content */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 min-h-[500px]">
+              {activeTab === 'content' && <ContentTab lessons={lessons} onChange={setLessons} />}
+              {activeTab === 'description' && <DescriptionTab description={description} onChange={setDescription} />}
+              {activeTab === 'options' && <OptionsTab options={options} onChange={setOptions} />}
+              {activeTab === 'quiz' && <QuizTab questions={quizQuestions} onChange={setQuizQuestions} />}
             </div>
           </div>
         </div>
-
-        {/* Tabs Section */}
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
-          {/* Tab Navigation - Odoo Style */}
-          <div className="border-b border-gray-200 px-6 flex overflow-x-auto">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'border-indigo-600 text-indigo-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Tab Content */}
-          <div className="p-6">
-            {activeTab === 'content' && (
-              <ContentTab 
-                lessons={lessons} 
-                setLessons={setLessons}
-                onchange={() => setHasChanges(true)}
-              />
-            )}
-            {activeTab === 'description' && (
-              <DescriptionTab
-                description={course.description}
-                onDescriptionChange={(desc) => {
-                  setCourse({ ...course, description: desc });
-                  setHasChanges(true);
-                }}
-              />
-            )}
-            {activeTab === 'options' && (
-              <OptionsTab
-                course={course}
-                onCourseChange={(updatedCourse) => {
-                  setCourse(updatedCourse);
-                  setHasChanges(true);
-                }}
-                adminUsers={ADMIN_USERS}
-              />
-            )}
-            {activeTab === 'quiz' && (
-              <QuizTab 
-                quizzes={quizzes} 
-                setQuizzes={setQuizzes}
-                onchange={() => setHasChanges(true)}
-              />
-            )}
-          </div>
-        </div>
-      </main>
+      </div>
 
       {/* Modals */}
-      <AddAttendeeModal
-        isOpen={showAddAttendee}
-        onClose={() => setShowAddAttendee(false)}
-        onInvite={(email) => {
-          console.log('Inviting:', email);
-          setShowAddAttendee(false);
-        }}
-      />
-
-      <ContactAttendeeModal
-        isOpen={showContactAttendee}
-        onClose={() => setShowContactAttendee(false)}
-        onSend={(subject, message) => {
-          console.log('Sending:', subject, message);
-          setShowContactAttendee(false);
-        }}
-      />
-
+      <AddAttendeeModal isOpen={showAddAttendee} onClose={() => setShowAddAttendee(false)} />
+      <ContactAttendeeModal isOpen={showContactAttendee} onClose={() => setShowContactAttendee(false)} />
       <PreviewModal
         isOpen={showPreview}
         onClose={() => setShowPreview(false)}
-        course={course}
+        course={{ title, description, coverImage, tags, lessons, access: options.access, price: options.price }}
       />
     </div>
   );

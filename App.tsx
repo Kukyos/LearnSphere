@@ -34,7 +34,7 @@ const AppContent: React.FC = () => {
       {/* Login page as homepage */}
       <Route path="/" element={isLoggedIn ? <Navigate to="/home" replace /> : <Login />} />
       <Route path="/login" element={isLoggedIn ? <Navigate to="/home" replace /> : <Login />} />
-      
+
       {/* Lumina landing page - protected route */}
       <Route
         path="/home"

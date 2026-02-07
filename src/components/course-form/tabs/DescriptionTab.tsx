@@ -1,106 +1,79 @@
-import React, { useState } from 'react';
-import { Type, Bold, Italic, List, Heading2 } from 'lucide-react';
+import React from 'react';
+import { Bold, Italic, List, Link, Code, Heading1, Heading2 } from 'lucide-react';
 
 interface DescriptionTabProps {
   description: string;
-  onDescriptionChange: (description: string) => void;
+  onChange: (description: string) => void;
 }
 
-export default function DescriptionTab({
-  description,
-  onDescriptionChange,
-}: DescriptionTabProps) {
-  const [wordCount, setWordCount] = useState(0);
-
-  const handleChange = (text: string) => {
-    onDescriptionChange(text);
-    // Count words
-    const words = text.trim().split(/\s+/).filter((w) => w.length > 0);
-    setWordCount(words.length);
-  };
-
-  const insertMarkdown = (before: string, after: string = '') => {
-    const textarea = document.querySelector('textarea') as HTMLTextAreaElement;
+export default function DescriptionTab({ description, onChange }: DescriptionTabProps) {
+  const insertMarkdown = (prefix: string, suffix: string = '') => {
+    const textarea = document.getElementById('description-editor') as HTMLTextAreaElement;
     if (!textarea) return;
 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    const selectedText = description.substring(start, end);
-    const newText =
-      description.substring(0, start) +
-      before +
-      selectedText +
-      after +
-      description.substring(end);
-
-    handleChange(newText);
+    const selected = description.substring(start, end);
+    const newText = description.substring(0, start) + prefix + selected + suffix + description.substring(end);
+    onChange(newText);
   };
+
+  const toolbarButtons = [
+    { icon: <Heading1 size={16} />, action: () => insertMarkdown('# '), title: 'Heading 1' },
+    { icon: <Heading2 size={16} />, action: () => insertMarkdown('## '), title: 'Heading 2' },
+    { icon: <Bold size={16} />, action: () => insertMarkdown('**', '**'), title: 'Bold' },
+    { icon: <Italic size={16} />, action: () => insertMarkdown('*', '*'), title: 'Italic' },
+    { icon: <List size={16} />, action: () => insertMarkdown('- '), title: 'List' },
+    { icon: <Link size={16} />, action: () => insertMarkdown('[', '](url)'), title: 'Link' },
+    { icon: <Code size={16} />, action: () => insertMarkdown('`', '`'), title: 'Code' },
+  ];
 
   return (
     <div className="space-y-4">
-      {/* Rich Text Editor Toolbar */}
-      <div className="flex gap-2 p-4 bg-gray-50 rounded-lg border border-gray-200 flex-wrap">
-        <button
-          onClick={() => insertMarkdown('**', '**')}
-          className="p-2 text-gray-600 hover:bg-white rounded border border-gray-300 transition"
-          title="Bold"
-        >
-          <Bold className="h-4 w-4" />
-        </button>
-        <button
-          onClick={() => insertMarkdown('*', '*')}
-          className="p-2 text-gray-600 hover:bg-white rounded border border-gray-300 transition"
-          title="Italic"
-        >
-          <Italic className="h-4 w-4" />
-        </button>
-        <button
-          onClick={() => insertMarkdown('## ')}
-          className="p-2 text-gray-600 hover:bg-white rounded border border-gray-300 transition"
-          title="Heading"
-        >
-          <Heading2 className="h-4 w-4" />
-        </button>
-        <div className="w-px bg-gray-300" />
-        <button
-          onClick={() => insertMarkdown('- ')}
-          className="p-2 text-gray-600 hover:bg-white rounded border border-gray-300 transition"
-          title="Bullet List"
-        >
-          <List className="h-4 w-4" />
-        </button>
+      <h3 className="text-lg font-bold text-gray-900 dark:text-white">Course Description</h3>
+      <p className="text-sm text-gray-500 dark:text-gray-400">Write a detailed description of your course using Markdown formatting.</p>
+
+      {/* Toolbar */}
+      <div className="flex flex-wrap gap-1 p-2 bg-gray-50 dark:bg-gray-800 rounded-t-xl border border-b-0 border-gray-200 dark:border-gray-700">
+        {toolbarButtons.map((btn, i) => (
+          <button
+            key={i}
+            onClick={btn.action}
+            title={btn.title}
+            className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 transition-colors"
+          >
+            {btn.icon}
+          </button>
+        ))}
       </div>
 
-      {/* Textarea */}
-      <div className="relative">
-        <textarea
-          value={description}
-          onChange={(e) => handleChange(e.target.value)}
-          placeholder="Enter course description... (Supports markdown formatting)"
-          className="w-full h-96 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none font-mono text-sm"
-        />
-        <div className="absolute bottom-4 right-4 text-xs text-gray-500">
-          {wordCount} words
-        </div>
-      </div>
+      {/* Editor */}
+      <textarea
+        id="description-editor"
+        value={description}
+        onChange={e => onChange(e.target.value)}
+        rows={16}
+        className="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-b-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-500 -mt-4"
+        placeholder="# Course Overview&#10;&#10;Write your course description here using Markdown...&#10;&#10;## What you'll learn&#10;- Point 1&#10;- Point 2&#10;&#10;## Prerequisites&#10;- Basic knowledge of..."
+      />
 
       {/* Preview */}
       {description && (
-        <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <h4 className="font-semibold text-gray-900 mb-3">Preview</h4>
-          <div className="text-gray-700 whitespace-pre-wrap break-words">
-            {description}
+        <div>
+          <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Preview</h4>
+          <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800">
+            <div className="prose dark:prose-invert max-w-none text-sm">
+              {description.split('\n').map((line, i) => {
+                if (line.startsWith('# ')) return <h1 key={i} className="text-xl font-bold mt-4 mb-2">{line.slice(2)}</h1>;
+                if (line.startsWith('## ')) return <h2 key={i} className="text-lg font-bold mt-3 mb-2">{line.slice(3)}</h2>;
+                if (line.startsWith('- ')) return <li key={i} className="ml-4">{line.slice(2)}</li>;
+                if (line.trim() === '') return <br key={i} />;
+                return <p key={i} className="mb-1">{line}</p>;
+              })}
+            </div>
           </div>
         </div>
       )}
-
-      {/* Info */}
-      <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-        <p className="text-sm text-amber-800">
-          💡 For production, integrate React-Quill or TipTap for rich HTML editing.
-        </p>
-      </div>
     </div>
   );
 }
-export default DescriptionTab;

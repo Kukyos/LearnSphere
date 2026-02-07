@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Plus, LayoutGrid, LayoutList, MoreVertical } from 'lucide-react';
 import CourseCard from '../components/courses/CourseCard';
 import CourseTable from '../components/courses/CourseTable';
@@ -132,10 +133,11 @@ export default function CoursesDashboard() {
     setIsModalOpen(false);
   };
 
+  const nav = useNavigate();
+
   // Handle edit course
   const handleEditCourse = (courseId: string) => {
-    console.log('Edit course:', courseId);
-    // Implement edit functionality
+    nav(`/course-form/${courseId}`);
   };
 
   // Handle share course

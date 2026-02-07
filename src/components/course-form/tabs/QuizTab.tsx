@@ -1,133 +1,153 @@
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, AlertCircle } from 'lucide-react';
+import { Plus, Edit3, Trash2, HelpCircle } from 'lucide-react';
 
-interface Quiz {
+interface QuizQuestion {
   id: string;
-  title: string;
-  questionCount: number;
+  question: string;
+  options: string[];
+  correctAnswer: number;
 }
 
 interface QuizTabProps {
-  quizzes: Quiz[];
-  setQuizzes: (quizzes: Quiz[]) => void;
-  onchange?: () => void;
+  questions: QuizQuestion[];
+  onChange: (questions: QuizQuestion[]) => void;
 }
 
-export default function QuizTab({ quizzes, setQuizzes, onchange }: QuizTabProps) {
+export default function QuizTab({ questions, onChange }: QuizTabProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editTitle, setEditTitle] = useState('');
+  const [editQuestion, setEditQuestion] = useState('');
+  const [editOptions, setEditOptions] = useState<string[]>(['', '', '', '']);
+  const [editCorrect, setEditCorrect] = useState(0);
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('Delete this quiz?')) {
-      setQuizzes(quizzes.filter((q) => q.id !== id));
-      onchange?.();
-    }
-  };
-
-  const handleEdit = (quiz: Quiz) => {
-    setEditingId(quiz.id);
-    setEditTitle(quiz.title);
-  };
-
-  const handleSaveEdit = (id: string) => {
-    setQuizzes(
-      quizzes.map((q) =>
-        q.id === id ? { ...q, title: editTitle } : q
-      )
-    );
-    setEditingId(null);
-    onchange?.();
-  };
-
-  const handleAddQuiz = () => {
-    const newQuiz: Quiz = {
-      id: `quiz-${Date.now()}`,
-      title: 'New Quiz',
-      questionCount: 0,
+  const addQuestion = () => {
+    const newQ: QuizQuestion = {
+      id: `q-${Date.now()}`,
+      question: '',
+      options: ['', '', '', ''],
+      correctAnswer: 0,
     };
-    setQuizzes([...quizzes, newQuiz]);
-    onchange?.();
+    onChange([...questions, newQ]);
+    startEdit(newQ);
+  };
+
+  const startEdit = (q: QuizQuestion) => {
+    setEditingId(q.id);
+    setEditQuestion(q.question);
+    setEditOptions([...q.options]);
+    setEditCorrect(q.correctAnswer);
+  };
+
+  const saveEdit = () => {
+    if (!editingId || !editQuestion.trim()) return;
+    onChange(questions.map(q =>
+      q.id === editingId
+        ? { ...q, question: editQuestion, options: editOptions, correctAnswer: editCorrect }
+        : q
+    ));
+    setEditingId(null);
+  };
+
+  const deleteQuestion = (id: string) => {
+    onChange(questions.filter(q => q.id !== id));
+    if (editingId === id) setEditingId(null);
   };
 
   return (
     <div className="space-y-4">
-      {quizzes.length > 0 ? (
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-900">Title</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-900">Questions</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-900">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {quizzes.map((quiz) => (
-                <tr key={quiz.id} className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4">
-                    {editingId === quiz.id ? (
-                      <input
-                        type="text"
-                        value={editTitle}
-                        onChange={(e) => setEditTitle(e.target.value)}
-                        className="px-3 py-1 border border-indigo-500 rounded focus:ring-2 focus:ring-indigo-500"
-                        autoFocus
-                        onBlur={() => handleSaveEdit(quiz.id)}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            handleSaveEdit(quiz.id);
-                          }
-                        }}
-                      />
-                    ) : (
-                      <p className="font-medium text-gray-900">{quiz.title}</p>
-                    )}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full font-medium">
-                      {quiz.questionCount} questions
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => handleEdit(quiz)}
-                        className="p-2 text-gray-600 hover:bg-indigo-50 rounded transition"
-                        title="Edit"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(quiz.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded transition"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div className="text-center py-12 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-          <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-          <p className="text-gray-600 font-medium">No quizzes yet</p>
-          <p className="text-sm text-gray-500">Create your first quiz to assess student knowledge</p>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Quiz Questions</h3>
+        <button
+          onClick={addQuestion}
+          className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-semibold hover:bg-brand-700 transition-colors"
+        >
+          <Plus size={16} /> Add Question
+        </button>
+      </div>
+
+      {questions.length === 0 && (
+        <div className="text-center py-12 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl">
+          <HelpCircle className="mx-auto mb-3 text-gray-400" size={40} />
+          <p className="text-gray-500 dark:text-gray-400">No quiz questions yet. Add questions to create a quiz for this course.</p>
         </div>
       )}
 
-      {/* Add Quiz Button */}
-      <button
-        onClick={handleAddQuiz}
-        className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition flex items-center justify-center gap-2 font-medium"
-      >
-        <Plus className="h-5 w-5" />
-        Add Quiz
-      </button>
+      <div className="space-y-4">
+        {questions.map((q, qi) => (
+          <div key={q.id} className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white dark:bg-gray-800">
+            {editingId === q.id ? (
+              <div className="p-4 space-y-3">
+                <input
+                  value={editQuestion}
+                  onChange={e => setEditQuestion(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  placeholder="Enter your question..."
+                />
+                <div className="space-y-2">
+                  {editOptions.map((opt, oi) => (
+                    <div key={oi} className="flex items-center gap-2">
+                      <button
+                        onClick={() => setEditCorrect(oi)}
+                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
+                          editCorrect === oi
+                            ? 'border-green-500 bg-green-500 text-white'
+                            : 'border-gray-300 dark:border-gray-600 hover:border-green-400'
+                        }`}
+                      >
+                        {editCorrect === oi && '✓'}
+                      </button>
+                      <input
+                        value={opt}
+                        onChange={e => {
+                          const newOpts = [...editOptions];
+                          newOpts[oi] = e.target.value;
+                          setEditOptions(newOpts);
+                        }}
+                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                        placeholder={`Option ${String.fromCharCode(65 + oi)}`}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Click the circle to mark the correct answer</p>
+                <div className="flex gap-2">
+                  <button onClick={saveEdit} className="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-semibold hover:bg-brand-700">Save</button>
+                  <button onClick={() => setEditingId(null)} className="px-4 py-2 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-lg text-sm font-semibold">Cancel</button>
+                </div>
+              </div>
+            ) : (
+              <div className="p-4">
+                <div className="flex items-start gap-3">
+                  <span className="w-8 h-8 rounded-lg bg-brand-100 dark:bg-brand-900 flex items-center justify-center text-sm font-bold text-brand-700 dark:text-brand-300 flex-none">
+                    {qi + 1}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-900 dark:text-white mb-2">{q.question || 'Untitled Question'}</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {q.options.map((opt, oi) => (
+                        <div key={oi} className={`text-sm px-3 py-1.5 rounded-lg ${
+                          oi === q.correctAnswer
+                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-semibold'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                        }`}>
+                          {String.fromCharCode(65 + oi)}. {opt || '—'}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex gap-1 flex-none">
+                    <button onClick={() => startEdit(q)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-brand-600">
+                      <Edit3 size={16} />
+                    </button>
+                    <button onClick={() => deleteQuestion(q.id)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-500 hover:text-red-600">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
-export default QuizTab;

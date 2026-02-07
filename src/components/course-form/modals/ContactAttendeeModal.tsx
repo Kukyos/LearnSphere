@@ -1,138 +1,61 @@
 import React, { useState } from 'react';
-import { X, Mail, AlertCircle, Check } from 'lucide-react';
+import { X, Send } from 'lucide-react';
 
 interface ContactAttendeeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSend: (subject: string, message: string) => void;
 }
 
-export default function ContactAttendeeModal({
-  isOpen,
-  onClose,
-  onSend,
-}: ContactAttendeeModalProps) {
+export default function ContactAttendeeModal({ isOpen, onClose }: ContactAttendeeModalProps) {
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
-
-  const handleSend = () => {
-    if (!subject.trim()) {
-      setError('Subject is required');
-      return;
-    }
-    if (!message.trim()) {
-      setError('Message is required');
-      return;
-    }
-    if (message.trim().length < 10) {
-      setError('Message must be at least 10 characters');
-      return;
-    }
-
-    onSend(subject, message);
-    setSuccess(true);
-    setSubject('');
-    setMessage('');
-    setError('');
-
-    setTimeout(() => {
-      setSuccess(false);
-      onClose();
-    }, 2000);
-  };
 
   if (!isOpen) return null;
 
+  const handleSend = () => {
+    alert(`Message sent to all attendees!\nSubject: ${subject}`);
+    setSubject('');
+    setMessage('');
+    onClose();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
-        onClick={onClose}
-      />
-
-      <div className="relative bg-white rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition"
-        >
-          <X className="h-6 w-6" />
-        </button>
-
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-indigo-100 rounded-lg">
-            <Mail className="h-6 w-6 text-indigo-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900">Contact Attendees</h2>
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
+        <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <Send size={20} className="text-brand-500" /> Contact Attendees
+          </h3>
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500">
+            <X size={20} />
+          </button>
         </div>
-
-        <div className="space-y-4">
+        <div className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Subject
-            </label>
+            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 block mb-1">Subject</label>
             <input
-              type="text"
               value={subject}
-              onChange={(e) => {
-                setSubject(e.target.value);
-                setError('');
-              }}
-              placeholder="Email subject..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              disabled={success}
-              autoFocus
+              onChange={e => setSubject(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              placeholder="Message subject..."
             />
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Message
-            </label>
+            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 block mb-1">Message</label>
             <textarea
               value={message}
-              onChange={(e) => {
-                setMessage(e.target.value);
-                setError('');
-              }}
-              placeholder="Your message here..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none h-32"
-              disabled={success}
+              onChange={e => setMessage(e.target.value)}
+              rows={5}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm resize-none"
+              placeholder="Write your message..."
             />
-            <p className="text-xs text-gray-500 mt-1">
-              {message.length} characters
-            </p>
           </div>
-
-          {error && (
-            <div className="flex gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800">
-              <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-              <span className="text-sm font-medium">{error}</span>
-            </div>
-          )}
-
-          {success && (
-            <div className="flex gap-2 p-3 bg-green-50 border border-green-200 rounded-lg text-green-800">
-              <Check className="h-5 w-5 flex-shrink-0" />
-              <span className="text-sm font-medium">Message sent to all attendees!</span>
-            </div>
-          )}
-
-          <div className="flex gap-3 pt-4">
-            <button
-              onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition font-medium disabled:opacity-50"
-              disabled={success}
-            >
+          <div className="flex gap-2 justify-end">
+            <button onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-lg text-sm font-semibold">
               Cancel
             </button>
-            <button
-              onClick={handleSend}
-              disabled={success}
-              className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium disabled:opacity-50"
-            >
-              {success ? 'Sent!' : 'Send Message'}
+            <button onClick={handleSend} disabled={!subject.trim() || !message.trim()} className="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-semibold hover:bg-brand-700 disabled:opacity-50 flex items-center gap-1.5">
+              <Send size={14} /> Send Message
             </button>
           </div>
         </div>
@@ -140,4 +63,3 @@ export default function ContactAttendeeModal({
     </div>
   );
 }
-export default ContactAttendeeModal;

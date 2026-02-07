@@ -1,117 +1,48 @@
 import React, { useState } from 'react';
-import { X, Mail, AlertCircle, Check } from 'lucide-react';
+import { X, Mail } from 'lucide-react';
 
 interface AddAttendeeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onInvite: (email: string) => void;
 }
 
-export default function AddAttendeeModal({
-  isOpen,
-  onClose,
-  onInvite,
-}: AddAttendeeModalProps) {
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
-
-  const validateEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
-
-  const handleInvite = () => {
-    if (!email.trim()) {
-      setError('Email is required');
-      return;
-    }
-    if (!validateEmail(email)) {
-      setError('Invalid email address');
-      return;
-    }
-
-    onInvite(email);
-    setSuccess(true);
-    setEmail('');
-    setError('');
-
-    setTimeout(() => {
-      setSuccess(false);
-      onClose();
-    }, 2000);
-  };
+export default function AddAttendeeModal({ isOpen, onClose }: AddAttendeeModalProps) {
+  const [emails, setEmails] = useState('');
 
   if (!isOpen) return null;
 
+  const handleSubmit = () => {
+    alert(`Invitations sent to: ${emails}`);
+    setEmails('');
+    onClose();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
-        onClick={onClose}
-      />
-
-      <div className="relative bg-white rounded-lg shadow-2xl p-6 w-full max-w-md">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition"
-        >
-          <X className="h-6 w-6" />
-        </button>
-
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-indigo-100 rounded-lg">
-            <Mail className="h-6 w-6 text-indigo-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900">Add Attendee</h2>
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
+        <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <Mail size={20} className="text-brand-500" /> Add Attendees
+          </h3>
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500">
+            <X size={20} />
+          </button>
         </div>
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email Address
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setError('');
-              }}
-              placeholder="attendee@example.com"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              onKeyPress={(e) => e.key === 'Enter' && handleInvite()}
-              autoFocus
-              disabled={success}
-            />
-            {error && (
-              <div className="mt-2 flex gap-2 text-sm text-red-600">
-                <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                {error}
-              </div>
-            )}
-          </div>
-
-          {success && (
-            <div className="flex gap-2 p-3 bg-green-50 border border-green-200 rounded-lg text-green-800">
-              <Check className="h-5 w-5 flex-shrink-0" />
-              <span className="text-sm font-medium">Invitation sent successfully!</span>
-            </div>
-          )}
-
-          <div className="flex gap-3 pt-4">
-            <button
-              onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition font-medium"
-              disabled={success}
-            >
+        <div className="p-5 space-y-4">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Enter email addresses to invite attendees to this course.</p>
+          <textarea
+            value={emails}
+            onChange={e => setEmails(e.target.value)}
+            rows={4}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm resize-none"
+            placeholder="Enter email addresses, one per line..."
+          />
+          <div className="flex gap-2 justify-end">
+            <button onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-lg text-sm font-semibold">
               Cancel
             </button>
-            <button
-              onClick={handleInvite}
-              disabled={success}
-              className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium disabled:opacity-50"
-            >
-              {success ? 'Sent!' : 'Send Invite'}
+            <button onClick={handleSubmit} disabled={!emails.trim()} className="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-semibold hover:bg-brand-700 disabled:opacity-50">
+              Send Invitations
             </button>
           </div>
         </div>
@@ -119,4 +50,3 @@ export default function AddAttendeeModal({
     </div>
   );
 }
-export default AddAttendeeModal;

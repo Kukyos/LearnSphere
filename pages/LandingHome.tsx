@@ -161,7 +161,6 @@ const LandingHome: React.FC = () => {
               key={course.id}
               course={course}
               onHover={handleHover}
-              onPlay={handlePlay}
             />
           ))}
         </div>
