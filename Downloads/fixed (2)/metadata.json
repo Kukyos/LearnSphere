@@ -1,7 +1,0 @@
-{
-  "name": "fixed ",
-  "description": "A graffiti-styled portfolio for Denny Mathew, featuring Web Development, AI projects, and Music Production.",
-  "requestFramePermissions": [
-    "microphone"
-  ]
-}
