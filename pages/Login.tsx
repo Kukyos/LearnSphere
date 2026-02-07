@@ -36,10 +36,10 @@ const Login: React.FC = () => {
         }
         await register(fullName, email, password, role);
         setMessage({ type: 'success', text: `Welcome, ${fullName}! Account created.` });
-        setTimeout(() => navigate('/home'), 800);
+        setTimeout(() => navigate('/'), 800);
       } else {
         await login(email, password);
-        navigate('/home');
+        navigate('/');
       }
     } catch (error: any) {
       setMessage({ type: 'error', text: error.message || 'Something went wrong. Please try again.' });

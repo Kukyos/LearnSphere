@@ -93,6 +93,11 @@ const Navbar: React.FC = () => {
                     Dashboard
                   </Link>
                 )}
+                {(user?.role === 'instructor' || user?.role === 'admin') && (
+                  <Link to="/reporting" className={linkClass('/reporting')}>
+                    Reporting
+                  </Link>
+                )}
               </>
             ) : (
               <Link to="/" className={linkClass('/')}>
@@ -165,6 +170,11 @@ const Navbar: React.FC = () => {
                     {(user?.role === 'instructor' || user?.role === 'admin') && (
                       <Link to="/courses" className="block rounded-xl px-4 py-3 text-sm font-bold text-brand-800 hover:bg-brand-100 dark:text-brand-100 dark:hover:bg-brand-800" onClick={() => setIsMobileMenuOpen(false)}>
                         Dashboard
+                      </Link>
+                    )}
+                    {(user?.role === 'instructor' || user?.role === 'admin') && (
+                      <Link to="/reporting" className="block rounded-xl px-4 py-3 text-sm font-bold text-brand-800 hover:bg-brand-100 dark:text-brand-100 dark:hover:bg-brand-800" onClick={() => setIsMobileMenuOpen(false)}>
+                        Reporting
                       </Link>
                     )}
                     <button 

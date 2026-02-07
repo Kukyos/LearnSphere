@@ -13,7 +13,8 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   isLoggedIn: boolean;
-  login: (email: string, password: string, role: UserRole) => Promise<void>;
+  login: (email: string, password: string, role?: UserRole) => Promise<void>;
+  register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
   logout: () => void;
   loginAsGuest: () => void;
 }
@@ -39,16 +40,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, []);
 
-  const login = async (email: string, password: string, role: UserRole) => {
-    // Simulate API call
+  const login = async (email: string, password: string, role?: UserRole) => {
     return new Promise<void>((resolve) => {
       setTimeout(() => {
         const mockUser: User = {
           id: 'u1',
           name: email.split('@')[0] || 'User',
           email: email,
-          role: role,
-          avatar: `https://ui-avatars.com/api/?name=${email}&background=random`
+          role: role || 'learner',
+          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email)}&background=random`
+        };
+        setUser(mockUser);
+        localStorage.setItem('lumina_user', JSON.stringify(mockUser));
+        resolve();
+      }, 500);
+    });
+  };
+
+  const register = async (name: string, email: string, password: string, role: UserRole) => {
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        const mockUser: User = {
+          id: 'u-' + Date.now(),
+          name,
+          email,
+          role,
+          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=5c7f4c&color=fff`
         };
         setUser(mockUser);
         localStorage.setItem('lumina_user', JSON.stringify(mockUser));
@@ -79,8 +96,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <AuthContext.Provider value={{ 
       user, 
       isLoggedIn: !!user, 
-      login, 
-      logout, 
+      login,       register,      logout, 
       loginAsGuest 
     }}>
       {children}
