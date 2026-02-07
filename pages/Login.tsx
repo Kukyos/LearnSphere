@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Shield, GraduationCap, Sparkles, CheckCircle, AlertCircle } from 'lucide-react';
+import { Mail, GraduationCap, Sparkles, CheckCircle, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { AuthMode, UserRole } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { WorldGlobe } from '../components/visuals/WorldGlobe';
+import { apiForgotPassword, isBackendAvailable } from '../services/api';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -20,6 +21,32 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [forgotMode, setForgotMode] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail) { setMessage({ type: 'error', text: 'Please enter your email.' }); return; }
+    setForgotLoading(true);
+    setMessage(null);
+    try {
+      const online = await isBackendAvailable();
+      if (!online) {
+        setMessage({ type: 'error', text: 'Password reset requires a running server. Please try again later.' });
+        setForgotLoading(false);
+        return;
+      }
+      await apiForgotPassword(forgotEmail);
+      setMessage({ type: 'success', text: 'If that email exists, a reset link has been sent. Check your inbox.' });
+      setTimeout(() => { setForgotMode(false); setMessage(null); }, 4000);
+    } catch {
+      setMessage({ type: 'success', text: 'If that email exists, a reset link has been sent.' });
+      setTimeout(() => { setForgotMode(false); setMessage(null); }, 4000);
+    } finally {
+      setForgotLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,16 +82,15 @@ const Login: React.FC = () => {
 
   const getRoleIcon = (r: UserRole) => {
     switch (r) {
-      case 'admin': return <Shield size={16} />;
       case 'instructor': return <GraduationCap size={16} />;
       case 'learner': return <Sparkles size={16} />;
+      default: return <Sparkles size={16} />;
     }
   };
 
   const getWelcomeMessage = () => {
     if (mode === 'signup') return "Begin your path.";
     switch (role) {
-      case 'admin': return "System Control";
       case 'instructor': return "Welcome back, Mentor.";
       case 'learner': return "Continue your journey.";
       default: return "Welcome Back";
@@ -74,7 +100,6 @@ const Login: React.FC = () => {
   const getSubMessage = () => {
     if (mode === 'signup') return "Create your account to start learning.";
     switch (role) {
-      case 'admin': return "Manage users and platform settings.";
       case 'instructor': return "Your students await guidance.";
       case 'learner': return "Ready to grow today?";
       default: return "Enter your credentials to access your account.";
@@ -114,7 +139,7 @@ const Login: React.FC = () => {
               
               {/* Role Selector Pills */}
               <div className="flex p-1 bg-brand-100 rounded-2xl mb-8 border border-brand-200 relative">
-                {(['learner', 'instructor', 'admin'] as UserRole[]).map((r) => (
+                {(['learner', 'instructor'] as UserRole[]).map((r) => (
                   <button
                     key={r}
                     onClick={() => setRole(r)}
@@ -212,14 +237,55 @@ const Login: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
-                  {mode === 'login' && (
+                  {mode === 'login' && !forgotMode && (
                     <div className="flex justify-end pt-1">
-                      <button type="button" className="text-sm text-brand-500 hover:text-brand-700 transition-colors font-medium">
+                      <button type="button" onClick={() => { setForgotMode(true); setForgotEmail(email); setMessage(null); }} className="text-sm text-brand-500 hover:text-brand-700 transition-colors font-medium">
                         Forgot password?
                       </button>
                     </div>
                   )}
                 </div>
+
+                {/* Forgot Password Inline Form */}
+                <AnimatePresence>
+                  {forgotMode && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="bg-brand-50 border border-brand-200 rounded-2xl p-4 space-y-3">
+                        <p className="text-sm text-brand-700 font-medium">Enter your email to receive a password reset link.</p>
+                        <Input
+                          id="forgotEmail"
+                          type="email"
+                          placeholder="name@nature.com"
+                          icon={<Mail size={18} />}
+                          value={forgotEmail}
+                          onChange={(e) => setForgotEmail(e.target.value)}
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            className="rounded-2xl flex-1 py-2 text-sm font-bold"
+                            isLoading={forgotLoading}
+                            onClick={handleForgotPassword}
+                          >
+                            Send Reset Link
+                          </Button>
+                          <button
+                            type="button"
+                            onClick={() => { setForgotMode(false); setMessage(null); }}
+                            className="px-4 py-2 text-sm text-brand-500 hover:text-brand-700 font-medium transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 <Button 
                   type="submit" 

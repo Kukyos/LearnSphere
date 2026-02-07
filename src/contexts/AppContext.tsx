@@ -2,6 +2,19 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useAuth } from '../../context/AuthContext';
 import { MOCK_COURSES as LANDING_COURSES } from '../../constants';
 import { Course as LandingCourse, Difficulty } from '../../types';
+import {
+  isBackendAvailable,
+  apiListCourses,
+  apiCreateCourse,
+  apiUpdateCourse as apiUpdateCourseReq,
+  apiDeleteCourse as apiDeleteCourseReq,
+  apiEnroll,
+  apiCompleteLesson as apiCompleteLessonReq,
+  apiAddReview as apiAddReviewReq,
+  apiGetReporting,
+  apiAwardPoints,
+  type ApiCourse,
+} from '../../services/api';
 
 // Types
 export interface AppUser {
@@ -143,6 +156,50 @@ export const useApp = () => {
   return context;
 };
 
+/** Convert a backend API course to our local Course shape */
+function apiCourseToLocal(ac: ApiCourse): Course {
+  return {
+    id: String(ac.id),
+    title: ac.title,
+    shortDescription: ac.short_description || '',
+    description: ac.description || '',
+    coverImage: ac.cover_image || '',
+    tags: ac.tags || [],
+    rating: Number(ac.rating) || 0,
+    visibility: (ac.visibility as Course['visibility']) || 'Everyone',
+    access: (ac.access as Course['access']) || 'Open',
+    price: Number(ac.price) || 0,
+    published: ac.published,
+    instructorId: String(ac.instructor_id),
+    instructorName: ac.instructor_name || '',
+    lessons: (ac.lessons || []).map(l => ({
+      id: String(l.id),
+      title: l.title,
+      description: l.description || '',
+      type: l.type as Lesson['type'],
+      content: l.content || '',
+      duration: l.duration || '',
+      downloadAllowed: l.download_allowed,
+      quiz: l.quiz ? {
+        questions: l.quiz.questions.map(q => ({
+          id: String(q.id),
+          question: q.text,
+          options: q.options,
+          correctAnswer: q.correct_answer,
+        })),
+        rewardRules: [{ attempt: 1, points: 10 }, { attempt: 2, points: 5 }, { attempt: 3, points: 2 }],
+      } : undefined,
+    })),
+    viewsCount: ac.views_count || 0,
+    totalDuration: ac.total_duration || '',
+    createdAt: ac.created_at,
+    category: ac.category || '',
+    difficulty: ac.difficulty || 'Beginner',
+    enrollmentCount: Number(ac.enrollment_count) || 0,
+    reviewCount: Number(ac.review_count) || 0,
+  };
+}
+
 /** Convert an AppContext Course back to the shape the Landing page CourseCard expects */
 export function toDisplayCourse(c: Course): LandingCourse {
   return {
@@ -250,6 +307,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   });
 
   const [userPoints, setUserPoints] = useState(35);
+
+  // Sync points from backend when authenticated user changes
+  useEffect(() => {
+    if (authUser?.points && authUser.points > 0) {
+      setUserPoints(authUser.points);
+    }
+  }, [authUser?.id]);
+
   const [enrolledCourses, setEnrolledCourses] = useState<string[]>([]);
   const [completedCoursesState, setCompletedCoursesState] = useState<string[]>([]);
   const [userProgress, setUserProgress] = useState<CourseProgress[]>([]);
@@ -288,7 +353,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     id: authUser.id,
     name: authUser.name,
     email: authUser.email,
-    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(authUser.name)}&background=5c7f4c&color=fff`,
+    avatar: authUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(authUser.name)}&background=5c7f4c&color=fff`,
     points: userPoints,
     badge: getBadge(userPoints),
     enrolledCourses,
@@ -322,6 +387,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   }, [authUser?.id, authUser?.role]);
 
+  // ── Fetch courses from backend when available ──────────────
+  useEffect(() => {
+    const fetchFromBackend = async () => {
+      const online = await isBackendAvailable();
+      if (!online) return; // keep mock data
+      const res = await apiListCourses();
+      if (res.success && res.data?.courses?.length) {
+        const mapped: Course[] = res.data.courses.map(apiCourseToLocal);
+        // Merge: backend courses replace mock courses with same id, new ones get added
+        setCourses(prev => {
+          const backendIds = new Set(mapped.map(c => c.id));
+          const remaining = prev.filter(c => !backendIds.has(c.id));
+          return [...mapped, ...remaining];
+        });
+      }
+    };
+    fetchFromBackend();
+  }, [authUser?.id]); // re-fetch when user changes
+
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
@@ -339,6 +423,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         userName: authUser.name,
       }
     ]);
+    // Fire-and-forget backend call
+    isBackendAvailable().then(ok => { if (ok) apiEnroll(courseId); });
   };
 
   const completeLesson = (courseId: string, lessonId: string) => {
@@ -369,6 +455,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         );
       }
     });
+    // Fire-and-forget backend call
+    isBackendAvailable().then(ok => { if (ok) apiCompleteLessonReq(courseId, lessonId); });
   };
 
   const submitQuiz = (courseId: string, lessonId: string, attempt: number): number => {
@@ -382,6 +470,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const points = reward?.points || 0;
 
     setUserPoints(prev => prev + points);
+    // Fire-and-forget backend points award
+    if (points > 0) {
+      isBackendAvailable().then(ok => { if (ok) apiAwardPoints(points); });
+    }
 
     setUserProgress(prevProgress => {
       return prevProgress.map(p =>
@@ -426,6 +518,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       date: new Date().toISOString().split('T')[0]
     };
     setReviews(prev => [...prev, newReview]);
+    // Fire-and-forget backend call
+    isBackendAvailable().then(ok => { if (ok) apiAddReviewReq(courseId, rating, text); });
   };
 
   // Instructor CRUD
@@ -449,15 +543,50 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       createdAt: new Date().toISOString().split('T')[0],
     };
     setCourses(prev => [...prev, newCourse]);
+    // Fire-and-forget — create in backend, update local id if returned
+    isBackendAvailable().then(async (ok) => {
+      if (!ok) return;
+      const res = await apiCreateCourse({
+        title,
+        short_description: '',
+        description: '',
+        cover_image: '',
+        tags: [],
+        published: false,
+      } as any);
+      if (res.success && res.data?.course) {
+        const backendId = String(res.data.course.id);
+        setCourses(prev => prev.map(c => c.id === newCourse.id ? { ...c, id: backendId } : c));
+      }
+    });
     return newCourse;
   };
 
   const updateCourse = (courseId: string, updates: Partial<Course>) => {
     setCourses(prev => prev.map(c => c.id === courseId ? { ...c, ...updates } : c));
+    // Fire-and-forget backend call
+    isBackendAvailable().then(ok => {
+      if (ok) apiUpdateCourseReq(courseId, {
+        title: updates.title,
+        short_description: updates.shortDescription,
+        description: updates.description,
+        cover_image: updates.coverImage,
+        tags: updates.tags,
+        visibility: updates.visibility,
+        access: updates.access,
+        price: updates.price,
+        published: updates.published,
+        category: updates.category,
+        difficulty: updates.difficulty,
+        total_duration: updates.totalDuration,
+      } as any);
+    });
   };
 
   const deleteCourse = (courseId: string) => {
     setCourses(prev => prev.filter(c => c.id !== courseId));
+    // Fire-and-forget backend call
+    isBackendAvailable().then(ok => { if (ok) apiDeleteCourseReq(courseId); });
   };
 
   // Reporting
