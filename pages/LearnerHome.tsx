@@ -1,6 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
 import CourseCard from '../components/CourseCard';
 import Footer from '../components/Footer';
 import FilterPanel from '../components/FilterPanel';
@@ -10,7 +9,6 @@ import { ChevronRight } from 'lucide-react';
 
 const LearnerHome: React.FC = () => {
   const navigate = useNavigate();
-  const [isDark, setIsDark] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterState, setFilterState] = useState<FilterState>({
     searchQuery: '',
@@ -20,68 +18,6 @@ const LearnerHome: React.FC = () => {
     minRating: null,
     duration: 'all',
   });
-
-  // Initialize Theme
-  useEffect(() => {
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setIsDark(true);
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
-
-  // Theme Toggle with View Transitions
-  const toggleTheme = (e: React.MouseEvent) => {
-    const isDarkNow = document.documentElement.classList.contains('dark');
-    const root = document.documentElement;
-
-    if (!(document as any).startViewTransition) {
-      if (isDarkNow) {
-        root.classList.remove('dark');
-        setIsDark(false);
-      } else {
-        root.classList.add('dark');
-        setIsDark(true);
-      }
-      return;
-    }
-
-    const x = e.clientX;
-    const y = e.clientY;
-    const endRadius = Math.hypot(
-      Math.max(x, innerWidth - x),
-      Math.max(y, innerHeight - y)
-    );
-
-    const transition = (document as any).startViewTransition(() => {
-      if (isDarkNow) {
-        root.classList.remove('dark');
-        setIsDark(false);
-      } else {
-        root.classList.add('dark');
-        setIsDark(true);
-      }
-    });
-
-    transition.ready.then(() => {
-      const clipPath = [
-        `circle(0px at ${x}px ${y}px)`,
-        `circle(${endRadius}px at ${x}px ${y}px)`,
-      ];
-
-      document.documentElement.animate(
-        {
-          clipPath: isDarkNow ? [...clipPath].reverse() : clipPath,
-        },
-        {
-          duration: 400,
-          easing: 'ease-in-out',
-          pseudoElement: isDarkNow
-            ? '::view-transition-old(root)'
-            : '::view-transition-new(root)',
-        }
-      );
-    });
-  };
 
   // Filter Logic
   const filteredCourses = useMemo(() => {
@@ -120,8 +56,7 @@ const LearnerHome: React.FC = () => {
   }, [searchQuery, filterState]);
 
   const handlePreview = (course: Course) => {
-    // For now, just log - in future could navigate to course detail page
-    console.log('Preview course:', course.id);
+    navigate(`/course/${course.id}`);
   };
 
   const CourseRow = ({ title, courses }: { title: string; courses: Course[] }) => {
@@ -152,7 +87,6 @@ const LearnerHome: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-nature-light transition-colors duration-300 dark:bg-brand-900 font-sans overflow-x-hidden">
-      <Navbar isDark={isDark} toggleTheme={toggleTheme} />
 
       {/* Top Padding for Navbar */}
       <div className="h-32"></div>

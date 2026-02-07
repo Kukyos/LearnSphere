@@ -1,22 +1,69 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Menu, X, Sun, Moon, LogOut } from 'lucide-react';
+import React, { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { BookOpen, Menu, X, Sun, Moon, LogOut, Compass, BookMarked, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useApp } from '../src/contexts/AppContext';
+import ProfileDrawer from '../src/components/ProfileDrawer';
 
-interface NavbarProps {
-  isDark: boolean;
-  toggleTheme: (e: React.MouseEvent) => void;
-}
-
-const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+const Navbar: React.FC = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const { user, isLoggedIn, logout } = useAuth();
+  const { theme, toggleTheme } = useApp();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isDark = theme === 'dark';
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
+
+  const handleThemeToggle = (e: React.MouseEvent) => {
+    const root = document.documentElement;
+    if (!(document as any).startViewTransition) {
+      toggleTheme();
+      return;
+    }
+
+    const x = e.clientX;
+    const y = e.clientY;
+    const endRadius = Math.hypot(
+      Math.max(x, innerWidth - x),
+      Math.max(y, innerHeight - y)
+    );
+    const isDarkNow = theme === 'dark';
+
+    const transition = (document as any).startViewTransition(() => {
+      toggleTheme();
+    });
+
+    transition.ready.then(() => {
+      const clipPath = [
+        `circle(0px at ${x}px ${y}px)`,
+        `circle(${endRadius}px at ${x}px ${y}px)`,
+      ];
+      document.documentElement.animate(
+        { clipPath: isDarkNow ? [...clipPath].reverse() : clipPath },
+        {
+          duration: 400,
+          easing: 'ease-in-out',
+          pseudoElement: isDarkNow
+            ? '::view-transition-old(root)'
+            : '::view-transition-new(root)',
+        }
+      );
+    });
+  };
+
+  const isActive = (path: string) => location.pathname === path;
+
+  const linkClass = (path: string) =>
+    `rounded-full px-5 py-2 text-xs font-semibold transition-all ${
+      isActive(path)
+        ? 'bg-brand-200/60 text-brand-900 dark:bg-brand-700 dark:text-white'
+        : 'text-brand-700 hover:bg-brand-200/50 hover:text-brand-900 dark:text-brand-200 dark:hover:bg-brand-800 dark:hover:text-white'
+    }`;
 
   return (
     <>
@@ -35,21 +82,22 @@ const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
           <div className="hidden md:flex items-center gap-1">
             {isLoggedIn ? (
               <>
-                <Link to="/" className="rounded-full px-5 py-2 text-xs font-semibold text-brand-700 hover:bg-brand-200/50 hover:text-brand-900 transition-all dark:text-brand-200 dark:hover:bg-brand-800 dark:hover:text-white">
-                  Browse
+                <Link to="/explore" className={linkClass('/explore')}>
+                  Explore
+                </Link>
+                <Link to="/my-courses" className={linkClass('/my-courses')}>
+                  My Courses
                 </Link>
                 {(user?.role === 'instructor' || user?.role === 'admin') && (
-                  <Link to="/courses" className="rounded-full px-5 py-2 text-xs font-semibold text-brand-700 hover:bg-brand-200/50 hover:text-brand-900 transition-all dark:text-brand-200 dark:hover:bg-brand-800 dark:hover:text-white">
+                  <Link to="/courses" className={linkClass('/courses')}>
                     Dashboard
                   </Link>
                 )}
               </>
             ) : (
-              <>
-                <Link to="/" className="rounded-full px-5 py-2 text-xs font-semibold text-brand-700 hover:bg-brand-200/50 hover:text-brand-900 transition-all dark:text-brand-200 dark:hover:bg-brand-800 dark:hover:text-white">
-                  Home
-                </Link>
-              </>
+              <Link to="/" className={linkClass('/')}>
+                Home
+              </Link>
             )}
           </div>
 
@@ -57,7 +105,7 @@ const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
           <div className="flex items-center gap-1 ml-auto">
             {/* Theme Toggle */}
             <button 
-              onClick={toggleTheme}
+              onClick={handleThemeToggle}
               className="group flex h-9 w-9 items-center justify-center rounded-full bg-transparent text-brand-500 hover:bg-brand-200/50 hover:text-brand-800 transition-all dark:text-brand-400 dark:hover:bg-brand-800 dark:hover:text-white"
               aria-label="Toggle theme"
             >
@@ -66,9 +114,13 @@ const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
 
             {isLoggedIn ? (
               <div className="flex items-center gap-2 ml-1">
-                <span className="hidden sm:block text-xs font-semibold text-brand-700 dark:text-brand-200 truncate max-w-[100px]">
+                <button 
+                  onClick={() => setShowProfile(true)}
+                  className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-brand-700 dark:text-brand-200 truncate max-w-[120px] hover:text-brand-900 dark:hover:text-white transition-colors cursor-pointer"
+                >
+                  <User size={14} />
                   {user?.name}
-                </span>
+                </button>
                 <button 
                   onClick={handleLogout}
                   className="rounded-full bg-brand-800 px-4 py-2 text-xs font-bold text-white transition-all hover:bg-brand-900 hover:shadow-lg dark:bg-brand-600 dark:hover:bg-brand-500 flex items-center gap-1.5"
@@ -104,14 +156,23 @@ const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
               <div className="flex flex-col gap-2">
                 {isLoggedIn ? (
                   <>
-                    <Link to="/" className="block rounded-xl px-4 py-3 text-sm font-bold text-brand-800 hover:bg-brand-100 dark:text-brand-100 dark:hover:bg-brand-800" onClick={() => setIsMobileMenuOpen(false)}>
-                      Browse Courses
+                    <Link to="/explore" className="block rounded-xl px-4 py-3 text-sm font-bold text-brand-800 hover:bg-brand-100 dark:text-brand-100 dark:hover:bg-brand-800" onClick={() => setIsMobileMenuOpen(false)}>
+                      Explore Courses
+                    </Link>
+                    <Link to="/my-courses" className="block rounded-xl px-4 py-3 text-sm font-bold text-brand-800 hover:bg-brand-100 dark:text-brand-100 dark:hover:bg-brand-800" onClick={() => setIsMobileMenuOpen(false)}>
+                      My Courses
                     </Link>
                     {(user?.role === 'instructor' || user?.role === 'admin') && (
                       <Link to="/courses" className="block rounded-xl px-4 py-3 text-sm font-bold text-brand-800 hover:bg-brand-100 dark:text-brand-100 dark:hover:bg-brand-800" onClick={() => setIsMobileMenuOpen(false)}>
                         Dashboard
                       </Link>
                     )}
+                    <button 
+                      onClick={() => { setShowProfile(true); setIsMobileMenuOpen(false); }}
+                      className="block text-left w-full rounded-xl px-4 py-3 text-sm font-bold text-brand-800 hover:bg-brand-100 dark:text-brand-100 dark:hover:bg-brand-800"
+                    >
+                      Profile
+                    </button>
                     <button 
                       onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
                       className="block text-left w-full rounded-xl px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
@@ -124,6 +185,9 @@ const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
                     <Link to="/" className="block rounded-xl px-4 py-3 text-sm font-bold text-brand-800 hover:bg-brand-100 dark:text-brand-100 dark:hover:bg-brand-800" onClick={() => setIsMobileMenuOpen(false)}>
                       Home
                     </Link>
+                    <Link to="/explore" className="block rounded-xl px-4 py-3 text-sm font-bold text-brand-800 hover:bg-brand-100 dark:text-brand-100 dark:hover:bg-brand-800" onClick={() => setIsMobileMenuOpen(false)}>
+                      Explore Courses
+                    </Link>
                     <Link to="/login" className="block rounded-xl px-4 py-3 text-sm font-bold text-brand-800 hover:bg-brand-100 dark:text-brand-100 dark:hover:bg-brand-800" onClick={() => setIsMobileMenuOpen(false)}>
                       Sign In
                     </Link>
@@ -133,6 +197,9 @@ const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
            </div>
         </div>
       )}
+
+      {/* Profile Drawer */}
+      {showProfile && <ProfileDrawer onClose={() => setShowProfile(false)} />}
     </>
   );
 };

@@ -32,7 +32,8 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, onPreview, width = "w-[
       onMouseLeave={handleMouseLeave}
     >
       {/* Placeholder Base Card (Visible when not hovered/popped) */}
-      <div className={`h-full w-full overflow-hidden rounded-md bg-brand-800 transition-opacity duration-300 ${isHovered ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`h-full w-full overflow-hidden rounded-md bg-brand-800 transition-opacity duration-300 cursor-pointer ${isHovered ? 'opacity-0' : 'opacity-100'}`}
+           onClick={() => onPreview(course)}>
          <img 
             src={course.thumbnailUrl} 
             alt={course.title} 
