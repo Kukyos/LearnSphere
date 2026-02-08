@@ -71,8 +71,10 @@ CREATE TABLE IF NOT EXISTS quiz_questions (
     id SERIAL PRIMARY KEY,
     lesson_id INT REFERENCES lessons(id) ON DELETE CASCADE,
     text TEXT NOT NULL,
-    options TEXT[] NOT NULL,
-    correct_answer INT NOT NULL,
+    type TEXT DEFAULT 'mcq' CHECK (type IN ('mcq', 'fill_blank')),
+    options TEXT[] NOT NULL DEFAULT '{}',
+    correct_answer INT NOT NULL DEFAULT 0,
+    correct_text TEXT DEFAULT '',
     sort_order INT DEFAULT 0
 );
 

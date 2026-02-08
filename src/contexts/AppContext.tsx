@@ -13,6 +13,10 @@ import {
   apiAwardPoints,
   apiGetReviews,
   apiGetMyEnrollments,
+  apiAddLesson,
+  apiUpdateLesson,
+  apiDeleteLesson,
+  apiSetQuizQuestions,
   type ApiCourse,
 } from '../../services/api';
 
@@ -81,8 +85,10 @@ export interface Quiz {
 export interface QuizQuestion {
   id: string;
   question: string;
+  type: 'mcq' | 'fill_blank';
   options: string[];
   correctAnswer: number;
+  correctText?: string;
 }
 
 export interface LessonProgress {
@@ -179,8 +185,10 @@ function apiCourseToLocal(ac: ApiCourse): Course {
         questions: l.quiz.questions.map(q => ({
           id: String(q.id),
           question: q.text,
-          options: q.options,
+          type: q.type || 'mcq',
+          options: q.options || [],
           correctAnswer: q.correct_answer,
+          correctText: q.correct_text || '',
         })),
         rewardRules: [{ attempt: 1, points: 10 }, { attempt: 2, points: 5 }, { attempt: 3, points: 2 }],
       } : undefined,
@@ -491,8 +499,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const updateCourse = (courseId: string, updates: Partial<Course>) => {
     setCourses(prev => prev.map(c => c.id === courseId ? { ...c, ...updates } : c));
-    isBackendAvailable().then(ok => {
-      if (ok) apiUpdateCourseReq(courseId, {
+    isBackendAvailable().then(async (ok) => {
+      if (!ok) return;
+      // 1. Update course metadata
+      await apiUpdateCourseReq(courseId, {
         title: updates.title,
         short_description: updates.shortDescription,
         description: updates.description,
@@ -506,6 +516,83 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         difficulty: updates.difficulty,
         total_duration: updates.totalDuration,
       } as any);
+
+      // 2. Sync lessons if provided
+      if (updates.lessons) {
+        const existingCourse = courses.find(c => c.id === courseId);
+        const existingLessonIds = new Set((existingCourse?.lessons || []).map(l => l.id));
+        const updatedLessonIds = new Set(updates.lessons.map(l => l.id));
+
+        // Delete removed lessons
+        for (const existingLesson of (existingCourse?.lessons || [])) {
+          if (!updatedLessonIds.has(existingLesson.id)) {
+            await apiDeleteLesson(courseId, existingLesson.id);
+          }
+        }
+
+        // Add or update lessons
+        for (let i = 0; i < updates.lessons.length; i++) {
+          const lesson = updates.lessons[i];
+          const isNew = !existingLessonIds.has(lesson.id) || lesson.id.startsWith('l-');
+
+          if (isNew) {
+            const res = await apiAddLesson(courseId, {
+              title: lesson.title,
+              description: lesson.description,
+              type: lesson.type,
+              content: lesson.content,
+              duration: lesson.duration,
+              sort_order: i + 1,
+            } as any);
+
+            // If this lesson has a quiz, save quiz questions with the new backend ID
+            if (lesson.quiz && lesson.quiz.questions.length > 0 && res.success && res.data?.lesson) {
+              const backendLessonId = res.data.lesson.id;
+              await apiSetQuizQuestions(courseId, backendLessonId,
+                lesson.quiz.questions.map(q => ({
+                  text: q.question,
+                  type: (q as any).type || 'mcq',
+                  options: q.options,
+                  correctAnswer: q.correctAnswer,
+                  correctText: (q as any).correctText || '',
+                }))
+              );
+            }
+          } else {
+            await apiUpdateLesson(courseId, lesson.id, {
+              title: lesson.title,
+              description: lesson.description,
+              type: lesson.type,
+              content: lesson.content,
+              duration: lesson.duration,
+              sort_order: i + 1,
+            } as any);
+
+            // If quiz lesson, sync quiz questions
+            if (lesson.quiz && lesson.quiz.questions.length > 0) {
+              await apiSetQuizQuestions(courseId, lesson.id,
+                lesson.quiz.questions.map(q => ({
+                  text: q.question,
+                  type: (q as any).type || 'mcq',
+                  options: q.options,
+                  correctAnswer: q.correctAnswer,
+                  correctText: (q as any).correctText || '',
+                }))
+              );
+            }
+          }
+        }
+
+        // Refetch the course to get updated lesson IDs from backend
+        const refreshed = await apiListCourses();
+        if (refreshed.success && refreshed.data?.courses) {
+          const updatedBackendCourse = refreshed.data.courses.find(c => String(c.id) === courseId);
+          if (updatedBackendCourse) {
+            const mapped = apiCourseToLocal(updatedBackendCourse);
+            setCourses(prev => prev.map(c => c.id === courseId ? mapped : c));
+          }
+        }
+      }
     });
   };
 
@@ -514,8 +601,45 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     isBackendAvailable().then(ok => { if (ok) apiDeleteCourseReq(courseId); });
   };
 
-  // Reporting � uses real session data only (no mock data)
+  // Reporting — fetches from backend for instructor/admin, fallback to local data
+  const [reportData, setReportData] = useState<{ totalParticipants: number; yetToStart: number; inProgress: number; completed: number; rows: ReportRow[] } | null>(null);
+
+  useEffect(() => {
+    if (!authUser || !isLoggedIn) return;
+    if (authUser.role !== 'instructor' && authUser.role !== 'admin') return;
+    const fetchReport = async () => {
+      const online = await isBackendAvailable();
+      if (!online) return;
+      const res = await apiGetReporting();
+      if (res.success && res.data?.rows) {
+        const rows: ReportRow[] = res.data.rows.map((r: any, i: number) => ({
+          srNo: i + 1,
+          courseName: r.courseName || '',
+          participantName: r.participantName || '',
+          enrolledDate: r.enrolledDate || '',
+          startDate: r.startDate || '-',
+          timeSpent: r.timeSpent || '-',
+          completion: r.completion || 0,
+          completedDate: r.completedDate || '-',
+          status: r.status as ReportRow['status'],
+        }));
+        setReportData({
+          totalParticipants: rows.length,
+          yetToStart: rows.filter(r => r.status === 'Yet to Start').length,
+          inProgress: rows.filter(r => r.status === 'In Progress').length,
+          completed: rows.filter(r => r.status === 'Completed').length,
+          rows,
+        });
+      }
+    };
+    fetchReport();
+  }, [authUser?.id, isLoggedIn]);
+
   const getReportData = () => {
+    // If we have backend data (instructor/admin), use it
+    if (reportData) return reportData;
+
+    // Fallback to local data for learners
     const rows: ReportRow[] = userProgress.map((p, i) => {
       const course = courses.find(c => c.id === p.courseId);
       const totalLessons = course?.lessons.length || 1;

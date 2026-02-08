@@ -5,6 +5,7 @@ import {
   BookOpen, FileText, Settings, HelpCircle, Users, Mail, X, Circle
 } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
+import { useAuth } from '../../../context/AuthContext';
 import ContentTab from '../../components/course-form/tabs/ContentTab';
 import DescriptionTab from '../../components/course-form/tabs/DescriptionTab';
 import OptionsTab from '../../components/course-form/tabs/OptionsTab';
@@ -24,14 +25,18 @@ interface Lesson {
 interface QuizQuestion {
   id: string;
   question: string;
+  type: 'mcq' | 'fill_blank';
   options: string[];
   correctAnswer: number;
+  correctText?: string;
 }
 
 export default function CourseForm() {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
   const { courses, updateCourse } = useApp();
+  const { user: authUser } = useAuth();
+  const isAdmin = authUser?.role === 'admin';
   const isEditing = !!courseId;
   const existingCourse = isEditing ? courses.find(c => c.id === courseId) : null;
 
@@ -161,6 +166,11 @@ export default function CourseForm() {
                 <p className="text-xs text-brand-500 dark:text-brand-400">
                   <span className="flex items-center gap-1">{published ? <><Circle size={10} fill="#22c55e" className="text-green-500" /> Published</> : <><Circle size={10} fill="#ef4444" className="text-red-500" /> Draft</>}</span>
                 </p>
+                {isAdmin && isEditing && existingCourse?.instructorName && (
+                  <p className="text-xs text-brand-500 dark:text-brand-400 mt-0.5">
+                    Instructor: <span className="font-semibold text-brand-700 dark:text-brand-300">{existingCourse.instructorName}</span>
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-3">

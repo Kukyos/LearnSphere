@@ -4,6 +4,7 @@ import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { apiGetReviews } from '../../services/api';
 import { Star, BookOpen, Clock, Users, ChevronRight, CheckCircle, Lock, Play, FileText, HelpCircle, ArrowLeft, Trophy } from 'lucide-react';
+import PaymentModal from '../components/PaymentModal';
 
 const CourseDetailPage: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
@@ -15,6 +16,7 @@ const CourseDetailPage: React.FC = () => {
   const [reviewText, setReviewText] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
   const [fetchedReviews, setFetchedReviews] = useState<any[]>([]);
+  const [showPayment, setShowPayment] = useState(false);
 
   const course = courses.find(c => c.id === courseId);
 
@@ -80,6 +82,15 @@ const CourseDetailPage: React.FC = () => {
       navigate('/login');
       return;
     }
+    if (course.access === 'On Payment' && course.price && course.price > 0) {
+      setShowPayment(true);
+      return;
+    }
+    enrollInCourse(course.id);
+  };
+
+  const handlePaymentSuccess = () => {
+    setShowPayment(false);
     enrollInCourse(course.id);
   };
 
@@ -142,7 +153,7 @@ const CourseDetailPage: React.FC = () => {
               onClick={handleEnroll}
               className="w-full sm:w-auto px-8 py-4 bg-brand-600 text-white rounded-xl text-lg font-bold hover:bg-brand-700 transition-all hover:shadow-lg active:scale-95"
             >
-              {isGuest ? 'Sign In to Enroll' : 'Enroll Now — Start Learning'}
+              {isGuest ? 'Sign In to Enroll' : course.access === 'On Payment' && course.price ? `Enroll — $${course.price}` : 'Enroll Now — Start Learning'}
             </button>
           </div>
         )}
@@ -308,6 +319,17 @@ const CourseDetailPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Payment Modal */}
+      {course && (
+        <PaymentModal
+          isOpen={showPayment}
+          onClose={() => setShowPayment(false)}
+          onSuccess={handlePaymentSuccess}
+          courseName={course.title}
+          price={course.price || 0}
+        />
+      )}
     </div>
   );
 };

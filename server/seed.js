@@ -228,6 +228,85 @@ const COURSES = [
       ]},
     ],
   },
+  // ── Paid Courses ───────────────────────────────────────────
+  {
+    title: 'Advanced React Patterns & Architecture',
+    shortDescription: 'Master advanced React patterns including compound components, render props, and state machines.',
+    description: 'Take your React skills to the next level with advanced design patterns used by top engineering teams. This premium course covers compound components, render props, custom hooks architecture, state machines with XState, and performance optimization patterns.\n\nIncludes real-world case studies from production applications.',
+    coverImage: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&h=500&fit=crop',
+    tags: ['React', 'Advanced', 'Architecture', 'Design Patterns'],
+    category: 'Development',
+    difficulty: 'Advanced',
+    published: true,
+    instructor_index: 1,
+    rating: 4.9,
+    totalDuration: '12h 30m',
+    access: 'On Payment',
+    price: 49.99,
+    lessons: [
+      { title: 'Compound Components Pattern', type: 'document', duration: '30 min', content: '# Compound Components\n\nCompound components is a pattern where components work together to form a complete UI.\n\n## Why?\n\n- Flexible APIs\n- Implicit state sharing\n- Clean component interfaces\n\n## Implementation\n\n- React.createContext for shared state\n- Parent manages state\n- Children consume via context\n- Works great for Tabs, Accordion, Select components' },
+      { title: 'Render Props & HOCs', type: 'video', duration: '40 min', content: 'https://www.youtube.com/embed/BcVAq3YFiuc' },
+      { title: 'Custom Hooks Architecture', type: 'document', duration: '35 min', content: '# Custom Hooks Architecture\n\n## Building Reusable Hooks\n\n- Extract common logic\n- Compose hooks together\n- Handle loading, error, and data states\n\n## Patterns\n\n- useAsync for data fetching\n- useDebounce for input optimization\n- useLocalStorage for persistence\n- useMediaQuery for responsive logic\n\n## Testing Hooks\n\n- renderHook from testing-library\n- Mock dependencies\n- Test state transitions' },
+      { title: 'State Machines with XState', type: 'video', duration: '45 min', content: 'https://www.youtube.com/embed/iDZUKFBTXoo' },
+      { title: 'Advanced React Quiz', type: 'quiz', duration: '15 min', content: '', quiz: [
+        { text: 'Compound components share state via:', options: ['Props drilling', 'React Context', 'Global variables', 'Redux only'], correctAnswer: 1 },
+        { text: 'Which hook pattern handles async operations?', options: ['useEffect only', 'useAsync pattern', 'useState only', 'useRef'], correctAnswer: 1 },
+        { text: 'State machines help with:', options: ['Styling components', 'Managing complex state transitions', 'Routing', 'API calls'], correctAnswer: 1 },
+      ]},
+    ],
+  },
+  {
+    title: 'Full-Stack AI Applications with Python',
+    shortDescription: 'Build production-ready AI-powered web applications from scratch.',
+    description: 'Learn to build and deploy AI-powered applications using Python, FastAPI, and modern AI APIs. This premium course covers prompt engineering, RAG (Retrieval-Augmented Generation), vector databases, streaming responses, and deploying to production.\n\nBuild 3 complete projects including a chatbot, document Q&A system, and AI writing assistant.',
+    coverImage: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=500&fit=crop',
+    tags: ['AI', 'Python', 'Full-Stack', 'LLM', 'FastAPI'],
+    category: 'AI & ML',
+    difficulty: 'Advanced',
+    published: true,
+    instructor_index: 2,
+    rating: 4.7,
+    totalDuration: '15h 45m',
+    access: 'On Payment',
+    price: 79.99,
+    lessons: [
+      { title: 'AI Application Architecture', type: 'document', duration: '25 min', content: '# AI Application Architecture\n\n## Modern AI Stack\n\n- Frontend: React/Next.js\n- Backend: FastAPI / Node.js\n- AI: OpenAI / Anthropic APIs\n- Vector DB: Pinecone / Chroma\n- Deployment: Docker + Cloud\n\n## Key Concepts\n\n- Prompt engineering\n- Token management\n- Streaming responses\n- Rate limiting\n- Error handling for AI calls' },
+      { title: 'Prompt Engineering Masterclass', type: 'video', duration: '45 min', content: 'https://www.youtube.com/embed/jC4v5AS4RIM' },
+      { title: 'Building RAG Systems', type: 'document', duration: '40 min', content: '# Retrieval-Augmented Generation\n\n## What is RAG?\n\nCombine retrieval from a knowledge base with LLM generation for accurate, grounded answers.\n\n## Components\n\n1. Document ingestion & chunking\n2. Embedding generation\n3. Vector storage\n4. Similarity search\n5. Context injection into prompts\n6. LLM response generation\n\n## Best Practices\n\n- Chunk size matters (512-1024 tokens)\n- Use overlap between chunks\n- Rerank retrieved results\n- Include metadata in context' },
+      { title: 'Vector Databases Deep Dive', type: 'video', duration: '35 min', content: 'https://www.youtube.com/embed/klTvEwg3oJ4' },
+      { title: 'AI Applications Quiz', type: 'quiz', duration: '15 min', content: '', quiz: [
+        { text: 'RAG stands for:', options: ['Random Access Generation', 'Retrieval-Augmented Generation', 'Real-time AI Gateway', 'Recursive Algorithm Generation'], correctAnswer: 1 },
+        { text: 'Vector databases store:', options: ['SQL tables', 'JSON documents', 'Numerical embeddings', 'Plain text files'], correctAnswer: 2 },
+        { text: 'Prompt engineering is about:', options: ['Building prompts UI', 'Crafting effective AI instructions', 'Training models from scratch', 'Database optimization'], correctAnswer: 1 },
+      ]},
+    ],
+  },
+  {
+    title: 'System Design for Senior Engineers',
+    shortDescription: 'Master system design interviews and build scalable distributed systems.',
+    description: 'Prepare for system design interviews and learn to architect large-scale systems. Covers load balancing, caching, database sharding, message queues, microservices, and real-world case studies from Netflix, Uber, and Twitter.\n\nIncludes 10 complete system design walkthroughs.',
+    coverImage: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&h=500&fit=crop',
+    tags: ['System Design', 'Architecture', 'Scalability', 'Distributed Systems'],
+    category: 'Engineering',
+    difficulty: 'Advanced',
+    published: true,
+    instructor_index: 1,
+    rating: 4.8,
+    totalDuration: '10h 20m',
+    access: 'On Payment',
+    price: 59.99,
+    lessons: [
+      { title: 'System Design Fundamentals', type: 'document', duration: '30 min', content: '# System Design Fundamentals\n\n## Why System Design?\n\n- Scale applications to millions of users\n- Handle high availability requirements\n- Make informed architectural decisions\n\n## Core Concepts\n\n- Horizontal vs vertical scaling\n- Load balancing strategies\n- Database replication & sharding\n- Caching layers (CDN, Redis)\n- Message queues (Kafka, RabbitMQ)\n\n## Design Process\n\n1. Clarify requirements\n2. Estimate scale\n3. Define API\n4. Design high-level architecture\n5. Deep dive into components\n6. Address bottlenecks' },
+      { title: 'Load Balancing & Caching', type: 'video', duration: '35 min', content: 'https://www.youtube.com/embed/sCR3SAVdyCc' },
+      { title: 'Database Scaling Strategies', type: 'document', duration: '30 min', content: '# Database Scaling\n\n## Replication\n\n- Master-slave replication\n- Multi-master replication\n- Read replicas\n\n## Sharding\n\n- Horizontal partitioning\n- Shard key selection\n- Consistent hashing\n\n## CAP Theorem\n\n- Consistency\n- Availability\n- Partition Tolerance\n- You can only have 2 of 3\n\n## NoSQL Options\n\n- Document stores (MongoDB)\n- Key-value stores (Redis)\n- Column stores (Cassandra)\n- Graph databases (Neo4j)' },
+      { title: 'Microservices Architecture', type: 'video', duration: '40 min', content: 'https://www.youtube.com/embed/lL_j7ilk7rc' },
+      { title: 'System Design Quiz', type: 'quiz', duration: '15 min', content: '', quiz: [
+        { text: 'CAP theorem says you can achieve:', options: ['All three guarantees', 'Any two of three', 'Only one guarantee', 'None reliably'], correctAnswer: 1 },
+        { text: 'Horizontal scaling means:', options: ['Adding more RAM', 'Adding more machines', 'Upgrading CPU', 'Using SSDs'], correctAnswer: 1 },
+        { text: 'Redis is primarily used as:', options: ['A relational database', 'An in-memory cache/store', 'A message queue', 'A web server'], correctAnswer: 1 },
+      ]},
+    ],
+  },
 ];
 
 // ── Reviews ──────────────────────────────────────────────────
@@ -276,6 +355,23 @@ async function seed() {
   console.log('\n\x1b[36m\u2550\u2550\u2550 LearnSphere Database Seeder \u2550\u2550\u2550\x1b[0m\n');
 
   try {
+    // ── 0. Migrations ─────────────────────────────────────────
+    console.log('\x1b[33m▶ Running migrations...\x1b[0m');
+    // Add type and correct_text columns to quiz_questions if they don't exist
+    await db.query(`
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'quiz_questions' AND column_name = 'type') THEN
+          ALTER TABLE quiz_questions ADD COLUMN type TEXT DEFAULT 'mcq' CHECK (type IN ('mcq', 'fill_blank'));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'quiz_questions' AND column_name = 'correct_text') THEN
+          ALTER TABLE quiz_questions ADD COLUMN correct_text TEXT DEFAULT '';
+        END IF;
+        -- Make options column nullable for fill_blank questions
+        ALTER TABLE quiz_questions ALTER COLUMN options SET DEFAULT '{}';
+      END $$;
+    `);
+    console.log('   ✅ Migrations complete');
+
     // ── 1. Users ──────────────────────────────────────────────
     console.log('\x1b[33m\u25B6 Creating users...\x1b[0m');
     const userIds = [];
@@ -315,10 +411,12 @@ async function seed() {
       } else {
         const result = await db.query(
           `INSERT INTO courses (title, short_description, description, cover_image, tags,
-             category, difficulty, published, instructor_id, instructor_name, rating, total_duration)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING id`,
+             category, difficulty, published, instructor_id, instructor_name, rating, total_duration,
+             access, price)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id`,
           [c.title, c.shortDescription, c.description, c.coverImage, c.tags,
-           c.category, c.difficulty, c.published, instructorId, instructorName, c.rating, c.totalDuration]
+           c.category, c.difficulty, c.published, instructorId, instructorName, c.rating, c.totalDuration,
+           c.access || 'Open', c.price || 0]
         );
         courseId = result.rows[0].id;
         console.log(`   \u2705 "${c.title}" (${c.lessons.length} lessons)`);

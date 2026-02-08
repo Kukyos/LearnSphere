@@ -349,10 +349,11 @@ const setQuizQuestions = async (req, res) => {
     const inserted = [];
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
+      const qType = q.type || 'mcq';
       const result = await db.query(
-        `INSERT INTO quiz_questions (lesson_id, text, options, correct_answer, sort_order)
-         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-        [lessonId, q.text || q.question, q.options, q.correctAnswer, i + 1]
+        `INSERT INTO quiz_questions (lesson_id, text, type, options, correct_answer, correct_text, sort_order)
+         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+        [lessonId, q.text || q.question, qType, q.options || [], q.correctAnswer || 0, q.correctText || '', i + 1]
       );
       inserted.push(result.rows[0]);
     }

@@ -245,6 +245,45 @@ const getReportingData = async (req, res) => {
       params
     );
 
+    // Per-enrollment rows for the table
+    const rowsRes = await db.query(
+      `SELECT
+         e.id AS enrollment_id,
+         c.title AS course_name,
+         u.name AS participant_name,
+         e.enrolled_date,
+         e.start_date,
+         e.completed_date,
+         (SELECT COUNT(*) FROM lessons l2 WHERE l2.course_id = c.id) AS total_lessons,
+         (SELECT COUNT(*) FROM lesson_progress lp WHERE lp.user_id = u.id AND lp.course_id = c.id AND lp.completed = true) AS completed_lessons
+       FROM enrollments e
+       JOIN courses c ON c.id = e.course_id
+       JOIN users u ON u.id = e.user_id
+       ${courseFilter}
+       ORDER BY e.enrolled_date DESC`,
+      params
+    );
+
+    const rows = rowsRes.rows.map((r, i) => {
+      const totalL = parseInt(r.total_lessons) || 1;
+      const completedL = parseInt(r.completed_lessons) || 0;
+      const completion = Math.round((completedL / totalL) * 100);
+      let status = 'Yet to Start';
+      if (r.completed_date) status = 'Completed';
+      else if (completedL > 0 || r.start_date) status = 'In Progress';
+      return {
+        srNo: i + 1,
+        courseName: r.course_name,
+        participantName: r.participant_name,
+        enrolledDate: r.enrolled_date?.toISOString().split('T')[0] || '',
+        startDate: r.start_date?.toISOString().split('T')[0] || '-',
+        timeSpent: completedL > 0 ? `${completedL * 15}m` : '-',
+        completion,
+        completedDate: r.completed_date?.toISOString().split('T')[0] || '-',
+        status,
+      };
+    });
+
     return res.json({
       success: true,
       data: {
@@ -253,6 +292,7 @@ const getReportingData = async (req, res) => {
         totalParticipants: parseInt(enrollmentsRes.rows[0].total),
         completed: parseInt(completionsRes.rows[0].total),
         averageRating: parseFloat(ratingRes.rows[0].avg) || 0,
+        rows,
       },
     });
   } catch (error) {

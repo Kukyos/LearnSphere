@@ -61,6 +61,21 @@ const Login: React.FC = () => {
           setIsLoading(false);
           return;
         }
+        // Email domain validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+        if (!emailRegex.test(email)) {
+          setMessage({ type: 'error', text: 'Please enter a valid email address.' });
+          setIsLoading(false);
+          return;
+        }
+        const validTLDs = ['com', 'org', 'net', 'edu', 'gov', 'io', 'co', 'dev', 'app', 'ai', 'xyz', 'info', 'biz', 'me', 'us', 'uk', 'ca', 'au', 'in', 'de', 'fr', 'jp', 'br', 'ru', 'za', 'nl', 'se', 'no', 'fi', 'dk', 'it', 'es', 'pt', 'pl', 'kr', 'cn', 'tw', 'hk', 'sg', 'my', 'ph', 'th', 'vn', 'id', 'nz'];
+        const domainParts = email.split('@')[1]?.split('.');
+        const tld = domainParts?.[domainParts.length - 1]?.toLowerCase();
+        if (!tld || !validTLDs.includes(tld)) {
+          setMessage({ type: 'error', text: `Invalid email domain. Use a valid domain like .com, .org, .co, etc.` });
+          setIsLoading(false);
+          return;
+        }
         // Password strength validation
         if (password.length < 8) {
           setMessage({ type: 'error', text: 'Password must be at least 8 characters.' });

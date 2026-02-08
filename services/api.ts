@@ -344,12 +344,25 @@ export async function apiGetReviews(
 
 // ── Reporting ────────────────────────────────────────────────
 
+export interface ReportingRow {
+  srNo: number;
+  courseName: string;
+  participantName: string;
+  enrolledDate: string;
+  startDate: string;
+  timeSpent: string;
+  completion: number;
+  completedDate: string;
+  status: string;
+}
+
 export interface ReportingData {
   totalCourses: number;
   publishedCourses: number;
   totalParticipants: number;
   completed: number;
   averageRating: number;
+  rows: ReportingRow[];
 }
 
 export async function apiGetReporting(): Promise<ApiResponse<ReportingData>> {
@@ -438,7 +451,7 @@ export async function apiContactAttendees(
 export async function apiSetQuizQuestions(
   courseId: string | number,
   lessonId: string | number,
-  questions: { text: string; options: string[]; correctAnswer: number }[],
+  questions: { text: string; type?: string; options: string[]; correctAnswer: number; correctText?: string }[],
 ): Promise<ApiResponse<{ questions: ApiQuizQuestion[] }>> {
   return request(`/courses/${courseId}/lessons/${lessonId}/quiz`, {
     method: 'POST',

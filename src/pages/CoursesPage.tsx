@@ -23,7 +23,13 @@ const CoursesPage: React.FC = () => {
   const filteredCourses = useMemo(() => {
     return courses.filter(c => {
       if (!c.published) return false;
-      if (searchQuery && !c.title.toLowerCase().includes(searchQuery.toLowerCase()) && !c.shortDescription.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const matchesTitle = c.title.toLowerCase().includes(q);
+        const matchesDesc = c.shortDescription.toLowerCase().includes(q);
+        const matchesTags = c.tags.some(t => t.toLowerCase().includes(q));
+        if (!matchesTitle && !matchesDesc && !matchesTags) return false;
+      }
       if (selectedTag && !c.tags.includes(selectedTag)) return false;
       return true;
     });

@@ -15,6 +15,7 @@ const LessonPlayerPage: React.FC = () => {
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [quizAnswers, setQuizAnswers] = useState<Record<string, number>>({});
+  const [quizTextAnswers, setQuizTextAnswers] = useState<Record<string, string>>({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizScore, setQuizScore] = useState(0);
   const [pointsEarned, setPointsEarned] = useState<number | null>(null);
@@ -36,6 +37,7 @@ const LessonPlayerPage: React.FC = () => {
 
   useEffect(() => {
     setQuizAnswers({});
+    setQuizTextAnswers({});
     setQuizSubmitted(false);
     setQuizScore(0);
     setPointsEarned(null);
@@ -80,7 +82,14 @@ const LessonPlayerPage: React.FC = () => {
     if (!lesson.quiz || !courseId || !lessonId) return;
     let correct = 0;
     lesson.quiz.questions.forEach(q => {
-      if (quizAnswers[q.id] === q.correctAnswer) correct++;
+      const qType = (q as any).type || 'mcq';
+      if (qType === 'fill_blank') {
+        const userText = (quizTextAnswers[q.id] || '').trim().toLowerCase();
+        const correctText = ((q as any).correctText || '').trim().toLowerCase();
+        if (userText === correctText) correct++;
+      } else {
+        if (quizAnswers[q.id] === q.correctAnswer) correct++;
+      }
     });
     const score = Math.round((correct / lesson.quiz.questions.length) * 100);
     setQuizScore(score);
@@ -166,6 +175,25 @@ const LessonPlayerPage: React.FC = () => {
 
                 <div className="text-left space-y-4 mt-8">
                   {lesson.quiz.questions.map((q, qi) => {
+                    const qType = (q as any).type || 'mcq';
+                    if (qType === 'fill_blank') {
+                      const userText = (quizTextAnswers[q.id] || '').trim();
+                      const correctText = (q as any).correctText || '';
+                      const isCorrect = userText.toLowerCase() === correctText.toLowerCase();
+                      return (
+                        <div key={q.id} className={`p-4 rounded-xl border ${
+                          isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
+                        }`}>
+                          <p className="font-semibold mb-2 text-brand-900">{qi + 1}. {q.question}</p>
+                          <p className={`text-sm ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                            Your answer: {userText || '(empty)'} {isCorrect ? <Check size={14} className="inline text-green-600" /> : <X size={14} className="inline text-red-500" />}
+                          </p>
+                          {!isCorrect && (
+                            <p className="text-sm text-green-600 mt-1">Correct: {correctText}</p>
+                          )}
+                        </div>
+                      );
+                    }
                     const userAnswer = quizAnswers[q.id];
                     const isCorrect = userAnswer === q.correctAnswer;
                     return (
@@ -189,7 +217,7 @@ const LessonPlayerPage: React.FC = () => {
                 </div>
 
                 <button
-                  onClick={() => { setQuizAnswers({}); setQuizSubmitted(false); setQuizScore(0); setQuizStarted(false); setCurrentQuestionIndex(0); }}
+                  onClick={() => { setQuizAnswers({}); setQuizTextAnswers({}); setQuizSubmitted(false); setQuizScore(0); setQuizStarted(false); setCurrentQuestionIndex(0); }}
                   className="mt-6 px-6 py-3 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition-colors"
                 >
                   Retake Quiz
@@ -217,15 +245,25 @@ const LessonPlayerPage: React.FC = () => {
                 {(() => {
                   const q = lesson.quiz.questions[currentQuestionIndex];
                   const totalQ = lesson.quiz.questions.length;
-                  const allAnswered = Object.keys(quizAnswers).length >= totalQ;
+                  const allAnswered = lesson.quiz.questions.every(qq => {
+                    const qType = (qq as any).type || 'mcq';
+                    if (qType === 'fill_blank') return (quizTextAnswers[qq.id] || '').trim().length > 0;
+                    return quizAnswers[qq.id] !== undefined;
+                  });
                   const isLast = currentQuestionIndex === totalQ - 1;
+                  const qType = (q as any).type || 'mcq';
+                  const answeredCount = lesson.quiz.questions.filter(qq => {
+                    const qt = (qq as any).type || 'mcq';
+                    if (qt === 'fill_blank') return (quizTextAnswers[qq.id] || '').trim().length > 0;
+                    return quizAnswers[qq.id] !== undefined;
+                  }).length;
                   return (
                     <>
                       {/* Progress bar */}
                       <div className="mb-6">
                         <div className="flex justify-between text-sm mb-2 text-brand-500">
                           <span>Question {currentQuestionIndex + 1} of {totalQ}</span>
-                          <span>{Object.keys(quizAnswers).length}/{totalQ} answered</span>
+                          <span>{answeredCount}/{totalQ} answered</span>
                         </div>
                         <div className="w-full h-2 rounded-full bg-brand-100">
                           <div
@@ -240,6 +278,18 @@ const LessonPlayerPage: React.FC = () => {
                         <p className="font-semibold mb-4 text-lg text-brand-900">
                           {currentQuestionIndex + 1}. {q.question}
                         </p>
+                        {qType === 'fill_blank' ? (
+                          <div className="space-y-2">
+                            <input
+                              type="text"
+                              value={quizTextAnswers[q.id] || ''}
+                              onChange={e => setQuizTextAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
+                              className="w-full p-4 rounded-lg border-2 border-brand-200 bg-white text-brand-900 text-sm focus:border-brand-500 focus:outline-none"
+                              placeholder="Type your answer here..."
+                            />
+                            <p className="text-xs text-brand-400">Type the exact answer (case-insensitive)</p>
+                          </div>
+                        ) : (
                         <div className="space-y-3">
                           {q.options.map((option, oi) => (
                             <button
@@ -261,6 +311,7 @@ const LessonPlayerPage: React.FC = () => {
                             </button>
                           ))}
                         </div>
+                        )}
                       </div>
 
                       {/* Navigation */}
@@ -297,21 +348,27 @@ const LessonPlayerPage: React.FC = () => {
 
                       {/* Question dots */}
                       <div className="flex justify-center gap-2 mt-6">
-                        {lesson.quiz.questions.map((_, i) => (
+                        {lesson.quiz.questions.map((qq, i) => {
+                          const qqType = (qq as any).type || 'mcq';
+                          const isAnswered = qqType === 'fill_blank'
+                            ? (quizTextAnswers[qq.id] || '').trim().length > 0
+                            : quizAnswers[qq.id] !== undefined;
+                          return (
                           <button
                             key={i}
                             onClick={() => setCurrentQuestionIndex(i)}
                             className={`w-8 h-8 rounded-full text-xs font-bold transition-all ${
                               i === currentQuestionIndex
                                 ? 'bg-brand-600 text-white scale-110'
-                                : quizAnswers[lesson.quiz!.questions[i].id] !== undefined
+                                : isAnswered
                                   ? 'bg-green-500 text-white'
                                   : 'bg-brand-100 text-brand-500 hover:bg-brand-200'
                             }`}
                           >
                             {i + 1}
                           </button>
-                        ))}
+                          );
+                        })}
                       </div>
                     </>
                   );
