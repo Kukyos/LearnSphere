@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { MessageCircle, X, Send, Mic, MicOff, Volume2, VolumeX, ChevronDown, Sparkles, HelpCircle, MousePointerClick, Zap, Key } from 'lucide-react';
-import { useApp } from '../contexts/AppContext';
 import {
   executeCommand,
   getAvailableActions,
@@ -36,8 +35,7 @@ const QUICK_COMMANDS = [
 ];
 
 const AccessibilityChatbot: React.FC = () => {
-  const { theme } = useApp();
-  const isDark = theme === 'dark';
+  const isDark = false; // Light mode only for now
 
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
@@ -126,7 +124,6 @@ const AccessibilityChatbot: React.FC = () => {
             if (calibrationSamples === CALIBRATION_FRAMES) {
               // Set speech threshold at 2x ambient (minimum 15)
               speechThreshold = Math.max(15, ambientLevel * 2);
-              console.log(`[Voice] Calibrated. Ambient: ${ambientLevel.toFixed(1)}, Speech threshold: ${speechThreshold.toFixed(1)}`);
             }
             animFrameRef.current = requestAnimationFrame(monitorVolume);
             return;
@@ -142,7 +139,6 @@ const AccessibilityChatbot: React.FC = () => {
 
             // Force-send after max duration
             if (elapsed > MAX_RECORD_MS) {
-              console.log(`[Voice] Max duration (${MAX_RECORD_MS}ms) reached, sending...`);
               if (silenceTimerRef.current) { clearTimeout(silenceTimerRef.current); silenceTimerRef.current = null; }
               stopAndSend();
             }
@@ -152,7 +148,6 @@ const AccessibilityChatbot: React.FC = () => {
                 silenceTimerRef.current = setTimeout(() => {
                   silenceTimerRef.current = null;
                   if (isSpeakingRef.current) {
-                    console.log('[Voice] Silence detected, sending...');
                     stopAndSend();
                   }
                 }, SILENCE_TIMEOUT);
@@ -210,7 +205,6 @@ const AccessibilityChatbot: React.FC = () => {
 
       recorder.start(250); // get data every 250ms
       isSpeakingRef.current = true;
-      console.log('[Voice] Recording started, mimeType:', mimeType);
       setSpokenText('🗣️ Hearing you...');
     }
 
@@ -220,7 +214,6 @@ const AccessibilityChatbot: React.FC = () => {
       isSpeakingRef.current = false;
       const recorder = recorderRef.current;
       if (!recorder || recorder.state !== 'recording') {
-        console.log('[Voice] stopAndSend called but no active recorder');
         processingRef.current = false;
         setSpokenText('');
         return;
@@ -237,36 +230,28 @@ const AccessibilityChatbot: React.FC = () => {
       const chunks = audioChunksRef.current;
       audioChunksRef.current = [];
 
-      console.log(`[Voice] Recording stopped. Chunks: ${chunks.length}, mime: ${recorder.mimeType}`);
-
       if (chunks.length === 0) {
-        console.log('[Voice] No chunks — skipping');
         processingRef.current = false;
         setSpokenText('');
         return;
       }
 
       const blob = new Blob(chunks, { type: recorder.mimeType });
-      console.log(`[Voice] Blob size: ${blob.size} bytes, chunks: ${chunks.length}`);
 
       // Skip very short clips (likely just noise)
       if (blob.size < 1000) {
-        console.log('[Voice] Blob too small — skipping');
         processingRef.current = false;
         setSpokenText('');
         return;
       }
 
       try {
-        console.log('[Voice] Sending to Whisper...');
         const text = await transcribeAudio(blob);
-        console.log('[Voice] Whisper returned:', JSON.stringify(text));
         if (text && !dead) {
           setSpokenText(`"${text}"`);
           // Process the command
           await handleCommandRef.current(text);
         } else {
-          console.log('[Voice] Empty transcription result');
         }
       } catch (err: any) {
         console.error('[Voice] Whisper error:', err);
@@ -428,7 +413,6 @@ const AccessibilityChatbot: React.FC = () => {
             calibrationSamples++;
             if (calibrationSamples === CALIBRATION_FRAMES) {
               speechThreshold = Math.max(15, ambientLevel * 2);
-              console.log(`[Voice] Re-calibrated. Ambient: ${ambientLevel.toFixed(1)}, Threshold: ${speechThreshold.toFixed(1)}`);
             }
             animFrameRef.current = requestAnimationFrame(monitor);
             return;

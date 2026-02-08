@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, LayoutGrid, LayoutList, BarChart3, Trash2 } from 'lucide-react';
+import { Search, Plus, LayoutGrid, LayoutList, BarChart3 } from 'lucide-react';
 import { useApp, Course } from '../contexts/AppContext';
 import CourseCard from '../components/courses/CourseCard';
 import CourseTable from '../components/courses/CourseTable';
@@ -54,12 +54,6 @@ export default function CoursesDashboard() {
       navigator.clipboard.writeText(courseLink);
       setCopiedId(courseId);
       setTimeout(() => setCopiedId(null), 2000);
-    }
-  };
-
-  const handleDeleteCourse = (courseId: string) => {
-    if (window.confirm('Are you sure you want to delete this course?')) {
-      deleteCourse(courseId);
     }
   };
 

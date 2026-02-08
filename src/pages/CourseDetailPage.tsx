@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../../context/AuthContext';
+import { apiGetReviews } from '../../services/api';
 import { Star, BookOpen, Clock, Users, ChevronRight, CheckCircle, Lock, Play, FileText, HelpCircle, ArrowLeft } from 'lucide-react';
 
 const CourseDetailPage: React.FC = () => {
@@ -13,8 +14,28 @@ const CourseDetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'lessons' | 'reviews'>('overview');
   const [reviewText, setReviewText] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
+  const [fetchedReviews, setFetchedReviews] = useState<any[]>([]);
 
   const course = courses.find(c => c.id === courseId);
+
+  // Fetch reviews from backend for this course
+  useEffect(() => {
+    if (!courseId) return;
+    apiGetReviews(courseId).then(res => {
+      if (res.success && res.data?.reviews) {
+        setFetchedReviews(res.data.reviews.map((r: any) => ({
+          id: String(r.id),
+          courseId: String(r.course_id),
+          userId: String(r.user_id),
+          userName: r.user_name || '',
+          userAvatar: r.user_avatar || '',
+          rating: r.rating,
+          text: r.comment || '',
+          date: r.created_at?.split('T')[0] || '',
+        })));
+      }
+    });
+  }, [courseId]);
 
   if (!course) {
     return (
@@ -36,7 +57,10 @@ const CourseDetailPage: React.FC = () => {
   const courseProgress = userProgress.find(p => p.courseId === course.id);
   const completedLessons = courseProgress?.lessonsProgress.filter(l => l.completed).length || 0;
   const progressPct = course.lessons.length > 0 ? Math.round((completedLessons / course.lessons.length) * 100) : 0;
-  const courseReviews = reviews.filter(r => r.courseId === course.id);
+  const contextReviews = reviews.filter(r => r.courseId === course.id);
+  // Merge: backend reviews + any new context-only reviews (not yet persisted)
+  const allReviewIds = new Set(fetchedReviews.map(r => r.id));
+  const courseReviews = [...fetchedReviews, ...contextReviews.filter(r => !allReviewIds.has(r.id))];
   const avgRating = courseReviews.length > 0 ? (courseReviews.reduce((sum, r) => sum + r.rating, 0) / courseReviews.length).toFixed(1) : course.rating.toFixed(1);
 
   const isLessonCompleted = (lessonId: string) =>

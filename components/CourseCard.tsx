@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Book, Star, Users, PlayCircle, Plus, ThumbsUp, ChevronDown } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Star, PlayCircle, Plus, ThumbsUp, ChevronDown } from 'lucide-react';
 import { Course } from '../types';
 import TiltCard from './TiltCard';
 

@@ -12,6 +12,7 @@ import {
   apiGetReporting,
   apiAwardPoints,
   apiGetReviews,
+  apiGetMyEnrollments,
   type ApiCourse,
 } from '../../services/api';
 
@@ -258,7 +259,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     completedCourses: completedCoursesState,
   } : null;
 
-  // Courses — starts empty, populated from backend
+  // Courses ï¿½ starts empty, populated from backend
   const [courses, setCourses] = useState<Course[]>([]);
 
   //  Fetch courses from backend 
@@ -278,6 +279,68 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
     fetchFromBackend();
   }, [authUser?.id]);
+
+  // Hydrate enrollments, progress, and reviews from backend on login/refresh
+  useEffect(() => {
+    if (!authUser || !isLoggedIn) return;
+    const hydrate = async () => {
+      const online = await isBackendAvailable();
+      if (!online) return;
+
+      // Fetch enrollments + per-enrollment lesson progress
+      const enrollRes = await apiGetMyEnrollments();
+      if (enrollRes.success && enrollRes.data?.enrollments) {
+        const enrollments = enrollRes.data.enrollments;
+        const enrolledIds = enrollments.map((e: any) => String(e.course_id));
+        const completedIds = enrollments
+          .filter((e: any) => e.completed_date)
+          .map((e: any) => String(e.course_id));
+
+        setEnrolledCourses(enrolledIds);
+        setCompletedCoursesState(completedIds);
+
+        // Build progress from each enrollment's lessons_progress
+        const progressList: CourseProgress[] = enrollments.map((e: any) => ({
+          courseId: String(e.course_id),
+          enrolledDate: e.enrolled_date || '',
+          completedDate: e.completed_date || undefined,
+          lessonsProgress: (e.lessons_progress || []).map((lp: any) => ({
+            lessonId: String(lp.lesson_id),
+            completed: lp.completed,
+          })),
+          userId: String(authUser.id),
+          userName: authUser.name,
+        }));
+        setUserProgress(progressList);
+      }
+
+      // Fetch reviews for all courses the user can see
+      // We load reviews per-course as they're viewed; here load for enrolled courses
+      // Actually, let's fetch all reviews for enrolled courses
+      if (enrollRes.success && enrollRes.data?.enrollments) {
+        const allReviews: Review[] = [];
+        for (const e of enrollRes.data.enrollments) {
+          const revRes = await apiGetReviews(e.course_id);
+          if (revRes.success && revRes.data?.reviews) {
+            for (const r of revRes.data.reviews) {
+              allReviews.push({
+                id: String(r.id),
+                courseId: String(r.course_id),
+                userId: String(r.user_id),
+                userName: r.user_name || '',
+                userAvatar: r.user_avatar || '',
+                rating: r.rating,
+                text: r.comment || '',
+                date: r.created_at?.split('T')[0] || '',
+              });
+            }
+          }
+        }
+        if (allReviews.length > 0) setReviews(allReviews);
+      }
+    };
+    hydrate();
+  }, [authUser?.id, isLoggedIn]);
 
   const enrollInCourse = (courseId: string) => {
     if (!authUser) return;
@@ -451,7 +514,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     isBackendAvailable().then(ok => { if (ok) apiDeleteCourseReq(courseId); });
   };
 
-  // Reporting — uses real session data only (no mock data)
+  // Reporting ï¿½ uses real session data only (no mock data)
   const getReportData = () => {
     const rows: ReportRow[] = userProgress.map((p, i) => {
       const course = courses.find(c => c.id === p.courseId);

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import CourseCard from '../components/CourseCard';
 import Footer from '../components/Footer';
 import FilterPanel from '../components/FilterPanel';

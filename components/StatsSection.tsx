@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Award, BookOpen, Smile, Star } from 'lucide-react';
-import { isBackendAvailable, apiGetReporting, apiGetReviews } from '../services/api';
+import { isBackendAvailable, apiGetReporting } from '../services/api';
 import { useApp } from '../src/contexts/AppContext';
 
 const StatsSection: React.FC = () => {
@@ -52,33 +52,33 @@ const StatsSection: React.FC = () => {
             <div className="mb-4 text-brand-400 transform transition-transform group-hover:scale-110">
               <Users size={32} />
             </div>
-            <h3 className="text-4xl font-extrabold text-brand-900 mb-1">{stats.learners > 0 ? stats.learners.toLocaleString() : '—'}</h3>
+            <h3 className="text-4xl font-extrabold text-brand-900 mb-1">{stats.learners > 0 ? stats.learners.toLocaleString() : 'ï¿½'}</h3>
             <p className="text-xs font-bold uppercase tracking-widest text-brand-500">Active Learners</p>
           </div>
           <div className="flex flex-col items-center text-center group">
              <div className="mb-4 text-brand-400 transform transition-transform group-hover:scale-110">
               <BookOpen size={32} />
             </div>
-            <h3 className="text-4xl font-extrabold text-brand-900 mb-1">{stats.courseCount > 0 ? stats.courseCount.toLocaleString() : '—'}</h3>
+            <h3 className="text-4xl font-extrabold text-brand-900 mb-1">{stats.courseCount > 0 ? stats.courseCount.toLocaleString() : 'ï¿½'}</h3>
             <p className="text-xs font-bold uppercase tracking-widest text-brand-500">Courses</p>
           </div>
           <div className="flex flex-col items-center text-center group">
              <div className="mb-4 text-brand-400 transform transition-transform group-hover:scale-110">
               <Award size={32} />
             </div>
-            <h3 className="text-4xl font-extrabold text-brand-900 mb-1">{stats.completionRate > 0 ? `${stats.completionRate}%` : '—'}</h3>
+            <h3 className="text-4xl font-extrabold text-brand-900 mb-1">{stats.completionRate > 0 ? `${stats.completionRate}%` : 'ï¿½'}</h3>
             <p className="text-xs font-bold uppercase tracking-widest text-brand-500">Completion Rate</p>
           </div>
           <div className="flex flex-col items-center text-center group">
              <div className="mb-4 text-brand-400 transform transition-transform group-hover:scale-110">
               <Smile size={32} />
             </div>
-            <h3 className="text-4xl font-extrabold text-brand-900 mb-1">{stats.avgRating > 0 ? stats.avgRating.toFixed(1) : '—'}</h3>
+            <h3 className="text-4xl font-extrabold text-brand-900 mb-1">{stats.avgRating > 0 ? stats.avgRating.toFixed(1) : 'ï¿½'}</h3>
             <p className="text-xs font-bold uppercase tracking-widest text-brand-500">Average Rating</p>
           </div>
         </div>
 
-        {/* Reviews — only show if there are real reviews */}
+        {/* Reviews ï¿½ only show if there are real reviews */}
         {reviews.length > 0 && (
           <div className="pt-10 border-t border-brand-200">
             <div className="grid gap-6 md:grid-cols-3">
