@@ -4,7 +4,7 @@
 // is unavailable so the app still works for demo/hackathon.
 // ============================================================
 
-const API_BASE = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_API_URL) || 'http://localhost:5000';
+const API_BASE = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_API_URL) || '/api';
 
 // ── Helpers ──────────────────────────────────────────────────
 
