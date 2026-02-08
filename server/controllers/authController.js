@@ -2,6 +2,7 @@
 const crypto = require('crypto');
 const db = require('../db');
 const { generateToken } = require('../middleware/authMiddleware');
+const { sendPasswordResetEmail } = require('../services/emailService');
 
 const SALT_ROUNDS = 12;
 const RESET_TOKEN_EXPIRY_HOURS = 1;
@@ -207,7 +208,7 @@ const login = async (req, res) => {
 };
 
 /**
- * Request password reset
+ * Request password reset — resets to a temporary password and emails it.
  * POST /auth/forgot
  */
 const forgotPassword = async (req, res) => {
@@ -223,7 +224,7 @@ const forgotPassword = async (req, res) => {
 
     // Find user
     const userResult = await db.query(
-      'SELECT id, email FROM users WHERE email = $1',
+      'SELECT id, email, name FROM users WHERE email = $1',
       [email.toLowerCase()]
     );
 
@@ -231,45 +232,32 @@ const forgotPassword = async (req, res) => {
     if (userResult.rows.length === 0) {
       return res.status(200).json({
         success: true,
-        message: 'If the email exists, a reset link has been sent',
+        message: 'If the email exists, a temporary password has been sent.',
       });
     }
 
     const user = userResult.rows[0];
 
-    // Generate secure reset token
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const tokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+    // Generate a random temporary password: TempXXXXXX! (meets validation)
+    const randomPart = crypto.randomBytes(3).toString('hex').toUpperCase();
+    const tempPassword = `Temp${randomPart}1!`;
 
-    // Set expiration (1 hour from now)
-    const expiresAt = new Date(Date.now() + RESET_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
+    // Hash and store the new password
+    const passwordHash = await bcrypt.hash(tempPassword, SALT_ROUNDS);
+    await db.query('UPDATE users SET password_hash = $1 WHERE id = $2', [passwordHash, user.id]);
 
-    // Delete any existing tokens for this user
-    await db.query(
-      'DELETE FROM password_reset_tokens WHERE user_id = $1',
-      [user.id]
-    );
+    // Send email with the temporary password
+    try {
+      await sendPasswordResetEmail(user.email, tempPassword);
+      console.log(`Password reset email sent to ${user.email}`);
+    } catch (emailErr) {
+      console.error('Failed to send reset email:', emailErr.message);
+      // Still return success — password IS reset, email just failed
+    }
 
-    // Store new token
-    await db.query(
-      `INSERT INTO password_reset_tokens (user_id, token, expires_at)
-       VALUES ($1, $2, $3)`,
-      [user.id, tokenHash, expiresAt]
-    );
-
-    // In production, send email here
-    // For now, return token (mock email sending)
     return res.status(200).json({
       success: true,
-      message: 'If the email exists, a reset link has been sent',
-      // Remove this in production - only for testing
-      ...(process.env.NODE_ENV === 'development' && {
-        debug: {
-          resetToken,
-          expiresAt,
-          note: 'This token is only shown in development mode',
-        },
-      }),
+      message: 'If the email exists, a temporary password has been sent.',
     });
   } catch (error) {
     console.error('Forgot password error:', error.message);

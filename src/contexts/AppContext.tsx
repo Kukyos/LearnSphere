@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { MOCK_COURSES as LANDING_COURSES } from '../../constants';
-import { Course as LandingCourse, Difficulty } from '../../types';
 import {
   isBackendAvailable,
   apiListCourses,
@@ -13,6 +11,7 @@ import {
   apiAddReview as apiAddReviewReq,
   apiGetReporting,
   apiAwardPoints,
+  apiGetReviews,
   type ApiCourse,
 } from '../../services/api';
 
@@ -46,7 +45,6 @@ export interface Course {
   viewsCount?: number;
   totalDuration?: string;
   createdAt?: string;
-  // Display-only fields for landing/browse pages
   category?: string;
   difficulty?: string;
   enrollmentCount?: number;
@@ -136,11 +134,9 @@ interface AppContextType {
   submitQuiz: (courseId: string, lessonId: string, attempt: number) => number;
   completeCourse: (courseId: string) => void;
   addReview: (courseId: string, rating: number, text: string) => void;
-  // Instructor CRUD
   createCourse: (title: string) => Course;
   updateCourse: (courseId: string, updates: Partial<Course>) => void;
   deleteCourse: (courseId: string) => void;
-  // Reporting
   getReportData: () => { totalParticipants: number; yetToStart: number; inProgress: number; completed: number; rows: ReportRow[] };
 }
 
@@ -199,7 +195,7 @@ function apiCourseToLocal(ac: ApiCourse): Course {
 }
 
 /** Convert an AppContext Course back to the shape the Landing page CourseCard expects */
-export function toDisplayCourse(c: Course): LandingCourse {
+export function toDisplayCourse(c: Course): any {
   return {
     id: c.id,
     title: c.title,
@@ -208,7 +204,7 @@ export function toDisplayCourse(c: Course): LandingCourse {
     thumbnailUrl: c.coverImage,
     category: c.category || 'Development',
     tags: c.tags,
-    difficulty: (c.difficulty || 'Beginner') as Difficulty,
+    difficulty: c.difficulty || 'Beginner',
     lessons: c.lessons.length,
     duration: c.totalDuration || '0h',
     rating: c.rating,
@@ -220,68 +216,6 @@ export function toDisplayCourse(c: Course): LandingCourse {
     accessType: c.access === 'On Payment' ? 'Paid' : c.access === 'On Invitation' ? 'Invite-only' : 'Open',
     updatedAt: c.createdAt || '',
   };
-}
-
-// Detailed lesson data for the first 6 courses (with quizzes, videos, docs)
-const DETAILED_LESSONS: Record<string, Lesson[]> = {
-  '1': [
-    { id: 'l1', title: 'Introduction to React', description: 'Learn the basics of React', type: 'video', content: 'https://www.youtube.com/embed/Tn6-PIqc4UM' },
-    { id: 'l2', title: 'React Components Guide', description: 'Understanding functional and class components', type: 'document', content: '# React Components\n\nReact components are the building blocks of any React application.\n\n## Functional Components\nFunctional components are JavaScript functions that accept props and return React elements.\n\n## Class Components\nClass components are ES6 classes that extend React.Component.', downloadAllowed: true },
-    { id: 'l3', title: 'React Hooks Deep Dive', description: 'Master useState, useEffect, and custom hooks', type: 'video', content: 'https://www.youtube.com/embed/TNhaISOUy6Q' },
-    { id: 'l4', title: 'React Quiz', description: 'Test your React knowledge', type: 'quiz', content: '', quiz: { questions: [{ id: 'q1', question: 'What is React?', options: ['A JavaScript library', 'A database', 'A CSS framework', 'A backend language'], correctAnswer: 0 }, { id: 'q2', question: 'Which hook is used for side effects?', options: ['useState', 'useEffect', 'useContext', 'useReducer'], correctAnswer: 1 }, { id: 'q3', question: 'What does JSX stand for?', options: ['JavaScript XML', 'Java Syntax Extension', 'JSON XML', 'JavaScript Extension'], correctAnswer: 0 }], rewardRules: [{ attempt: 1, points: 15 }, { attempt: 2, points: 10 }, { attempt: 3, points: 5 }] } }
-  ],
-  '2': [
-    { id: 'l5', title: 'Design Thinking Process', description: 'Learn the 5 stages of design thinking', type: 'video', content: 'https://www.youtube.com/embed/a5KYlHNKQB8' },
-    { id: 'l6', title: 'UI Design Principles', description: 'Color theory, typography, and layout', type: 'document', content: '# UI Design Principles\n\n## Color Theory\nUnderstanding how colors interact and affect user perception.\n\n## Typography\nChoosing the right fonts for readability and hierarchy.\n\n## Layout\nGrid systems and spacing for clean, organized interfaces.', downloadAllowed: true }
-  ],
-  '3': [
-    { id: 'l7', title: 'Python Basics for Data Science', description: 'Variables, loops, and functions', type: 'video', content: 'https://www.youtube.com/embed/rfscVS0vtbw' },
-    { id: 'l8', title: 'Pandas DataFrames', description: 'Working with tabular data', type: 'document', content: '# Pandas DataFrames\n\nDataFrames are 2D labeled data structures.\n\n## Reading Data\nUse `pd.read_csv()` to load data.\n\n## Filtering\nUse boolean indexing to filter rows.', downloadAllowed: true },
-    { id: 'l9', title: 'Data Science Quiz', description: 'Test your Python knowledge', type: 'quiz', content: '', quiz: { questions: [{ id: 'pq1', question: 'What is a DataFrame?', options: ['A 2D labeled data structure', 'A function', 'A loop', 'A class'], correctAnswer: 0 }, { id: 'pq2', question: 'Which library is used for numerical computing?', options: ['pandas', 'numpy', 'flask', 'django'], correctAnswer: 1 }], rewardRules: [{ attempt: 1, points: 10 }, { attempt: 2, points: 7 }, { attempt: 3, points: 3 }] } }
-  ],
-  '5': [
-    { id: 'l10', title: 'Product Strategy Foundations', description: 'Building effective product strategies', type: 'video', content: 'https://www.youtube.com/embed/TlB_eWDSMt4' },
-    { id: 'l11', title: 'Agile Methodology Guide', description: 'Scrum, Kanban, and agile practices', type: 'document', content: '# Agile Methodology\n\n## Scrum\nIterative framework with sprints.\n\n## Kanban\nVisual workflow management.\n\n## Key Principles\n- Continuous delivery\n- Embrace change\n- Customer collaboration', downloadAllowed: true }
-  ],
-  '6': [
-    { id: 'l12', title: 'Microservices Architecture', description: 'Design patterns for distributed systems', type: 'video', content: 'https://www.youtube.com/embed/EcCTIExsqmI' },
-    { id: 'l13', title: 'Docker & Kubernetes Guide', description: 'Container orchestration fundamentals', type: 'document', content: '# Docker & Kubernetes\n\n## Docker\nContainerize your applications.\n\n## Kubernetes\nOrchestrate containers at scale.', downloadAllowed: false }
-  ],
-  '8': [
-    { id: 'l14', title: 'Neural Networks Introduction', description: 'Understanding neural network architecture', type: 'video', content: 'https://www.youtube.com/embed/aircAruvnKk' },
-    { id: 'l15', title: 'ML Quiz', description: 'Test your ML knowledge', type: 'quiz', content: '', quiz: { questions: [{ id: 'mq1', question: 'What is a neural network?', options: ['A computing system inspired by biological neural networks', 'A database', 'A web framework', 'A design tool'], correctAnswer: 0 }], rewardRules: [{ attempt: 1, points: 12 }, { attempt: 2, points: 8 }, { attempt: 3, points: 4 }] } }
-  ],
-};
-
-/** Convert constants.ts courses into AppContext Course format */
-function buildInitialCourses(): Course[] {
-  return LANDING_COURSES.map(lc => ({
-    id: lc.id,
-    title: lc.title,
-    shortDescription: lc.description.slice(0, 120),
-    description: lc.description,
-    coverImage: lc.thumbnailUrl,
-    tags: lc.tags,
-    rating: lc.rating,
-    visibility: 'Everyone' as const,
-    access: (lc.accessType === 'Paid' ? 'On Payment' : lc.accessType === 'Invite-only' ? 'On Invitation' : 'Open') as Course['access'],
-    price: lc.price > 0 ? lc.price : undefined,
-    published: true,
-    instructorId: 'inst-' + lc.id,
-    instructorName: lc.instructor,
-    lessons: DETAILED_LESSONS[lc.id] || [
-      { id: `${lc.id}-intro`, title: 'Course Introduction', description: `Welcome to ${lc.title}`, type: 'video' as const, content: '' },
-    ],
-    viewsCount: lc.enrollmentCount,
-    totalDuration: lc.duration,
-    createdAt: lc.updatedAt,
-    category: lc.category,
-    difficulty: lc.difficulty,
-    enrollmentCount: lc.enrollmentCount,
-    reviewCount: lc.reviewCount,
-    isPopular: lc.isPopular,
-    isNew: lc.isNew,
-  }));
 }
 
 // Badge calculation
@@ -298,9 +232,7 @@ const getBadge = (points: number): string => {
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user: authUser, isLoggedIn } = useAuth();
 
-
-
-  const [userPoints, setUserPoints] = useState(35);
+  const [userPoints, setUserPoints] = useState(0);
 
   // Sync points from backend when authenticated user changes
   useEffect(() => {
@@ -312,27 +244,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [enrolledCourses, setEnrolledCourses] = useState<string[]>([]);
   const [completedCoursesState, setCompletedCoursesState] = useState<string[]>([]);
   const [userProgress, setUserProgress] = useState<CourseProgress[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([
-    {
-      id: '1',
-      courseId: '1',
-      userId: 'user2',
-      userName: 'Sarah Johnson',
-      rating: 5,
-      text: 'Excellent course! Very comprehensive and well-structured.',
-      date: '2026-01-15'
-    },
-    {
-      id: '2',
-      courseId: '1',
-      userId: 'user3',
-      userName: 'Mike Chen',
-      rating: 4,
-      text: 'Great content, learned a lot about React fundamentals.',
-      date: '2026-01-20'
-    }
-  ]);
-
+  const [reviews, setReviews] = useState<Review[]>([]);
 
   // Derive user from AuthContext
   const user: AppUser | null = authUser ? {
@@ -346,42 +258,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     completedCourses: completedCoursesState,
   } : null;
 
-  // Mock courses data — seeded from constants.ts with detailed lessons for select courses
-  const [courses, setCourses] = useState<Course[]>(buildInitialCourses);
+  // Courses � starts empty, populated from backend
+  const [courses, setCourses] = useState<Course[]>([]);
 
-  // Mock enrollments for reporting (other users)
-  const [allProgress, setAllProgress] = useState<CourseProgress[]>([
-    { courseId: '1', enrolledDate: '2026-01-15', startDate: '2026-01-16', userId: 'user2', userName: 'Sarah Johnson', lessonsProgress: [{ lessonId: 'l1', completed: true }, { lessonId: 'l2', completed: true }, { lessonId: 'l3', completed: false }] },
-    { courseId: '1', enrolledDate: '2026-01-18', startDate: '2026-01-20', completedDate: '2026-02-01', userId: 'user3', userName: 'Mike Chen', lessonsProgress: [{ lessonId: 'l1', completed: true }, { lessonId: 'l2', completed: true }, { lessonId: 'l3', completed: true }, { lessonId: 'l4', completed: true }] },
-    { courseId: '2', enrolledDate: '2026-01-20', userId: 'user4', userName: 'Emily Davis', lessonsProgress: [] },
-    { courseId: '1', enrolledDate: '2026-01-22', startDate: '2026-01-23', userId: 'user5', userName: 'Alex Rivera', lessonsProgress: [{ lessonId: 'l1', completed: true }] },
-    { courseId: '3', enrolledDate: '2026-01-25', startDate: '2026-01-25', userId: 'user2', userName: 'Sarah Johnson', lessonsProgress: [{ lessonId: 'l7', completed: false }] },
-    { courseId: '5', enrolledDate: '2026-01-28', startDate: '2026-01-29', completedDate: '2026-02-05', userId: 'user3', userName: 'Mike Chen', lessonsProgress: [{ lessonId: 'l9', completed: true }, { lessonId: 'l10', completed: true }, { lessonId: 'l11', completed: true }] },
-  ]);
-
-  // When an instructor/admin logs in, assign all mock courses to them
-  // so they appear in the profile stats and dashboard
-  useEffect(() => {
-    if (authUser && (authUser.role === 'instructor' || authUser.role === 'admin')) {
-      setCourses(prev => prev.map(c => {
-        // Only reassign mock instructor IDs (inst1, inst2), not user-created courses
-        if (c.instructorId === 'inst1' || c.instructorId === 'inst2') {
-          return { ...c, instructorId: authUser.id, instructorName: authUser.name };
-        }
-        return c;
-      }));
-    }
-  }, [authUser?.id, authUser?.role]);
-
-  // ── Fetch courses from backend when available ──────────────
+  //  Fetch courses from backend 
   useEffect(() => {
     const fetchFromBackend = async () => {
       const online = await isBackendAvailable();
-      if (!online) return; // keep mock data
+      if (!online) return;
       const res = await apiListCourses();
       if (res.success && res.data?.courses?.length) {
         const mapped: Course[] = res.data.courses.map(apiCourseToLocal);
-        // Merge: backend courses replace mock courses with same id, new ones get added
         setCourses(prev => {
           const backendIds = new Set(mapped.map(c => c.id));
           const remaining = prev.filter(c => !backendIds.has(c.id));
@@ -390,7 +277,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     };
     fetchFromBackend();
-  }, [authUser?.id]); // re-fetch when user changes
+  }, [authUser?.id]);
 
   const enrollInCourse = (courseId: string) => {
     if (!authUser) return;
@@ -405,7 +292,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         userName: authUser.name,
       }
     ]);
-    // Fire-and-forget backend call
     isBackendAvailable().then(ok => { if (ok) apiEnroll(courseId); });
   };
 
@@ -437,7 +323,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         );
       }
     });
-    // Fire-and-forget backend call
     isBackendAvailable().then(ok => { if (ok) apiCompleteLessonReq(courseId, lessonId); });
   };
 
@@ -452,7 +337,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const points = reward?.points || 0;
 
     setUserPoints(prev => prev + points);
-    // Fire-and-forget backend points award
     if (points > 0) {
       isBackendAvailable().then(ok => { if (ok) apiAwardPoints(points); });
     }
@@ -500,7 +384,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       date: new Date().toISOString().split('T')[0]
     };
     setReviews(prev => [...prev, newReview]);
-    // Fire-and-forget backend call
     isBackendAvailable().then(ok => { if (ok) apiAddReviewReq(courseId, rating, text); });
   };
 
@@ -525,7 +408,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       createdAt: new Date().toISOString().split('T')[0],
     };
     setCourses(prev => [...prev, newCourse]);
-    // Fire-and-forget — create in backend, update local id if returned
     isBackendAvailable().then(async (ok) => {
       if (!ok) return;
       const res = await apiCreateCourse({
@@ -546,7 +428,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const updateCourse = (courseId: string, updates: Partial<Course>) => {
     setCourses(prev => prev.map(c => c.id === courseId ? { ...c, ...updates } : c));
-    // Fire-and-forget backend call
     isBackendAvailable().then(ok => {
       if (ok) apiUpdateCourseReq(courseId, {
         title: updates.title,
@@ -567,14 +448,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const deleteCourse = (courseId: string) => {
     setCourses(prev => prev.filter(c => c.id !== courseId));
-    // Fire-and-forget backend call
     isBackendAvailable().then(ok => { if (ok) apiDeleteCourseReq(courseId); });
   };
 
-  // Reporting
+  // Reporting � uses real session data only (no mock data)
   const getReportData = () => {
-    const combined = [...allProgress, ...userProgress];
-    const rows: ReportRow[] = combined.map((p, i) => {
+    const rows: ReportRow[] = userProgress.map((p, i) => {
       const course = courses.find(c => c.id === p.courseId);
       const totalLessons = course?.lessons.length || 1;
       const completedLessons = p.lessonsProgress.filter(l => l.completed).length;

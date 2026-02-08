@@ -59,7 +59,7 @@ const Landing: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-nature-light font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-nature-light/60 font-sans overflow-x-hidden">
       
       <Hero 
         searchQuery={searchQuery}
@@ -96,7 +96,7 @@ const Landing: React.FC = () => {
                 <BookOpen size={32} />
               </div>
               <h2 className="mb-2 text-2xl font-bold text-brand-900">Unlock full access</h2>
-              <p className="mb-8 text-sm text-brand-500">Join 250k+ learners. Create a free account to track your progress and save courses.</p>
+              <p className="mb-8 text-sm text-brand-500">Create a free account to track your progress and save courses.</p>
               
               <div className="space-y-3">
                 <button 

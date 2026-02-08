@@ -45,12 +45,15 @@ export default function CoursesDashboard() {
     nav(`/course-form/${courseId}`);
   };
 
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
   const handleShareCourse = (courseId: string) => {
     const course = courses.find((c) => c.id === courseId);
     if (course) {
       const courseLink = `${window.location.origin}/#/course/${courseId}`;
       navigator.clipboard.writeText(courseLink);
-      alert(`Course link copied!`);
+      setCopiedId(courseId);
+      setTimeout(() => setCopiedId(null), 2000);
     }
   };
 
@@ -61,7 +64,7 @@ export default function CoursesDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-nature-light pt-24 transition-colors">
+    <div className="min-h-screen bg-nature-light/60 pt-24 transition-colors">
       {/* Header */}
       <header className="bg-white/60 backdrop-blur-md border-b border-brand-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -170,6 +173,13 @@ export default function CoursesDashboard() {
         onClose={() => setIsModalOpen(false)}
         onCreate={handleCreateCourse}
       />
+
+      {/* Copied toast */}
+      {copiedId && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-brand-700 text-white rounded-lg shadow-lg text-sm font-medium animate-fade-in">
+          Course link copied to clipboard!
+        </div>
+      )}
     </div>
   );
 }

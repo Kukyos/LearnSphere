@@ -30,7 +30,7 @@ const CoursesPage: React.FC = () => {
   }, [courses, searchQuery, selectedTag]);
 
   return (
-    <div className="min-h-screen pt-28 pb-12 px-4 sm:px-8 bg-nature-light">
+    <div className="min-h-screen pt-28 pb-12 px-4 sm:px-8 bg-nature-light/60">
       {/* Header */}
       <div className="max-w-6xl mx-auto mb-8">
         <h1 className="text-3xl font-bold mb-2 text-brand-900">Explore Courses</h1>

@@ -28,7 +28,7 @@ const Navbar: React.FC = () => {
   return (
     <>
       <div className="fixed top-6 left-0 right-0 z-[100] flex justify-center px-4 pointer-events-none">
-        <nav className="pointer-events-auto flex w-full max-w-2xl items-center justify-between rounded-full border border-brand-200 bg-white/80 p-1.5 pl-6 shadow-lg shadow-brand-900/8 backdrop-blur-xl transition-all duration-300">
+        <nav className="pointer-events-auto flex w-full max-w-3xl items-center justify-between rounded-full border border-brand-200 bg-white/80 p-1.5 pl-6 shadow-lg shadow-brand-900/8 backdrop-blur-xl transition-all duration-300">
           
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 mr-4">
@@ -39,7 +39,7 @@ const Navbar: React.FC = () => {
           </Link>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-1 whitespace-nowrap">
             {isLoggedIn ? (
               <>
                 <Link to="/explore" className={linkClass('/explore')}>

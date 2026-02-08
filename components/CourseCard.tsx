@@ -31,6 +31,10 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, onPreview, width = "w-[
       className={`relative ${width} flex-none h-[220px] transition-all duration-300`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      role="button"
+      aria-label={`Open course: ${course.title}`}
+      data-course-title={course.title}
+      tabIndex={0}
     >
       {/* Placeholder Base Card (Visible when not hovered/popped) */}
       <TiltCard tiltMaxX={8} tiltMaxY={8} scale={1.02} glareEnabled className={`h-full w-full overflow-hidden rounded-md bg-brand-100 transition-opacity duration-300 cursor-pointer ${isHovered ? 'opacity-0' : 'opacity-100'}`}>
@@ -98,9 +102,9 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, onPreview, width = "w-[
 
             {/* Metadata Line */}
             <div className="flex items-center gap-2 text-xs font-semibold text-brand-900 mb-2">
-                <span className="text-brand-500">98% Match</span>
                 <span className="border border-brand-200 px-1 rounded text-[10px] text-brand-600 uppercase">{course.difficulty}</span>
                 <span className="text-brand-500">{course.duration}</span>
+                {course.rating > 0 && <span className="text-brand-500">★ {course.rating}</span>}
             </div>
 
             {/* Tags */}

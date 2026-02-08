@@ -97,11 +97,15 @@ export default function CourseForm() {
     setTags(tags.filter(t => t !== tag));
   };
 
+  const [validationError, setValidationError] = useState<string | null>(null);
+
   const handleSave = () => {
     if (!title.trim()) {
-      alert('Please enter a course title');
+      setValidationError('Please enter a course title');
+      setTimeout(() => setValidationError(null), 3000);
       return;
     }
+    setValidationError(null);
     const courseData = {
       title,
       coverImage,
@@ -138,7 +142,7 @@ export default function CourseForm() {
   ];
 
   return (
-    <div className="min-h-screen bg-nature-light dark:bg-brand-950 pt-20">
+    <div className="min-h-screen bg-nature-light/60 dark:bg-brand-950/60 pt-20">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-white dark:bg-brand-900 border-b border-brand-200 dark:border-brand-700 shadow-sm" style={{ top: '0', paddingTop: '80px' }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-4">
@@ -178,6 +182,13 @@ export default function CourseForm() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-8 py-8">
+        {/* Validation error banner */}
+        {validationError && (
+          <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-medium">
+            {validationError}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
@@ -299,8 +310,8 @@ export default function CourseForm() {
       </div>
 
       {/* Modals */}
-      <AddAttendeeModal isOpen={showAddAttendee} onClose={() => setShowAddAttendee(false)} />
-      <ContactAttendeeModal isOpen={showContactAttendee} onClose={() => setShowContactAttendee(false)} />
+      <AddAttendeeModal isOpen={showAddAttendee} onClose={() => setShowAddAttendee(false)} courseId={courseId} />
+      <ContactAttendeeModal isOpen={showContactAttendee} onClose={() => setShowContactAttendee(false)} courseId={courseId} />
       <PreviewModal
         isOpen={showPreview}
         onClose={() => setShowPreview(false)}

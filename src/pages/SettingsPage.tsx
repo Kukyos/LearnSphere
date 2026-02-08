@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, User, Bell, Shield, Globe, Mail,
   Camera, Save, ChevronRight, ToggleLeft, ToggleRight,
-  BookOpen, Users, BarChart3, Key
+  BookOpen, Users, BarChart3, Key, CheckCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { isBackendAvailable, apiUpdateProfile } from '../../services/api';
 
 type SettingsTab = 'profile' | 'notifications' | 'privacy' | 'admin';
 
@@ -42,8 +43,20 @@ export default function SettingsPage() {
   const [registrationOpen, setRegistrationOpen] = useState(true);
   const [requireApproval, setRequireApproval] = useState(false);
 
-  const handleSave = () => {
-    alert('Settings saved! (Backend integration pending)');
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+
+  const handleSave = async () => {
+    setSaveStatus('saving');
+    try {
+      const online = await isBackendAvailable();
+      if (online) {
+        await apiUpdateProfile({ name, avatar: avatarUrl || undefined });
+      }
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 2000);
+    } catch {
+      setSaveStatus('idle');
+    }
   };
 
   const tabs = [
@@ -94,7 +107,7 @@ export default function SettingsPage() {
   );
 
   return (
-    <div className="min-h-screen pt-24 pb-16 px-4 sm:px-8 bg-nature-light">
+    <div className="min-h-screen pt-24 pb-16 px-4 sm:px-8 bg-nature-light/60">
       <div className="max-w-5xl mx-auto">
 
         {/* Header */}
@@ -221,8 +234,8 @@ export default function SettingsPage() {
                 )}
 
                 <div className="flex justify-end">
-                  <button onClick={handleSave} className="flex items-center gap-2 px-6 py-2.5 bg-brand-600 text-white rounded-lg font-bold hover:bg-brand-700 transition-colors">
-                    <Save size={16} /> Save Changes
+                  <button onClick={handleSave} disabled={saveStatus === 'saving'} className="flex items-center gap-2 px-6 py-2.5 bg-brand-600 text-white rounded-lg font-bold hover:bg-brand-700 transition-colors disabled:opacity-60">
+                    {saveStatus === 'saved' ? <><CheckCircle size={16} /> Saved</> : saveStatus === 'saving' ? <><Save size={16} className="animate-spin" /> Saving...</> : <><Save size={16} /> Save Changes</>}
                   </button>
                 </div>
               </>

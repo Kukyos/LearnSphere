@@ -35,4 +35,8 @@ router.delete('/:courseId/lessons/:lessonId', authenticateToken, authorizeRoles(
 // Quiz questions — instructor/admin only
 router.post('/:courseId/lessons/:lessonId/quiz', authenticateToken, authorizeRoles('instructor', 'admin'), courseController.setQuizQuestions);
 
+// Email — instructor/admin only
+router.post('/:courseId/invite', authenticateToken, authorizeRoles('instructor', 'admin'), courseController.inviteAttendees);
+router.post('/:courseId/contact', authenticateToken, authorizeRoles('instructor', 'admin'), courseController.contactAttendees);
+
 module.exports = router;

@@ -12,7 +12,7 @@ const MyCoursesPage: React.FC = () => {
 
   if (!isLoggedIn || !user) {
     return (
-      <div className="min-h-screen pt-28 flex items-center justify-center bg-nature-light">
+      <div className="min-h-screen pt-28 flex items-center justify-center bg-nature-light/60">
         <div className="text-center">
           <BookOpen className="mx-auto mb-4 text-brand-400" size={64} />
           <h2 className="text-2xl font-bold mb-2 text-brand-900">Sign in to view your courses</h2>
@@ -88,7 +88,7 @@ const MyCoursesPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen pt-28 pb-12 px-4 sm:px-8 bg-nature-light">
+    <div className="min-h-screen pt-28 pb-12 px-4 sm:px-8 bg-nature-light/60">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold mb-2 text-brand-900">My Courses</h1>
         <p className="mb-8 text-brand-500">Track your learning progress</p>

@@ -18,6 +18,8 @@ const LessonPlayerPage: React.FC = () => {
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizScore, setQuizScore] = useState(0);
   const [pointsEarned, setPointsEarned] = useState<number | null>(null);
+  const [quizStarted, setQuizStarted] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   const isLearner = authUser?.role === 'learner' || authUser?.role === 'guest';
 
@@ -37,6 +39,8 @@ const LessonPlayerPage: React.FC = () => {
     setQuizSubmitted(false);
     setQuizScore(0);
     setPointsEarned(null);
+    setQuizStarted(false);
+    setCurrentQuestionIndex(0);
   }, [lessonId]);
 
   useEffect(() => {
@@ -185,50 +189,133 @@ const LessonPlayerPage: React.FC = () => {
                 </div>
 
                 <button
-                  onClick={() => { setQuizAnswers({}); setQuizSubmitted(false); setQuizScore(0); }}
+                  onClick={() => { setQuizAnswers({}); setQuizSubmitted(false); setQuizScore(0); setQuizStarted(false); setCurrentQuestionIndex(0); }}
                   className="mt-6 px-6 py-3 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition-colors"
                 >
                   Retake Quiz
                 </button>
               </div>
+            ) : !quizStarted ? (
+              /* ── Start Quiz Screen ── */
+              <div className="text-center py-12">
+                <div className="w-24 h-24 rounded-full bg-brand-50 mx-auto mb-6 flex items-center justify-center">
+                  <HelpCircle size={48} className="text-brand-500" />
+                </div>
+                <h3 className="text-xl font-bold mb-2 text-brand-900">Ready to test your knowledge?</h3>
+                <p className="text-brand-500 mb-2">{lesson.quiz.questions.length} question{lesson.quiz.questions.length > 1 ? 's' : ''}</p>
+                <p className="text-sm text-brand-400 mb-8">You need 60% or higher to pass.</p>
+                <button
+                  onClick={() => setQuizStarted(true)}
+                  className="px-8 py-4 bg-brand-600 text-white rounded-xl text-lg font-bold hover:bg-brand-700 transition-all active:scale-95"
+                >
+                  Start Quiz
+                </button>
+              </div>
             ) : (
-              <div className="space-y-6">
-                {lesson.quiz.questions.map((q, qi) => (
-                  <div key={q.id} className="p-5 rounded-xl bg-brand-50 border border-brand-200">
-                    <p className="font-semibold mb-3 text-brand-900">
-                      {qi + 1}. {q.question}
-                    </p>
-                    <div className="space-y-2">
-                      {q.options.map((option, oi) => (
+              /* ── One Question Per Page ── */
+              <div>
+                {(() => {
+                  const q = lesson.quiz.questions[currentQuestionIndex];
+                  const totalQ = lesson.quiz.questions.length;
+                  const allAnswered = Object.keys(quizAnswers).length >= totalQ;
+                  const isLast = currentQuestionIndex === totalQ - 1;
+                  return (
+                    <>
+                      {/* Progress bar */}
+                      <div className="mb-6">
+                        <div className="flex justify-between text-sm mb-2 text-brand-500">
+                          <span>Question {currentQuestionIndex + 1} of {totalQ}</span>
+                          <span>{Object.keys(quizAnswers).length}/{totalQ} answered</span>
+                        </div>
+                        <div className="w-full h-2 rounded-full bg-brand-100">
+                          <div
+                            className="h-2 rounded-full bg-brand-600 transition-all"
+                            style={{ width: `${((currentQuestionIndex + 1) / totalQ) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Question */}
+                      <div className="p-6 rounded-xl bg-brand-50 border border-brand-200">
+                        <p className="font-semibold mb-4 text-lg text-brand-900">
+                          {currentQuestionIndex + 1}. {q.question}
+                        </p>
+                        <div className="space-y-3">
+                          {q.options.map((option, oi) => (
+                            <button
+                              key={oi}
+                              onClick={() => setQuizAnswers(prev => ({ ...prev, [q.id]: oi }))}
+                              className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+                                quizAnswers[q.id] === oi
+                                  ? 'border-brand-500 bg-brand-700'
+                                  : 'border-brand-200 hover:border-brand-400 bg-white'
+                              }`}
+                            >
+                              <span className={`text-sm ${
+                                quizAnswers[q.id] === oi
+                                  ? 'font-semibold text-white'
+                                  : 'text-brand-700'
+                              }`}>
+                                {String.fromCharCode(65 + oi)}. {option}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Navigation */}
+                      <div className="flex justify-between items-center mt-6">
                         <button
-                          key={oi}
-                          onClick={() => setQuizAnswers(prev => ({ ...prev, [q.id]: oi }))}
-                          className={`w-full text-left p-3 rounded-lg border transition-all ${
-                            quizAnswers[q.id] === oi
-                              ? 'border-brand-400 bg-brand-700'
-                              : 'border-brand-700 hover:border-brand-500'
+                          onClick={() => setCurrentQuestionIndex(i => i - 1)}
+                          disabled={currentQuestionIndex === 0}
+                          className={`flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all ${
+                            currentQuestionIndex > 0
+                              ? 'bg-brand-100 text-brand-700 hover:bg-brand-200'
+                              : 'bg-brand-50 text-brand-300 cursor-not-allowed'
                           }`}
                         >
-                          <span className={`text-sm ${
-                            quizAnswers[q.id] === oi
-                              ? 'font-semibold text-white'
-                              : 'text-brand-200'
-                          }`}>
-                            {String.fromCharCode(65 + oi)}. {option}
-                          </span>
+                          <ChevronLeft size={18} /> Previous
                         </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
 
-                <button
-                  onClick={handleQuizSubmit}
-                  disabled={Object.keys(quizAnswers).length < lesson.quiz.questions.length}
-                  className="w-full py-4 bg-brand-600 text-white rounded-xl text-lg font-bold hover:bg-brand-700 disabled:opacity-50 transition-all active:scale-95"
-                >
-                  Submit Quiz ({Object.keys(quizAnswers).length}/{lesson.quiz.questions.length} answered)
-                </button>
+                        {isLast ? (
+                          <button
+                            onClick={handleQuizSubmit}
+                            disabled={!allAnswered}
+                            className="px-8 py-3 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 disabled:opacity-50 transition-all active:scale-95"
+                          >
+                            Submit Quiz
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => setCurrentQuestionIndex(i => i + 1)}
+                            className="flex items-center gap-2 px-5 py-3 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition-all active:scale-95"
+                          >
+                            Next <ChevronRight size={18} />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Question dots */}
+                      <div className="flex justify-center gap-2 mt-6">
+                        {lesson.quiz.questions.map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setCurrentQuestionIndex(i)}
+                            className={`w-8 h-8 rounded-full text-xs font-bold transition-all ${
+                              i === currentQuestionIndex
+                                ? 'bg-brand-600 text-white scale-110'
+                                : quizAnswers[lesson.quiz!.questions[i].id] !== undefined
+                                  ? 'bg-green-500 text-white'
+                                  : 'bg-brand-100 text-brand-500 hover:bg-brand-200'
+                            }`}
+                          >
+                            {i + 1}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             )}
           </div>

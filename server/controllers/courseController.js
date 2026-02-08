@@ -1,4 +1,5 @@
 const db = require('../db');
+const { sendCourseInvitationEmail, sendContactEmail } = require('../services/emailService');
 
 /**
  * GET /courses
@@ -364,6 +365,94 @@ const setQuizQuestions = async (req, res) => {
   }
 };
 
+/**
+ * POST /courses/:courseId/invite
+ * Send invitation emails for a course
+ */
+const inviteAttendees = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { emails } = req.body;
+
+    if (!emails || !Array.isArray(emails) || emails.length === 0) {
+      return res.status(400).json({ success: false, message: 'emails array is required' });
+    }
+
+    const course = await db.query('SELECT title, instructor_id FROM courses WHERE id = $1', [courseId]);
+    if (course.rows.length === 0) return res.status(404).json({ success: false, message: 'Course not found' });
+    if (req.user.role !== 'admin' && course.rows[0].instructor_id !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Not authorized' });
+    }
+
+    const results = { sent: [], failed: [] };
+    for (const email of emails) {
+      try {
+        await sendCourseInvitationEmail(email.trim(), course.rows[0].title, req.user.name || 'An instructor');
+        results.sent.push(email.trim());
+      } catch (err) {
+        console.error(`Failed to send invite to ${email}:`, err.message);
+        results.failed.push(email.trim());
+      }
+    }
+
+    return res.json({
+      success: true,
+      message: `Sent ${results.sent.length} invitation(s)`,
+      data: results,
+    });
+  } catch (error) {
+    console.error('Invite attendees error:', error.message);
+    return res.status(500).json({ success: false, message: 'Failed to send invitations' });
+  }
+};
+
+/**
+ * POST /courses/:courseId/contact
+ * Send a message to all enrolled attendees
+ */
+const contactAttendees = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { subject, message } = req.body;
+
+    if (!subject || !message) {
+      return res.status(400).json({ success: false, message: 'Subject and message are required' });
+    }
+
+    const course = await db.query('SELECT title, instructor_id FROM courses WHERE id = $1', [courseId]);
+    if (course.rows.length === 0) return res.status(404).json({ success: false, message: 'Course not found' });
+    if (req.user.role !== 'admin' && course.rows[0].instructor_id !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Not authorized' });
+    }
+
+    // Get all enrolled users' emails
+    const enrollments = await db.query(
+      `SELECT u.email FROM enrollments e JOIN users u ON e.user_id = u.id WHERE e.course_id = $1`,
+      [courseId]
+    );
+
+    const results = { sent: [], failed: [] };
+    for (const row of enrollments.rows) {
+      try {
+        await sendContactEmail(row.email, subject, message, req.user.name || 'Instructor');
+        results.sent.push(row.email);
+      } catch (err) {
+        console.error(`Failed to send contact email to ${row.email}:`, err.message);
+        results.failed.push(row.email);
+      }
+    }
+
+    return res.json({
+      success: true,
+      message: `Sent ${results.sent.length} email(s)`,
+      data: results,
+    });
+  } catch (error) {
+    console.error('Contact attendees error:', error.message);
+    return res.status(500).json({ success: false, message: 'Failed to send messages' });
+  }
+};
+
 module.exports = {
   listCourses,
   getCourse,
@@ -374,4 +463,6 @@ module.exports = {
   updateLesson,
   deleteLesson,
   setQuizQuestions,
+  inviteAttendees,
+  contactAttendees,
 };

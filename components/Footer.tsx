@@ -1,5 +1,6 @@
 import React from 'react';
-import { BookOpen, Twitter, Linkedin, Facebook, Github } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { BookOpen } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -14,45 +15,36 @@ const Footer: React.FC = () => {
             <p className="mb-6 text-sm leading-relaxed text-brand-400">
               Empowering the next generation of creators and leaders through accessible, high-quality education.
             </p>
-            <div className="flex gap-4">
-              <a href="#" className="text-brand-400 hover:text-white transition-colors"><Twitter size={20} /></a>
-              <a href="#" className="text-brand-400 hover:text-white transition-colors"><Linkedin size={20} /></a>
-              <a href="#" className="text-brand-400 hover:text-white transition-colors"><Github size={20} /></a>
-            </div>
           </div>
           
           <div>
             <h4 className="mb-6 font-bold text-white">Platform</h4>
             <ul className="space-y-4 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">Browse Courses</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Mentorship</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">For Business</a></li>
+              <li><Link to="/explore" className="hover:text-white transition-colors">Browse Courses</Link></li>
+              <li><Link to="/login" className="hover:text-white transition-colors">Sign In</Link></li>
+              <li><Link to="/settings" className="hover:text-white transition-colors">Settings</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="mb-6 font-bold text-white">Company</h4>
+            <h4 className="mb-6 font-bold text-white">Resources</h4>
             <ul className="space-y-4 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+              <li><Link to="/explore" className="hover:text-white transition-colors">Course Catalog</Link></li>
+              <li><Link to="/my-courses" className="hover:text-white transition-colors">My Courses</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="mb-6 font-bold text-white">Legal</h4>
             <ul className="space-y-4 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">Terms of Use</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Cookie Policy</a></li>
+              <li><span className="text-brand-500 cursor-default">Terms of Use</span></li>
+              <li><span className="text-brand-500 cursor-default">Privacy Policy</span></li>
             </ul>
           </div>
         </div>
         
         <div className="border-t border-brand-800 pt-8 text-center text-xs text-brand-500">
-          © {new Date().getFullYear()} LearnSphere Inc. All rights reserved.
+          &copy; {new Date().getFullYear()} LearnSphere. All rights reserved.
         </div>
       </div>
     </footer>

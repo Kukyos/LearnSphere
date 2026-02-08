@@ -38,10 +38,10 @@ const Login: React.FC = () => {
         return;
       }
       await apiForgotPassword(forgotEmail);
-      setMessage({ type: 'success', text: 'If that email exists, a reset link has been sent. Check your inbox.' });
+      setMessage({ type: 'success', text: 'If that email exists, a temporary password has been sent. Check your inbox.' });
       setTimeout(() => { setForgotMode(false); setMessage(null); }, 4000);
     } catch {
-      setMessage({ type: 'success', text: 'If that email exists, a reset link has been sent.' });
+      setMessage({ type: 'success', text: 'If that email exists, a temporary password has been sent.' });
       setTimeout(() => { setForgotMode(false); setMessage(null); }, 4000);
     } finally {
       setForgotLoading(false);
@@ -396,7 +396,7 @@ const Login: React.FC = () => {
             </div>
             
             <div className="mt-8 text-center lg:text-left text-xs text-brand-500 font-medium">
-              &copy; 2026 LearnSphere Inc. &bull; <a href="#" className="hover:text-brand-700 transition-colors">Privacy</a> &bull; <a href="#" className="hover:text-brand-700 transition-colors">Terms</a>
+              &copy; 2026 LearnSphere Inc. &bull; <span className="cursor-default">Privacy</span> &bull; <span className="cursor-default">Terms</span>
             </div>
           </motion.div>
         </div>

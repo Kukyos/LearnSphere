@@ -106,7 +106,7 @@ export default function QuizBuilder() {
   }
 
   return (
-    <div className="min-h-screen bg-nature-light dark:bg-brand-950 pt-20">
+    <div className="min-h-screen bg-nature-light/60 dark:bg-brand-950/60 pt-20">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-white dark:bg-brand-900 border-b border-brand-200 dark:border-brand-700 shadow-sm" style={{ paddingTop: '80px' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4">

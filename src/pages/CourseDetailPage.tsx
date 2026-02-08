@@ -18,11 +18,11 @@ const CourseDetailPage: React.FC = () => {
 
   if (!course) {
     return (
-      <div className="min-h-screen pt-28 flex items-center justify-center bg-nature-light">
+      <div className="min-h-screen pt-28 flex items-center justify-center bg-nature-light/60">
         <div className="text-center">
           <BookOpen className="mx-auto mb-4 text-brand-400" size={64} />
           <h2 className="text-2xl font-bold mb-2 text-brand-900">Course Not Found</h2>
-          <p className="mb-4 text-brand-500">This course is coming soon!</p>
+          <p className="mb-4 text-brand-500">The course you're looking for doesn't exist or may have been removed.</p>
           <button onClick={() => navigate('/explore')} className="px-6 py-3 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition-colors">
             Browse Courses
           </button>
@@ -67,7 +67,7 @@ const CourseDetailPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-nature-light">
+    <div className="min-h-screen bg-nature-light/60">
       {/* Hero Banner */}
       <div className="relative h-72 sm:h-96 overflow-hidden">
         <img src={course.coverImage} alt={course.title} className="w-full h-full object-cover" />

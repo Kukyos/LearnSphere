@@ -410,6 +410,29 @@ export async function apiDeleteUser(
   return request(`/auth/users/${userId}`, { method: 'DELETE' });
 }
 
+// ── Email / Invitations ──────────────────────────────────────
+
+export async function apiInviteToCourse(
+  courseId: string | number,
+  emails: string[],
+): Promise<ApiResponse<{ sent: string[]; failed: string[] }>> {
+  return request(`/courses/${courseId}/invite`, {
+    method: 'POST',
+    body: JSON.stringify({ emails }),
+  });
+}
+
+export async function apiContactAttendees(
+  courseId: string | number,
+  subject: string,
+  message: string,
+): Promise<ApiResponse<{ sent: string[]; failed: string[] }>> {
+  return request(`/courses/${courseId}/contact`, {
+    method: 'POST',
+    body: JSON.stringify({ subject, message }),
+  });
+}
+
 // ── Quiz questions ───────────────────────────────────────────
 
 export async function apiSetQuizQuestions(
