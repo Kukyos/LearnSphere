@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
-import { X, Award, TrendingUp, CheckCircle, Clock, LogOut, BookOpen, Users, Shield, Settings, BarChart3 } from 'lucide-react';
+import { X, Award, TrendingUp, CheckCircle, Clock, LogOut, BookOpen, Users, Shield, Settings, BarChart3, GraduationCap, Pencil, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const ProfileDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -59,11 +59,18 @@ const ProfileDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     return p?.completedDate ? new Date(p.completedDate).toLocaleDateString() : '';
   };
 
+  const getRoleIcon = () => {
+    switch (role) {
+      case 'admin': return <Shield size={14} className="inline -mt-0.5" />;
+      case 'instructor': return <GraduationCap size={14} className="inline -mt-0.5" />;
+      default: return <GraduationCap size={14} className="inline -mt-0.5" />;
+    }
+  };
   const getRoleLabel = () => {
     switch (role) {
-      case 'admin': return '🛡️ Administrator';
-      case 'instructor': return '👨‍🏫 Instructor';
-      default: return '👨‍🎓 Learner';
+      case 'admin': return 'Administrator';
+      case 'instructor': return 'Instructor';
+      default: return 'Learner';
     }
   };
 
@@ -96,8 +103,8 @@ const ProfileDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <img src={user.avatar} alt={user.name} className="w-24 h-24 rounded-full mx-auto border-4 border-brand-500 mb-4" />
             <h3 className="text-xl font-bold text-brand-900">{user.name}</h3>
             <p className="text-sm text-brand-500">{user.email}</p>
-            <p className="text-xs mt-1 text-brand-500">
-              {getRoleLabel()}
+            <p className="text-xs mt-1 text-brand-500 flex items-center justify-center gap-1">
+              {getRoleIcon()} {getRoleLabel()}
             </p>
           </div>
 
@@ -289,7 +296,7 @@ const ProfileDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold truncate text-brand-900">{course.title}</p>
                         <p className="text-xs text-brand-500">
-                          {course.published ? '✓ Published' : '✎ Draft'} • {enrollments} enrollments
+                          {course.published ? <><Check size={12} className="inline -mt-0.5" /> Published</> : <><Pencil size={12} className="inline -mt-0.5" /> Draft</>} • {enrollments} enrollments
                         </p>
                       </div>
                     </div>

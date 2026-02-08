@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Save, Eye, Image, Tag, ToggleLeft, ToggleRight,
-  BookOpen, FileText, Settings, HelpCircle, Users, Mail, X
+  BookOpen, FileText, Settings, HelpCircle, Users, Mail, X, Circle
 } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import ContentTab from '../../components/course-form/tabs/ContentTab';
@@ -159,7 +159,7 @@ export default function CourseForm() {
                   {isEditing ? 'Edit Course' : 'Create Course'}
                 </h1>
                 <p className="text-xs text-brand-500 dark:text-brand-400">
-                  {published ? '🟢 Published' : '🔴 Draft'}
+                  <span className="flex items-center gap-1">{published ? <><Circle size={10} fill="#22c55e" className="text-green-500" /> Published</> : <><Circle size={10} fill="#ef4444" className="text-red-500" /> Draft</>}</span>
                 </p>
               </div>
             </div>

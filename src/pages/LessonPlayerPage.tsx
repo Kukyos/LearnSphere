@@ -4,7 +4,7 @@ import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import {
   ArrowLeft, ChevronLeft, ChevronRight, CheckCircle, Play, FileText,
-  HelpCircle, BookOpen, Download, Award, X
+  HelpCircle, BookOpen, Download, Award, X, Trophy, ThumbsDown, Check
 } from 'lucide-react';
 
 const LessonPlayerPage: React.FC = () => {
@@ -146,7 +146,7 @@ const LessonPlayerPage: React.FC = () => {
         if (!lesson.quiz) return <p>No quiz data available</p>;
         return (
           <div className="rounded-xl p-8 bg-white shadow-lg border border-brand-100">
-            <h2 className="text-2xl font-bold mb-6 text-brand-900">📝 {lesson.title}</h2>
+            <h2 className="text-2xl font-bold mb-6 text-brand-900 flex items-center gap-2"><FileText size={24} className="text-brand-600" /> {lesson.title}</h2>
 
             {quizSubmitted ? (
               <div className="text-center py-8">
@@ -157,8 +157,8 @@ const LessonPlayerPage: React.FC = () => {
                     {quizScore}%
                   </span>
                 </div>
-                <h3 className="text-xl font-bold mb-2 text-brand-900">
-                  {quizScore >= 60 ? '🎉 Great job!' : '😔 Keep trying!'}
+                <h3 className="text-xl font-bold mb-2 text-brand-900 flex items-center justify-center gap-2">
+                  {quizScore >= 60 ? <><Trophy size={22} className="text-yellow-500" /> Great job!</> : <><ThumbsDown size={22} className="text-red-400" /> Keep trying!</>}
                 </h3>
                 <p className="mb-6 text-brand-500">
                   You scored {quizScore}% ({Math.round(quizScore * lesson.quiz.questions.length / 100)}/{lesson.quiz.questions.length} correct)
@@ -178,7 +178,7 @@ const LessonPlayerPage: React.FC = () => {
                           {qi + 1}. {q.question}
                         </p>
                         <p className={`text-sm ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
-                          Your answer: {q.options[userAnswer]} {isCorrect ? '✓' : '✗'}
+                          Your answer: {q.options[userAnswer]} {isCorrect ? <Check size={14} className="inline text-green-600" /> : <X size={14} className="inline text-red-500" />}
                         </p>
                         {!isCorrect && (
                           <p className="text-sm text-green-600 mt-1">Correct: {q.options[q.correctAnswer]}</p>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit3, Trash2, HelpCircle } from 'lucide-react';
+import { Plus, Edit3, Trash2, HelpCircle, Check } from 'lucide-react';
 
 interface QuizQuestion {
   id: string;
@@ -93,7 +93,7 @@ export default function QuizTab({ questions, onChange }: QuizTabProps) {
                             : 'border-gray-300 dark:border-gray-600 hover:border-green-400'
                         }`}
                       >
-                        {editCorrect === oi && '✓'}
+                        {editCorrect === oi && <Check size={14} />}
                       </button>
                       <input
                         value={opt}

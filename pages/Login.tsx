@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, GraduationCap, Sparkles, CheckCircle, AlertCircle } from 'lucide-react';
+import { Mail, GraduationCap, Sparkles, CheckCircle, AlertCircle, Check, Circle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
@@ -273,7 +273,7 @@ const Login: React.FC = () => {
                         { test: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password), label: 'special' },
                       ].map(r => (
                         <span key={r.label} className={`text-[11px] font-medium transition-colors duration-200 ${r.test ? 'text-green-600' : 'text-brand-400'}`}>
-                          {r.test ? '✓' : '○'} {r.label}
+                          {r.test ? <Check size={12} className="inline -mt-0.5" /> : <Circle size={10} className="inline -mt-0.5" />} {r.label}
                         </span>
                       ))}
                     </div>

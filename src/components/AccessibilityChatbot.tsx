@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { MessageCircle, X, Send, Mic, MicOff, Volume2, VolumeX, ChevronDown, Sparkles, HelpCircle, MousePointerClick, Zap, Key } from 'lucide-react';
+import { MessageCircle, X, Send, Mic, MicOff, Volume2, VolumeX, ChevronDown, Sparkles, HelpCircle, MousePointerClick, Zap, Key, Compass, BookOpen, ArrowDown, Undo2, Moon } from 'lucide-react';
 import {
   executeCommand,
   getAvailableActions,
@@ -25,13 +25,13 @@ const WELCOME_MESSAGE: ChatMessage = {
   timestamp: new Date(),
 };
 
-const QUICK_COMMANDS = [
-  { label: 'Help', command: 'help', icon: '❓' },
-  { label: 'Explore', command: 'go to explore', icon: '🧭' },
-  { label: 'My Courses', command: 'go to my courses', icon: '📚' },
-  { label: 'Scroll Down', command: 'scroll down', icon: '⬇️' },
-  { label: 'Go Back', command: 'go back', icon: '↩️' },
-  { label: 'Dark Mode', command: 'toggle theme', icon: '🌙' },
+const QUICK_COMMANDS: { label: string; command: string; icon: React.ReactNode }[] = [
+  { label: 'Help', command: 'help', icon: <HelpCircle size={14} /> },
+  { label: 'Explore', command: 'go to explore', icon: <Compass size={14} /> },
+  { label: 'My Courses', command: 'go to my courses', icon: <BookOpen size={14} /> },
+  { label: 'Scroll Down', command: 'scroll down', icon: <ArrowDown size={14} /> },
+  { label: 'Go Back', command: 'go back', icon: <Undo2 size={14} /> },
+  { label: 'Dark Mode', command: 'toggle theme', icon: <Moon size={14} /> },
 ];
 
 const AccessibilityChatbot: React.FC = () => {

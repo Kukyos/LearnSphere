@@ -104,7 +104,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, onPreview, width = "w-[
             <div className="flex items-center gap-2 text-xs font-semibold text-brand-900 mb-2">
                 <span className="border border-brand-200 px-1 rounded text-[10px] text-brand-600 uppercase">{course.difficulty}</span>
                 <span className="text-brand-500">{course.duration}</span>
-                {course.rating > 0 && <span className="text-brand-500">★ {course.rating}</span>}
+                {course.rating > 0 && <span className="text-brand-500 flex items-center gap-0.5"><Star size={12} fill="currentColor" /> {course.rating}</span>}
             </div>
 
             {/* Tags */}

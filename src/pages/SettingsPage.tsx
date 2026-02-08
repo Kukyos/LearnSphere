@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, User, Bell, Shield, Globe, Mail,
   Camera, Save, ChevronRight, ToggleLeft, ToggleRight,
-  BookOpen, Users, BarChart3, Key, CheckCircle
+  BookOpen, Users, BarChart3, Key, CheckCircle, GraduationCap
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { isBackendAvailable, apiUpdateProfile } from '../../services/api';
@@ -166,8 +166,8 @@ export default function SettingsPage() {
                     </div>
                     <div>
                       <p className="font-semibold text-brand-900">{name || 'Your Name'}</p>
-                      <p className="text-sm text-brand-500">
-                        {authUser?.role === 'admin' ? '🛡️ Administrator' : authUser?.role === 'instructor' ? '👨‍🏫 Instructor' : '👨‍🎓 Learner'}
+                      <p className="text-sm text-brand-500 flex items-center gap-1.5">
+                        {authUser?.role === 'admin' ? <><Shield size={14} /> Administrator</> : authUser?.role === 'instructor' ? <><GraduationCap size={14} /> Instructor</> : <><GraduationCap size={14} /> Learner</>}
                       </p>
                     </div>
                   </div>
@@ -215,8 +215,8 @@ export default function SettingsPage() {
                           <p className="text-sm font-semibold text-brand-900">Course Creation</p>
                           <p className="text-xs text-brand-500">Manage your course creation preferences</p>
                         </div>
-                        <button onClick={() => navigate('/courses')} className="text-sm font-semibold text-brand-600 hover:text-brand-500">
-                          Go to Dashboard →
+                        <button onClick={() => navigate('/courses')} className="text-sm font-semibold text-brand-600 hover:text-brand-500 flex items-center gap-1">
+                          Go to Dashboard <ChevronRight size={14} />
                         </button>
                       </div>
                       <div className="flex items-center gap-4 p-4 rounded-lg bg-brand-50">
@@ -225,8 +225,8 @@ export default function SettingsPage() {
                           <p className="text-sm font-semibold text-brand-900">Analytics</p>
                           <p className="text-xs text-brand-500">View your teaching analytics and reporting</p>
                         </div>
-                        <button onClick={() => navigate('/reporting')} className="text-sm font-semibold text-brand-600 hover:text-brand-500">
-                          View Reports →
+                        <button onClick={() => navigate('/reporting')} className="text-sm font-semibold text-brand-600 hover:text-brand-500 flex items-center gap-1">
+                          View Reports <ChevronRight size={14} />
                         </button>
                       </div>
                     </div>
@@ -313,8 +313,8 @@ export default function SettingsPage() {
                         <p className="text-sm font-semibold text-brand-900">Manage Users</p>
                         <p className="text-xs text-brand-500">View, edit, or remove user accounts</p>
                       </div>
-                      <button className="text-sm font-semibold text-brand-600 hover:text-brand-500">
-                        Manage →
+                      <button className="text-sm font-semibold text-brand-600 hover:text-brand-500 flex items-center gap-1">
+                        Manage <ChevronRight size={14} />
                       </button>
                     </div>
                     <div className="flex items-center gap-4 p-4 rounded-lg bg-brand-50">
@@ -323,8 +323,8 @@ export default function SettingsPage() {
                         <p className="text-sm font-semibold text-brand-900">Bulk Email</p>
                         <p className="text-xs text-brand-500">Send emails to all users or specific groups</p>
                       </div>
-                      <button className="text-sm font-semibold text-brand-600 hover:text-brand-500">
-                        Send →
+                      <button className="text-sm font-semibold text-brand-600 hover:text-brand-500 flex items-center gap-1">
+                        Send <ChevronRight size={14} />
                       </button>
                     </div>
                     <div className="flex items-center gap-4 p-4 rounded-lg bg-brand-50">
@@ -333,8 +333,8 @@ export default function SettingsPage() {
                         <p className="text-sm font-semibold text-brand-900">Site Content</p>
                         <p className="text-xs text-brand-500">Manage landing page content and categories</p>
                       </div>
-                      <button className="text-sm font-semibold text-brand-600 hover:text-brand-500">
-                        Edit →
+                      <button className="text-sm font-semibold text-brand-600 hover:text-brand-500 flex items-center gap-1">
+                        Edit <ChevronRight size={14} />
                       </button>
                     </div>
                   </div>

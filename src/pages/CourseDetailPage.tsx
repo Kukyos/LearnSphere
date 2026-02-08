@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { apiGetReviews } from '../../services/api';
-import { Star, BookOpen, Clock, Users, ChevronRight, CheckCircle, Lock, Play, FileText, HelpCircle, ArrowLeft } from 'lucide-react';
+import { Star, BookOpen, Clock, Users, ChevronRight, CheckCircle, Lock, Play, FileText, HelpCircle, ArrowLeft, Trophy } from 'lucide-react';
 
 const CourseDetailPage: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
@@ -122,8 +122,8 @@ const CourseDetailPage: React.FC = () => {
         {isEnrolled && (
           <div className="rounded-2xl p-6 mb-8 bg-white shadow-lg border border-brand-200">
             <div className="flex items-center justify-between mb-3">
-              <span className="font-bold text-brand-900">
-                {isCompleted ? '🎉 Course Completed!' : 'Your Progress'}
+              <span className="font-bold text-brand-900 flex items-center gap-2">
+                {isCompleted ? <><Trophy size={18} className="text-yellow-500" /> Course Completed!</> : 'Your Progress'}
               </span>
               <span className="text-sm font-semibold text-brand-600">
                 {completedLessons}/{course.lessons.length} lessons • {progressPct}%

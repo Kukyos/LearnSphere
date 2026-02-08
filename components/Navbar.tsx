@@ -28,10 +28,10 @@ const Navbar: React.FC = () => {
   return (
     <>
       <div className="fixed top-6 left-0 right-0 z-[100] flex justify-center px-4 pointer-events-none">
-        <nav className="pointer-events-auto flex w-full max-w-3xl items-center justify-between rounded-full border border-brand-200 bg-white/80 p-1.5 pl-6 shadow-lg shadow-brand-900/8 backdrop-blur-xl transition-all duration-300">
+        <nav className="pointer-events-auto inline-flex items-center gap-1 rounded-full border border-brand-200 bg-white/80 p-1.5 pl-5 shadow-lg shadow-brand-900/8 backdrop-blur-xl transition-all duration-300">
           
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 mr-4">
+          <Link to="/" className="flex items-center gap-2 mr-2 flex-none">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 text-white shadow-md">
               <BookOpen size={16} strokeWidth={3} />
             </div>
@@ -70,7 +70,7 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-1 ml-auto">
+          <div className="flex items-center gap-1">
             {isLoggedIn ? (
               <div className="flex items-center gap-2 ml-1">
                 <button 

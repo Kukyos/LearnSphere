@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MoreVertical, Eye, BookOpen, Clock, Share2, Edit } from 'lucide-react';
+import { MoreVertical, Eye, BookOpen, Clock, Share2, Edit, Lock, Check, AlertTriangle } from 'lucide-react';
 import TiltCard from '../../../components/TiltCard';
 
 interface Course {
@@ -57,7 +57,7 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}
               >
-                🔒 Draft
+                <Lock size={14} className="inline -mt-0.5" /> Draft
               </span>
               
               {showTooltip && (
@@ -79,7 +79,7 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
                 : 'bg-yellow-50 text-yellow-600'
             }`}
           >
-            {course.isPublished ? '✓ Published' : 'Draft'}
+            {course.isPublished ? <><Check size={12} className="inline -mt-0.5" /> Published</> : 'Draft'}
           </span>
         </div>
 
@@ -168,7 +168,7 @@ export default function CourseCard({ course, onEdit, onShare }: CourseCardProps)
         {!course.isPublished && (
           <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
             <p className="text-xs text-yellow-700 font-medium">
-              ⚠️ This course is not visible to learners. Publish to make it live.
+              <AlertTriangle size={14} className="inline -mt-0.5" /> This course is not visible to learners. Publish to make it live.
             </p>
           </div>
         )}
